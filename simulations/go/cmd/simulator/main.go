@@ -34,7 +34,7 @@ func main() {
 	fmt.Println("======================================================================")
 	fmt.Println("   VOLUMETRIC OPTICAL PROCESSOR SIMULATION - SILICA CORE (GOLANG)    ")
 	fmt.Println("   Substrate: Fused Silica (SiO2) | Detection: SPAD + TDC            ")
-	fmt.Println("   Conceptual Inspiration: Noritsu CW Laser Scanning Principles     ")
+	fmt.Println("   Conceptual Inspiration: Noritsu CW Laser Scanning Principles      ")
 	fmt.Println("   Special Acknowledgment: Ricardo Oliveira & Valmor Moreira (Grafis)")
 	fmt.Printf("   Parallel Execution on %d CPU Cores (Goroutines)\n", runtime.NumCPU())
 	fmt.Println("======================================================================")
@@ -58,7 +58,6 @@ func main() {
 	fmt.Printf("Electro-Optic Phase Noise (sigma):         %.3f rad\n", sim.Params.PhaseNoiseSigmaRad)
 	fmt.Printf("Fused Silica Waveguide Attenuation:        %.2f dB/cm\n", sim.Params.GlassLossDbPerCm)
 
-	// Automatic startup calibration of Time-Gating Window over reference pulses
 	calibratedWindow := sim.CalibrateOptimalWindow(CalibrationPulseCount)
 	fmt.Printf("Auto-Calibrated Time Window (%d pulses): %.2f ps (Half-Window: +/-%.2f ps)\n", CalibrationPulseCount, calibratedWindow, calibratedWindow/2.0)
 
@@ -111,26 +110,34 @@ func main() {
 	fmt.Printf("Go Concurrent Execution Duration:          %s\n", res.ExecutionTime)
 
 	fmt.Printf("\n--- 7. CALIBRATED ToF NOT LOGIC GATE TEST (%d ITERATIONS BATCH) ---\n", NotGateBatchTestCount)
-	fmt.Println("Sample Iteration Log (First 10 runs):")
-	fmt.Println("Input (A) | Inverted Output | Arrival Time (ps) | Status")
-	fmt.Println("------------------------------------------------------------")
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := 0; i < 10; i++ {
+	halfWindow := sim.Params.WindowWidthPS / 2.0
+	failuresCount := 0
+
+	for i := 0; i < NotGateBatchTestCount; i++ {
 		input := i % 2
 		output, arrivalTime, ok := sim.TestNOTGate(input, r)
-		statusStr := "OK"
-		if !ok {
-			statusStr = "FAIL"
+
+		if !ok || output == -1 {
+			failuresCount++
+			expectedNominal := sim.T1NominalPS
+			if input == 1 {
+				expectedNominal = sim.T0NominalPS
+			}
+			deviation := arrivalTime - expectedNominal
+			fmt.Printf("[DEBUG FALHA] Iteração #%03d | Entrada: %d | Saída: %2d | Chegada: %6.2f ps | Esperado: %6.2f ps | Desvio: %+6.2f ps | Janela Máx Permitida: +/-%.2f ps\n",
+				i+1, input, output, arrivalTime, expectedNominal, deviation, halfWindow)
 		}
-		fmt.Printf("    %d     |        %2d       |       %6.2f ps       |   %s\n", input, output, arrivalTime, statusStr)
 	}
 
-	successes, failures, accuracyPct := sim.TestNOTGateBatch(NotGateBatchTestCount, r)
+	successes := NotGateBatchTestCount - failuresCount
+	accuracyPct := (float64(successes) / float64(NotGateBatchTestCount)) * 100.0
+
 	fmt.Println("------------------------------------------------------------")
 	fmt.Printf("Total Calibrated Test Runs:                %d Iterations\n", NotGateBatchTestCount)
 	fmt.Printf("Successful NOT Inverter Operations:         %d / %d\n", successes, NotGateBatchTestCount)
-	fmt.Printf("Failed NOT Inverter Operations:             %d / %d\n", failures, NotGateBatchTestCount)
+	fmt.Printf("Failed NOT Inverter Operations:             %d / %d\n", failuresCount, NotGateBatchTestCount)
 	fmt.Printf("Calibrated NOT Gate Logic Accuracy:         %.2f%%\n", accuracyPct)
 
 	fmt.Println("\nSimulation Conclusion: Noritsu CW Laser Engine, M-ary Byte Encoding, Quantum LOQC Core,")
