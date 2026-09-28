@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" width="760" height="470" font-family='system-ui, -apple-system, "Segoe UI", sans-serif' role="img" aria-labelledby="t d">
+<title id="t">Erro de decodificação por número de saltos</title>
+<desc id="d">Race logic fotônica, mapa 16x16, 10 chips x 10^4 consultas por unidade de atraso. Linhas: previsão gaussiana (ruído acumulado sigma vezes raiz de h). Pontos: taxa medida. Com 100 ps não houve erros em 2,55e7 distâncias.</desc>
+<rect width="760" height="470" fill="#fcfcfb"/>
+<text x="84" y="30" font-size="16" font-weight="600" fill="#0b0b0b">Erro de decodificação por número de saltos</text>
+<text x="84" y="50" font-size="12" fill="#52514e">Race logic fotônica, mapa 16×16, 10 chips × 10⁴ consultas por unidade de atraso</text>
+<rect x="84" y="64" width="12" height="12" rx="3" fill="#2a78d6"/>
+<text x="102" y="74" font-size="12" fill="#52514e">35 ps</text>
+<rect x="154" y="64" width="12" height="12" rx="3" fill="#eb6834"/>
+<text x="172" y="74" font-size="12" fill="#52514e">50 ps</text>
+<rect x="224" y="64" width="12" height="12" rx="3" fill="#1baf7a"/>
+<text x="242" y="74" font-size="12" fill="#52514e">75 ps</text>
+<line x1="310" y1="70" x2="332" y2="70" stroke="#898781" stroke-width="2" stroke-linecap="round"/>
+<text x="338" y="74" font-size="12" fill="#52514e">previsto (σ√h)</text>
+<circle cx="444" cy="70" r="4" fill="#898781" stroke="#fcfcfb" stroke-width="2"/>
+<text x="454" y="74" font-size="12" fill="#52514e">medido</text>
+<line x1="84" y1="408.0" x2="664" y2="408.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="412.0" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-8</tspan></text>
+<line x1="84" y1="362.9" x2="664" y2="362.9" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="366.9" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-7</tspan></text>
+<line x1="84" y1="317.7" x2="664" y2="317.7" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="321.7" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-6</tspan></text>
+<line x1="84" y1="272.6" x2="664" y2="272.6" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="276.6" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-5</tspan></text>
+<line x1="84" y1="227.4" x2="664" y2="227.4" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="231.4" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-4</tspan></text>
+<line x1="84" y1="182.3" x2="664" y2="182.3" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="186.3" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-3</tspan></text>
+<line x1="84" y1="137.1" x2="664" y2="137.1" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="141.1" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-2</tspan></text>
+<line x1="84" y1="92.0" x2="664" y2="92.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="74" y="96.0" font-size="11" fill="#898781" text-anchor="end" style="font-variant-numeric: tabular-nums">10<tspan dy="-5" font-size="8">-1</tspan></text>
+<line x1="84" y1="408" x2="664" y2="408" stroke="#c3c2b7" stroke-width="1"/>
+<text x="84.0" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">0</text>
+<text x="154.3" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">4</text>
+<text x="224.6" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">8</text>
+<text x="294.9" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">12</text>
+<text x="365.2" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">16</text>
+<text x="435.5" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">20</text>
+<text x="505.8" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">24</text>
+<text x="576.1" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">28</text>
+<text x="646.4" y="426" font-size="11" fill="#898781" text-anchor="middle" style="font-variant-numeric: tabular-nums">32</text>
+<text x="374.0" y="454" font-size="12" fill="#52514e" text-anchor="middle">Saltos no menor caminho</text>
+<text transform="translate(22 250.0) rotate(-90)" font-size="12" fill="#52514e" text-anchor="middle">Taxa de erro por distância</text>
+<polyline points="154.3,385.6 171.9,323.5 189.5,281.9 207.0,251.9 224.6,229.3 242.2,211.5 259.8,197.3 277.3,185.6 294.9,175.7 312.5,167.3 330.1,160.1 347.6,153.8 365.2,148.3 382.8,143.4 400.4,139.0 417.9,135.1 435.5,131.5 453.1,128.3 470.7,125.3 488.2,122.6 505.8,120.1 523.4,117.8 541.0,115.6 558.5,113.6 576.1,111.8 593.7,110.0 611.3,108.4 628.8,106.9 646.4,105.4" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="171.9" cy="294.5" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 5 saltos: 4 erros em 1222849 distâncias (3.27e-06); previsto 7.43e-07</title></circle>
+<circle cx="189.5" cy="274.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 6 saltos: 12 erros em 1351764 distâncias (8.88e-06); previsto 6.23e-06</title></circle>
+<circle cx="207.0" cy="245.2" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 7 saltos: 59 erros em 1463737 distâncias (4.03e-05); previsto 2.87e-05</title></circle>
+<circle cx="224.6" cy="223.1" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 8 saltos: 191 erros em 1533556 distâncias (1.24e-04); previsto 9.11e-05</title></circle>
+<circle cx="242.2" cy="209.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 9 saltos: 382 erros em 1565392 distâncias (2.44e-04); previsto 2.25e-04</title></circle>
+<circle cx="259.8" cy="195.2" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 10 saltos: 818 erros em 1577770 distâncias (5.18e-04); previsto 4.65e-04</title></circle>
+<circle cx="277.3" cy="184.2" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 11 saltos: 1420 erros em 1564348 distâncias (9.08e-04); previsto 8.47e-04</title></circle>
+<circle cx="294.9" cy="174.6" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 12 saltos: 2260 erros em 1530455 distâncias (1.48e-03); previsto 1.40e-03</title></circle>
+<circle cx="312.5" cy="166.1" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 13 saltos: 3447 erros em 1511105 distâncias (2.28e-03); previsto 2.14e-03</title></circle>
+<circle cx="330.1" cy="158.7" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 14 saltos: 4909 erros em 1472664 distâncias (3.33e-03); previsto 3.10e-03</title></circle>
+<circle cx="347.6" cy="152.2" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 15 saltos: 6416 erros em 1384535 distâncias (4.63e-03); previsto 4.27e-03</title></circle>
+<circle cx="365.2" cy="147.0" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 16 saltos: 7700 erros em 1272043 distâncias (6.05e-03); previsto 5.66e-03</title></circle>
+<circle cx="382.8" cy="141.8" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 17 saltos: 8798 erros em 1117893 distâncias (7.87e-03); previsto 7.27e-03</title></circle>
+<circle cx="400.4" cy="137.5" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 18 saltos: 9388 erros em 956423 distâncias (9.82e-03); previsto 9.09e-03</title></circle>
+<circle cx="417.9" cy="133.6" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 19 saltos: 9527 erros em 794527 distâncias (1.20e-02); previsto 1.11e-02</title></circle>
+<circle cx="435.5" cy="129.6" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 20 saltos: 9228 erros em 627896 distâncias (1.47e-02); previsto 1.33e-02</title></circle>
+<circle cx="453.1" cy="126.5" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 21 saltos: 8337 erros em 483818 distâncias (1.72e-02); previsto 1.57e-02</title></circle>
+<circle cx="470.7" cy="123.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 22 saltos: 6966 erros em 354179 distâncias (1.97e-02); previsto 1.83e-02</title></circle>
+<circle cx="488.2" cy="121.1" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 23 saltos: 5774 erros em 254627 distâncias (2.27e-02); previsto 2.10e-02</title></circle>
+<circle cx="505.8" cy="118.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 24 saltos: 4638 erros em 182707 distâncias (2.54e-02); previsto 2.39e-02</title></circle>
+<circle cx="523.4" cy="116.3" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 25 saltos: 3600 erros em 124627 distâncias (2.89e-02); previsto 2.69e-02</title></circle>
+<circle cx="541.0" cy="114.0" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 26 saltos: 2872 erros em 87998 distâncias (3.26e-02); previsto 3.00e-02</title></circle>
+<circle cx="558.5" cy="112.2" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 27 saltos: 1996 erros em 56062 distâncias (3.56e-02); previsto 3.32e-02</title></circle>
+<circle cx="576.1" cy="110.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 28 saltos: 1217 erros em 31964 distâncias (3.81e-02); previsto 3.65e-02</title></circle>
+<circle cx="593.7" cy="109.5" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 29 saltos: 792 erros em 19350 distâncias (4.09e-02); previsto 3.98e-02</title></circle>
+<circle cx="611.3" cy="110.3" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 30 saltos: 362 erros em 9208 distâncias (3.93e-02); previsto 4.33e-02</title></circle>
+<circle cx="628.8" cy="106.0" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 31 saltos: 185 erros em 3787 distâncias (4.88e-02); previsto 4.68e-02</title></circle>
+<circle cx="646.4" cy="102.3" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>35 ps, 32 saltos: 92 erros em 1558 distâncias (5.90e-02); previsto 5.04e-02</title></circle>
+<line x1="652.4" y1="105.4" x2="662.4" y2="105.4" stroke="#2a78d6" stroke-width="2" stroke-linecap="round"/>
+<text x="666.4" y="109.4" font-size="12" fill="#52514e">35 ps</text>
+<polyline points="224.6,391.9 242.2,356.8 259.8,328.6 277.3,305.5 294.9,286.1 312.5,269.7 330.1,255.6 347.6,243.3 365.2,232.5 382.8,222.9 400.4,214.4 417.9,206.8 435.5,199.9 453.1,193.7 470.7,188.0 488.2,182.7 505.8,177.9 523.4,173.5 541.0,169.4 558.5,165.6 576.1,162.1 593.7,158.7 611.3,155.6 628.8,152.7 646.4,150.0" fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="259.8" cy="313.1" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 10 saltos: 2 erros em 1577770 distâncias (1.27e-06); previsto 5.73e-07</title></circle>
+<circle cx="277.3" cy="285.7" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 11 saltos: 8 erros em 1564348 distâncias (5.11e-06); previsto 1.87e-06</title></circle>
+<circle cx="294.9" cy="279.0" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 12 saltos: 11 erros em 1530455 distâncias (7.19e-06); previsto 5.01e-06</title></circle>
+<circle cx="312.5" cy="264.3" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 13 saltos: 23 erros em 1511105 distâncias (1.52e-05); previsto 1.16e-05</title></circle>
+<circle cx="330.1" cy="248.6" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 14 saltos: 50 erros em 1472664 distâncias (3.39e-05); previsto 2.38e-05</title></circle>
+<circle cx="347.6" cy="236.8" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 15 saltos: 86 erros em 1384535 distâncias (6.21e-05); previsto 4.46e-05</title></circle>
+<circle cx="365.2" cy="228.6" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 16 saltos: 120 erros em 1272043 distâncias (9.43e-05); previsto 7.72e-05</title></circle>
+<circle cx="382.8" cy="220.0" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 17 saltos: 163 erros em 1117893 distâncias (1.46e-04); previsto 1.26e-04</title></circle>
+<circle cx="400.4" cy="210.4" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 18 saltos: 228 erros em 956423 distâncias (2.38e-04); previsto 1.94e-04</title></circle>
+<circle cx="417.9" cy="205.2" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 19 saltos: 247 erros em 794527 distâncias (3.11e-04); previsto 2.86e-04</title></circle>
+<circle cx="435.5" cy="196.7" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 20 saltos: 301 erros em 627896 distâncias (4.79e-04); previsto 4.07e-04</title></circle>
+<circle cx="453.1" cy="190.6" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 21 saltos: 316 erros em 483818 distâncias (6.53e-04); previsto 5.60e-04</title></circle>
+<circle cx="470.7" cy="186.3" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 22 saltos: 289 erros em 354179 distâncias (8.16e-04); previsto 7.49e-04</title></circle>
+<circle cx="488.2" cy="180.6" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 23 saltos: 277 erros em 254627 distâncias (1.09e-03); previsto 9.78e-04</title></circle>
+<circle cx="505.8" cy="176.9" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 24 saltos: 240 erros em 182707 distâncias (1.31e-03); previsto 1.25e-03</title></circle>
+<circle cx="523.4" cy="172.6" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 25 saltos: 204 erros em 124627 distâncias (1.64e-03); previsto 1.56e-03</title></circle>
+<circle cx="541.0" cy="165.9" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 26 saltos: 203 erros em 87998 distâncias (2.31e-03); previsto 1.93e-03</title></circle>
+<circle cx="558.5" cy="163.0" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 27 saltos: 150 erros em 56062 distâncias (2.68e-03); previsto 2.34e-03</title></circle>
+<circle cx="576.1" cy="163.6" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 28 saltos: 83 erros em 31964 distâncias (2.60e-03); previsto 2.81e-03</title></circle>
+<circle cx="593.7" cy="154.5" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 29 saltos: 80 erros em 19350 distâncias (4.13e-03); previsto 3.32e-03</title></circle>
+<circle cx="611.3" cy="157.9" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 30 saltos: 32 erros em 9208 distâncias (3.47e-03); previsto 3.89e-03</title></circle>
+<circle cx="628.8" cy="155.3" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 31 saltos: 15 erros em 3787 distâncias (3.96e-03); previsto 4.51e-03</title></circle>
+<circle cx="646.4" cy="150.2" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>50 ps, 32 saltos: 8 erros em 1558 distâncias (5.13e-03); previsto 5.19e-03</title></circle>
+<line x1="652.4" y1="150.0" x2="662.4" y2="150.0" stroke="#eb6834" stroke-width="2" stroke-linecap="round"/>
+<text x="666.4" y="154.0" font-size="12" fill="#52514e">50 ps</text>
+<polyline points="400.4,391.9 417.9,375.3 435.5,360.3 453.1,346.8 470.7,334.4 488.2,323.1 505.8,312.7 523.4,303.2 541.0,294.3 558.5,286.1 576.1,278.5 593.7,271.4 611.3,264.8 628.8,258.5 646.4,252.7" fill="none" stroke="#1baf7a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="453.1" cy="289.9" r="4" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"><title>75 ps, 21 saltos: 2 erros em 483818 distâncias (4.13e-06); previsto 2.27e-07</title></circle>
+<circle cx="505.8" cy="284.4" r="4" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"><title>75 ps, 24 saltos: 1 erros em 182707 distâncias (5.47e-06); previsto 1.29e-06</title></circle>
+<line x1="652.4" y1="252.7" x2="662.4" y2="252.7" stroke="#1baf7a" stroke-width="2" stroke-linecap="round"/>
+<text x="666.4" y="256.7" font-size="12" fill="#52514e">75 ps</text>
+<text x="94" y="114" font-size="11" fill="#898781">100 ps: 0 erros em 2,55×10⁷ distâncias (fora da escala)</text>
+</svg>
