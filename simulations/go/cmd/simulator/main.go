@@ -10,23 +10,23 @@ import (
 )
 
 // ============================================================================
-// PARÂMETROS DE EXECUÇÃO DO SIMULADOR CLI
-// Altere as constantes abaixo para modificar o volume de testes e amostragens.
+// CLI SIMULATOR EXECUTION PARAMETERS
+// Modify the constants below to change simulation sample volumes and iterations.
 // ============================================================================
 const (
-	// CalibrationPulseCount: Número de pulsos de referência usados na calibração inicial da janela de tempo.
+	// CalibrationPulseCount is the number of reference pulses used in initial time-gating window calibration.
 	CalibrationPulseCount = 10000
 
-	// MAryTestSymbolCount: Quantidade de símbolos M-ários (0x00..0xFF) testados na simulação de transmissão.
+	// MAryTestSymbolCount is the number of dense M-ary optical symbols (0x00..0xFF) tested during transmission.
 	MAryTestSymbolCount = 100000
 
-	// AiTensorMeshDimension: Dimensão N x N da matriz de interferômetros MZI do Photonic AI Tensor Core.
+	// AiTensorMeshDimension is the N x N matrix dimension of the Mach-Zehnder Interferometer (MZI) mesh in the Photonic AI Tensor Core.
 	AiTensorMeshDimension = 64
 
-	// MonteCarloOperationsCount: Quantidade total de operações simulações em paralelo via Goroutines.
+	// MonteCarloOperationsCount is the total number of parallel simulation operations executed across Goroutines.
 	MonteCarloOperationsCount = 1000000
 
-	// NotGateBatchTestCount: Quantidade de execuções de teste em lote da porta inverter NOT.
+	// NotGateBatchTestCount is the number of batch test executions performed on the ToF NOT inverter gate.
 	NotGateBatchTestCount = 100
 )
 
