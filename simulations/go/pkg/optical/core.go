@@ -7,7 +7,7 @@ import (
 // SpeedOfLightVacuo is the speed of light in vacuum in meters per second (m/s).
 const SpeedOfLightVacuo = 299792458.0
 
-// OpticalParams encapsulates physical, geometric, hardware, memory, GPU, and AI variables.
+// OpticalParams encapsulates physical, geometric, hardware, memory, GPU, AI, and Quantum parameters.
 type OpticalParams struct {
 	RefractiveIndex   float64 // Effective refractive index of substrate (e.g., 1.4500 for SiO2)
 	FastDistanceMM    float64 // d1: Straight-line path distance (mm)
@@ -28,9 +28,14 @@ type OpticalParams struct {
 	GpuWdmChannelsCount int     // Number of WDM spectral channels (Red 635nm, Green 532nm, Blue 450nm -> 3)
 	AiTensorDensityTOPS float64 // Photonic AI Tensor Core density (e.g., 11 TOPS/mm^2) [Xu et al., Nature 2021]
 	AiTensorEfficiency  float64 // Photonic AI Tensor Core energy efficiency (e.g., 100 TOPS/W) [Shen et al., 2017]
+
+	// Photonic Quantum LOQC Core Parameters
+	QuantumQubitsCount     int     // Number of room-temperature dual-rail photonic qubits (e.g., 16)
+	QuantumHomVisibilityPct float64 // Hong-Ou-Mandel (HOM) 2-photon interference visibility in % (e.g., 99.4%) [Crespi et al., 2013]
+	QuantumCnotFidelityPct float64 // Conditional photonic CNOT gate fidelity in % (e.g., 98.7%) [Carolan et al., Science 2015]
 }
 
-// DefaultParams returns the nominal configuration for ToF CPU, Photonic SSD, Optical GPU, and AI Tensor Core.
+// DefaultParams returns the nominal configuration for ToF CPU, Photonic SSD, Optical GPU, AI Tensor Core, and Quantum LOQC Core.
 func DefaultParams() OpticalParams {
 	return OpticalParams{
 		RefractiveIndex:           1.4500,
@@ -48,6 +53,9 @@ func DefaultParams() OpticalParams {
 		GpuWdmChannelsCount:       3,     // RGB Channels
 		AiTensorDensityTOPS:       11.0,  // 11 TOPS/mm^2
 		AiTensorEfficiency:        100.0, // 100 TOPS/W
+		QuantumQubitsCount:        16,    // 16 Dual-Rail Photonic Qubits
+		QuantumHomVisibilityPct:   99.4,  // 99.4% HOM Visibility
+		QuantumCnotFidelityPct:    98.7,  // 98.7% CNOT Fidelity
 	}
 }
 

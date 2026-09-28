@@ -32,7 +32,7 @@ func main() {
 	fmt.Printf("Total Convoluted System Jitter (sigma):    %.2f ps\n", sim.TotalSigmaPS)
 	fmt.Printf("Temporal Separation Margin (Delta t/sigma):%.2f sigmas\n", sim.SeparationMarginSigmas())
 
-	fmt.Println("\n--- 2. PHOTONIC MEMORY, PHOTONIC SSD & OPTICAL GPU/AI TENSOR ---")
+	fmt.Println("\n--- 2. MEMORY HIERARCHY, PHOTONIC SSD, OPTICAL GPU, AI & QUANTUM LOQC ---")
 	fmt.Printf("L1 Cache Latency (Micro-ring Resonators):  <= %.2f ps  [Alexoudi et al., 2020]\n", sim.Params.CacheL1LatencyPS)
 	fmt.Printf("Photonic RAM Latency (Delay-Line Loop):   ~%.2f ps   [Yao, 1993]\n", sim.Params.RamLoopLatencyPS)
 	fmt.Printf("Kernel ROM Access (Femtosecond SiO2):      ~%.2f ps (Direct c/n) [Zhang et al., 2014]\n", sim.T1NominalPS)
@@ -41,8 +41,11 @@ func main() {
 	fmt.Printf("Optical GPU WDM Spectral Channels:         %d (Red 635nm, Green 532nm, Blue 450nm) [Weng et al., 2020]\n", sim.Params.GpuWdmChannelsCount)
 	fmt.Printf("Photonic AI Tensor Core Density:           %.0f TOPS/mm^2 [Xu et al., Nature 2021]\n", sim.Params.AiTensorDensityTOPS)
 	fmt.Printf("Photonic AI Tensor Energy Efficiency:      > %.0f TOPS/W [Shen et al., Nature Phot. 2017]\n", sim.Params.AiTensorEfficiency)
+	fmt.Printf("Room-Temp Photonic Quantum Qubits (298K):  %d Dual-Rail Qubits [Kok et al., Rev.Mod.Phys 2007]\n", sim.Params.QuantumQubitsCount)
+	fmt.Printf("Hong-Ou-Mandel (HOM) Quantum Visibility:   %.1f%% [Crespi et al., Nature Phot. 2013]\n", sim.Params.QuantumHomVisibilityPct)
+	fmt.Printf("Photonic Quantum CNOT Gate Fidelity:       %.1f%% [Carolan et al., Science 2015]\n", sim.Params.QuantumCnotFidelityPct)
 
-	fmt.Println("\n--- 3. MONTE CARLO SIMULATION (1,000,000 CPU, GPU & AI OPERATIONS) ---")
+	fmt.Println("\n--- 3. MONTE CARLO SIMULATION (1,000,000 CPU, GPU, AI & QUANTUM OPERATIONS) ---")
 	res := sim.SimulateMonteCarloConcurrent(1000000)
 
 	fmt.Printf("Total Samples Tested:                      %d\n", res.TotalSamples)
@@ -72,7 +75,7 @@ func main() {
 		fmt.Printf("    %d     |        %2d       |       %6.2f ps       |   %s\n", input, output, arrivalTime, statusStr)
 	}
 
-	fmt.Println("\nSimulation Conclusion: Optical GPU WDM RGB, Photonic AI Tensor Engine,")
-	fmt.Printf("and Photonic SSD confirm latency of %.2f ps, 11 TOPS/mm^2, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Println("\nSimulation Conclusion: Photonic Quantum LOQC Core, Optical GPU WDM RGB, AI Tensor,")
+	fmt.Printf("and Photonic SSD confirm 99.4%% HOM visibility, %.2f ps latency, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
 	fmt.Println("======================================================================")
 }

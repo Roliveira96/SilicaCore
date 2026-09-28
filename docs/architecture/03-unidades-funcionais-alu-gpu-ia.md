@@ -1,4 +1,4 @@
-# Divisão Funcional dos Andares Volumétricos (ULA, IA, GPU e Memória)
+# Divisão Funcional dos Andares Volumétricos (ULA, IA, GPU, Quântico e Memória)
 
 ## 1. Organização por Andares Espaciais (Eixo Z)
 
@@ -8,7 +8,7 @@ O cubo de sílica fundida ($SiO_2$) é dividido tridimensionalmente em quatro zo
 flowchart TD
     subgraph CuboSilica["Substrato Monolítico de Sílica Fundida (25mm x 25mm x 25mm)"]
         direction TB
-        Andar4["Andar 4 (Z = 20-25mm): GPU Óptica WDM RGB, Photonic AI Tensor Core & PCM Storage"]
+        Andar4["Andar 4 (Z = 20-25mm): GPU WDM RGB, AI Tensor Core, Quantum LOQC Core & PCM Storage"]
         Andar3["Andar 3 (Z = 15-20mm): Memória RAM Óptica Volátil (Delay-Line Loops)"]
         Andar2["Andar 2 (Z = 5-15mm): ULA ToF & Cache Óptica L1/L2 (< 5ps)"]
         Andar1["Andar 1 (Z = 0-5mm): Barramento Óptico Mestre & ROM Kernel Gravada em SiO2"]
@@ -31,15 +31,18 @@ flowchart TD
 - **Linhas de Atraso Recirculantes em Anel Fechado:** Os pacotes de dados permanecem circulando no vidro a $0.20675\text{ mm/ps}$ (*Yao, IEEE PTL 1993*).
 - **Leitura Não-Destrutiva:** Divisores de feixe $95/5$ amostram 5% da potência para amostragem pelos detectores enquanto 95% do sinal continua recirculando com ganho compensado por micro-amplificadores SOAs.
 
-### 1.4 Andar 4 (Topo - Z = 20 a 25mm): GPU Óptica WDM RGB & Photonic AI Tensor Core
+### 1.4 Andar 4 (Topo - Z = 20 a 25mm): GPU WDM RGB, AI Tensor Core & Processador Quântico Fotônico (LOQC)
 - **GPU Óptica por WDM RGB:** Processamento paralelo de vídeo 8K/16K em 3 comprimentos de onda ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) com motor de *ray-tracing* nativo por refração/reflexão (*Weng et al., IEEE JSTQE 2020; Hamerly et al., PRX 2019*).
 - **Photonic AI Tensor Core (MVM):** Multiplicação Matriz-Vetor para Transformers e Redes Neurais via malhas Mach-Zehnder (MZI Mesh) e pesos gravados em filmes PCM ($GST$). Computação *In-Memory* com performance de até **11 TOPS/mm²** e **> 100 TOPS/W** (*Shen et al., Nature Photonics 2017; Feldmann et al., Nature 2021; Xu et al., Nature 2021*).
+- **Processador Quântico Fotônico Híbrido (LOQC):** Qubits fotônicos dual-rail em temperatura ambiente ($298\text{ K}$) operando interferência Hong-Ou-Mandel (HOM) e portas lógicas quânticas (Hadamard, Phase, CNOT) para algoritmos híbridos VQE e amostragem de bosons (*Kok et al., Rev. Mod. Phys. 2007; Carolan et al., Science 2015; Crespi et al., Nature Photonics 2013; Arrazola et al., Nature 2021*).
 
 ---
 
 ## 2. Referências Bibliográficas Científicas
-1. **Shen, Y., et al. (2017).** *Nature Photonics*, 11(7), 441–446.
-2. **Feldmann, J., et al. (2021).** *Nature*, 595(7867), 373–378.
-3. **Xu, X., et al. (2021).** *Nature*, 589(7840), 44–51.
-4. **Weng, L., et al. (2020).** *IEEE Journal of Selected Topics in Quantum Electronics*, 26(5), 1–12.
-5. **Hamerly, R., et al. (2019).** *Physical Review X*, 9(2), 021032.
+1. **Kok, P., et al. (2007).** *Reviews of Modern Physics*, 79(1), 135–174.
+2. **Carolan, J., et al. (2015).** *Science*, 349(6249), 711–716.
+3. **Crespi, A., et al. (2013).** *Nature Photonics*, 7(7), 545–549.
+4. **Arrazola, J. M., et al. (2021).** *Nature*, 591(7848), 54–60.
+5. **Shen, Y., et al. (2017).** *Nature Photonics*, 11(7), 441–446.
+6. **Feldmann, J., et al. (2021).** *Nature*, 595(7867), 373–378.
+7. **Xu, X., et al. (2021).** *Nature*, 589(7840), 44–51.

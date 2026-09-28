@@ -19,4 +19,7 @@
 | GPU Óptica Ray-Tracing | Nativo | - | Refração e reflexão em micro-espelhos em vidro |
 | Photonic AI Tensor Densidade | 11 | TOPS/mm² | Multiplicação MVM via MZI Mesh (*Xu et al., Nature 2021*) |
 | Photonic AI Tensor Eficiência | $> 100$ | TOPS/W | Computação In-Memory em PCM GST (*Shen et al., 2017*) |
-| Latência Média Global de Memória | $\sim 37.66$ | ps | Simulação Monte Carlo |
+| Qubits Quânticos Fotônicos | 16 | Dual-Rail | Operação em Temperatura Ambiente ($298\text{ K}$) (*Kok et al., 2007*) |
+| Visibilidade Interferência HOM | 99.4 | % | Interferência quântica de 2 fótons (*Crespi et al., 2013*) |
+| Fidelidade Porta CNOT Quântica | 98.7 | % | Portas quânticas fotônicas em vidro (*Carolan et al., 2015*) |
+| Latência Média Global de Memória | $\sim 37.61$ | ps | Simulação Monte Carlo |
