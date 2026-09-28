@@ -37,7 +37,7 @@ O **SilicaCore** é uma arquitetura computacional volumétrica em **sílica fund
 | :--- | :--- | :--- |
 | Fator de decisão ToF ($Q = \Delta t / 2\sigma$) | **4.45** | $\Delta t = 100$ ps, $\sigma_{\text{total}} = 11.24$ ps |
 | BER da decisão ToF | **$\approx 4.3 \times 10^{-6}$** (Monte Carlo: $\sim 2 \times 10^{-5}$) | BER $10^{-12}$ exige $Q = 7.03$, ou seja, $\sigma_{\text{total}} \le 7.1$ ps |
-| Taxa por canal (slot $\Delta t + W$) | **$\approx 5.1$ GHz** ($\approx 20.5$ Gb/s com 4 bits/símbolo) | Micro-cubo de 2 mm: $\approx 55.6$ GHz, mas com $Q = 3.64$ |
+| Taxa por canal (slot $\Delta t + W$) | **$\approx 5.1$ GHz** ($\approx 20.5$ Gb/s com 4 bits/símbolo) | Configuração micro ($d_1 = 2$ mm): $\approx 55.6$ GHz, mas com $Q = 3.64$ |
 | Teto do detector SPAD | **$\le 0.5$ GHz** (tempo morto $\ge 2$ ns) | Caminho de dados usa fotodiodos UTC/InGaAs ($\sim 150$ Gbaud) |
 | Race logic fotônica (menor caminho, mapa 16×16) | **0 erros** com unidade de 50 ps; 36.5 ns por consulta | Leitura TDC domina; até 16×16 cabe num retículo ([doc 11, seção 5.1](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
 | Roteamento por espelhos internos em bloco | **Inviável** (46.6 dB/porta) | Plataforma adotada: Si₃N₄ + TFLN, 1.3 dB/porta ([doc 11](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
@@ -124,7 +124,7 @@ Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio
 
 1. **Cache L1/L2 Óptica ($\le 5.0\text{ ps}$):** Ressonadores de Micro-anéis (*Bogaerts et al., 2012*).
 2. **Memória RAM Óptica Volátil ($\sim 96.73\text{ ps}$):** Linhas de Atraso Recirculantes (*Yao, 1993*).
-3. **Photonic SSD em Vidro ($100\text{ TB}$ / cubo):** Nanofilamentos 3D em $SiO_2$ para **Instant Boot** (*Zhang et al., PRL 2014*) e PCM para partição R/W com vazão de **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*). **Premissa**: o vidro 5D publicado (Project Silica) é armazenamento de arquivo com escrita única e leitura por microscopia.
+3. **Photonic SSD em Vidro ($100\text{ TB}$ em $15.6\text{ cm}^3$, premissa):** Nanofilamentos 3D em $SiO_2$ para **Instant Boot** (*Zhang et al., PRL 2014*) e PCM para partição R/W com vazão de **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*). **Premissa**: o vidro 5D publicado (Project Silica) é armazenamento de arquivo com escrita única e leitura por microscopia.
 
 > **Limites físicos da memória:** uma RAM de linha de atraso com 16 GB exigiria ~3.000 km de guia de onda. A luz pode transportar dados a todos os níveis em ~100 ps, mas a latência é dominada pela célula de armazenamento. Ver [doc 12](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md).
 
@@ -132,22 +132,25 @@ Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio
 
 ## 10. Arquitetura Lógica e Estrutura Volumétrica
 
+O substrato é **agnóstico à geometria externa** (retangular, lâmina multicamada ou poligonal): o atraso depende do comprimento do guia ($L = v \cdot \Delta t$), não do formato do chip, e o formato plano é compatível com wafers de 200/300 mm. Detalhes no [doc 01](docs/architecture/01-visao-geral-hardware.md).
+
 ```mermaid
 flowchart TD
-    subgraph CuboSilica["Substrato Monolítico de Sílica Fundida (25mm x 25mm x 25mm)"]
+    subgraph SubstratoFotonico["Substrato Fotônico Integrado (Si3N4 multicamada + TFLN sobre SiO2, geometria agnóstica)"]
         direction TB
-        Andar4["Andar 4 (Z = 20-25mm): GPU WDM RGB, AI Tensor Core, Quantum LOQC Core & PCM Storage"]
-        Andar3["Andar 3 (Z = 15-20mm): Memória RAM Óptica Volátil (Delay-Line Loops)"]
-        Andar2["Andar 2 (Z = 5-15mm): ULA ToF & Cache Óptica L1/L2 (< 5ps)"]
-        Andar1["Andar 1 (Z = 0-5mm): Barramento Óptico Mestre & ROM Kernel em SiO2"]
+        Camada4["Camada 4 (topo): Aceleração neural gráfica, AI Tensor Core, Race Logic & PCM Sb2Se3"]
+        Camada3["Camada 3: Buffers em Linha de Atraso + I/O óptico para RAM unificada"]
+        Camada2["Camada 2: ULA ToF & Cache L1 pSRAM (~25 ps)"]
+        Camada1["Camada 1 (base): Barramento Óptico Mestre & ROM Kernel"]
 
-        Andar1 --> Andar2
-        Andar2 --> Andar3
-        Andar3 --> Andar4
+        Camada1 --> Camada2
+        Camada2 --> Camada3
+        Camada3 --> Camada4
     end
 
-    Input["Motor Laser CW RGB (Always-ON Solid-State CW Engine - Inspirado na Grafis)"] --> CuboSilica
-    CuboSilica --> Output["Matriz SPAD M-ária -> Saída em Hexadecimal / Bytes Direct"]
+    Input["Motor Laser Always-ON: pente de frequências 1550 nm (inspirado na Grafis)"] --> SubstratoFotonico
+    SubstratoFotonico --> Output["Fotodiodos UTC + TDC -> Saída em Hexadecimal"]
+    SubstratoFotonico <--> Quantum["Núcleo quântico LOQC (subsistema criogênico separado)"]
 ```
 
 Documentações completas da arquitetura:

@@ -25,16 +25,16 @@ flowchart TD
 - **Barramento Óptico:** Distribuição síncrona de relógio pulsado para toda a matriz de fotodiodos SPAD.
 - **Memória ROM Não-Volátil do Kernel:** Instruções estáticas de inicialização e firmware gravadas permanentemente por escrita de laser de femtossegundo no substrato de sílica (*Zhang et al., PRL 2014*). Leitura direta na velocidade da luz ($v = c/n = 0.20675\text{ mm/ps}$) sem inicialização ou transferência para DRAM.
 
-### 1.2 Camada 2: Unidade Aritmética Lógica (ULA) e Cache L1/L2
+### 1.2 Camada 2: Unidade Aritmética Lógica (ULA ToF) e Cache L1 pSRAM
 - **ULA ToF:** Portas lógicas por modulação de percurso ($d_1$ vs. $d_0$) com chaves TFLN. Cada porta perde ~1.3 dB na plataforma Si₃N₄ + TFLN, então **a cada ~7 portas o sinal precisa ser regenerado** (doc 11). $Q = 4.45$, $\approx 5.1$ GHz por canal.
 - **Cache L1 Óptica:** SRAM fotônica com micro-anéis acoplados em cruz (pSRAM), validada em processo de 45 nm a **40 GHz (~25 ps)** e 0.6 pJ/bit, com capacidade de KB por limite de área (arXiv:2503.19544). **L2/L3** em SRAM eletrônica empilhada sob o die fotônico (doc 12).
 
-### 1.3 Camada 3: Memória RAM Óptica Volátil Dinâmica
+### 1.3 Camada 3: Buffers em Linha de Atraso e I/O Óptico para RAM Unificada
 - **Linhas de Atraso Recirculantes:** servem como **registradores e buffers**, não como RAM principal. Um laço de 96.7 ps com 64 canais a 100 Gb/s guarda só **619 bits**; 16 GB exigiriam ~3.000 km de guia (*Yao, IEEE PTL 1993*; doc 12).
 - **Leitura Não-Destrutiva:** Divisores $95/5$ amostram 5% da potência; o SOA que compensa a perda a cada volta acumula ruído ASE, o que limita o tempo de retenção.
 - **RAM principal:** HBM/LPDDR unificada acessada por I/O óptico co-empacotado (~130 ps de transporte + ~30 ns de célula DRAM).
 
-### 1.4 Camada 4 (Topo da Pilha): GPU WDM RGB, AI Tensor Core & Processador Quântico Fotônico (LOQC)
+### 1.4 Camada 4 (Topo da Pilha): Aceleração Neural Gráfica, AI Tensor Core, Race Logic & Interface Quântica
 - **GPU Óptica por WDM:** acelera as **redes neurais** do pipeline gráfico (upscaling, geração de quadros, denoise de ray tracing) e a interconexão de alta banda. Shading, rasterização e ray tracing de cenas virtuais continuam em FP32 na eletrônica: a luz no vidro não traça uma cena virtual (*Weng et al., IEEE JSTQE 2020; Hamerly et al., PRX 2019*; doc 12).
 - **Photonic AI Tensor Core (MVM):** Multiplicação Matriz-Vetor via malhas Mach-Zehnder (MZI) e pesos em PCM **Sb₂Se₃** (o GST absorve em 1550 nm). Até **11 TOPS/mm²** e **> 100 TOPS/W no núcleo óptico**; no sistema completo o estado da arte é **~0.84 TOPS/W** (Lightmatter, *Nature* 2025). Pesos de LLMs grandes ficam em RAM unificada, não no chip (*Shen et al., 2017; Feldmann et al., 2021; Xu et al., 2021*).
 - **Race Logic Fotônica:** menor caminho em grafos por corrida de pulsos em atrasos programáveis; 0 erros num mapa 16×16 com unidade de 50 ps (doc 11, seção 5.1).

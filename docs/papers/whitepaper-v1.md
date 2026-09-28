@@ -50,11 +50,15 @@ A simulação Monte Carlo com 10⁶ operações mede $\sim 2 \times 10^{-5}$. Pa
 
 ### 3.2 Taxa por Canal
 
-Cada símbolo precisa conter as duas janelas de amostragem, então o slot mínimo é $\Delta t + W \approx 195$ ps: **$\approx 5.1$ GHz por canal** ($\approx 20.5$ Gb/s com 4 bits/símbolo). O tempo de voo $t_1$ é latência, não período de clock. No micro-cubo de 2 mm o slot cai para 18 ps ($\approx 55.6$ GHz por canal), mas com $Q = 3.64$ e exigindo jitter de detector só alcançado por SNSPDs criogênicos.
+Cada símbolo precisa conter as duas janelas de amostragem, então o slot mínimo é $\Delta t + W \approx 195$ ps: **$\approx 5.1$ GHz por canal** ($\approx 20.5$ Gb/s com 4 bits/símbolo). O tempo de voo $t_1$ é latência, não período de clock. Na configuração micro ($d_1 = 2$ mm) o slot cai para 18 ps ($\approx 55.6$ GHz por canal), mas com $Q = 3.64$ e exigindo jitter de detector só alcançado por SNSPDs criogênicos.
 
 Detectores SPAD ficam limitados a $\le 0.5$ GHz pelo tempo morto ($\ge 2$ ns); o caminho de dados deve usar fotodiodos UTC/InGaAs ($> 100$ GHz).
 
-### 3.3 Roteamento e Comutação
+### 3.3 Substrato e Geometria
+
+O substrato é fotônico integrado e agnóstico à geometria externa (retangular, lâmina multicamada ou poligonal). O atraso depende do comprimento do guia ($L = v \cdot \Delta t$), e o formato plano segue o padrão industrial de wafers de 200/300 mm, limitado pelo retículo de litografia (26 × 33 mm). O cubo maciço de 25 mm da versão 1.0 foi abandonado.
+
+### 3.4 Roteamento e Comutação
 
 Espelhos internos em bloco com feixe livre perdem $\approx 46.6$ dB por porta (difração), e a sílica não tem efeito Pockels para comutação eletro-óptica. A plataforma adotada é Si₃N₄ multicamada com chaves de niobato de lítio em filme fino (TFLN): $\approx 1.3$ dB por porta e 7 portas em cascata antes de regenerar o sinal (*Churaev et al., Nat. Commun. 2023*; ver `docs/architecture/11-roteamento-e-comutacao-optica.md`).
 
@@ -75,7 +79,7 @@ Qubits dual-rail operando interferência Hong-Ou-Mandel (HOM) com $99.4\%$ de vi
 
 ## 6. Armazenamento em Vidro: O Photonic SSD
 
-Densidade de $6.4\text{ TB/cm}^3$ ($100\text{ TB}$ por cubo de $25\text{ mm}$), vazão de leitura WDM de $1.2\text{ TB/s}$, retenção sem consumo de energia (*zero-power idle*) e durabilidade superior a $10^9$ anos (*Zhang et al., PRL 2014; Project Silica/Microsoft*). A vazão de $1.2$ TB/s é **premissa**: o armazenamento em vidro publicado é de escrita única e leitura por microscopia, voltado a arquivo.
+Densidade de $6.4\text{ TB/cm}^3$ ($100\text{ TB}$ em $15.6\text{ cm}^3$), vazão de leitura WDM de $1.2\text{ TB/s}$, retenção sem consumo de energia (*zero-power idle*) e durabilidade superior a $10^9$ anos (*Zhang et al., PRL 2014; Project Silica/Microsoft*). A vazão de $1.2$ TB/s é **premissa**: o armazenamento em vidro publicado é de escrita única e leitura por microscopia, voltado a arquivo.
 
 ---
 
