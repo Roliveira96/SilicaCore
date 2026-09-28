@@ -152,7 +152,17 @@ func main() {
 	fmt.Printf("Failed NOT Inverter Operations:             %d / %d\n", failuresCount, NotGateBatchTestCount)
 	fmt.Printf("Calibrated NOT Gate Logic Accuracy:         %.2f%%\n", accuracyPct)
 
-	fmt.Println("\nSimulation Conclusion: Noritsu CW Laser Engine, M-ary Byte Encoding, Quantum LOQC Core,")
-	fmt.Printf("Optical GPU WDM RGB, and Photonic SSD confirm %.2f ps latency, 8x throughput boost, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Println("\n--- 8. COMPARATIVO DE PERFORMANCE: SILICA CORE VS SILÍCIO CONVENCIONAL ---")
+	fmt.Println("Métrica                      | Silício Comercial (6.0 GHz) | SilicaCore (Óptico Fused SiO2)")
+	fmt.Println("-----------------------------------------------------------------------------------------")
+	fmt.Printf("Tempo de Ciclo / Latência    | ~166.67 ps                  | %.2f ps (~%.1fx mais veloz)\n", res.MemStats.GlobalAvgLatencyPS, 166.67/res.MemStats.GlobalAvgLatencyPS)
+	fmt.Printf("Acesso L1 Cache              | ~666.00 ps (4 ciclos)       | %.2f ps (~%.0fx mais veloz)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
+	fmt.Printf("Throughput por Canal WDM     | 1 bit / clock elétrico      | %d bits / pulso óptico (%dx)\n", sim.Params.BitsPerSymbol, sim.Params.BitsPerSymbol)
+	fmt.Println("Geração Térmica / Fricção    | Altíssima (Efeito Joule)    | Próxima de zero no substrato óptico")
+	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
+
+	fmt.Println("\nSimulation Conclusion: Noritsu CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
+	fmt.Printf("Optical GPU WDM RGB, and Photonic SSD confirm %.2f ps latency, %dx throughput boost, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS, sim.Params.BitsPerSymbol)
 	fmt.Println("======================================================================")
 }
+

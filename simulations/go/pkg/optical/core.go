@@ -46,13 +46,13 @@ const (
 	DefaultLaserEngineMode = "Continuous Wave (Noritsu CW Style - Always-ON)"
 
 	// DefaultEncodingFormat is the spectral/phase data encoding scheme.
-	DefaultEncodingFormat = "M-ary Multi-Level WDM (Hexadecimal 4-bit / Byte 8-bit)"
+	DefaultEncodingFormat = "M-ary Multi-Level WDM (Hexadecimal 4-bit / 16-QAM/PAM-4 Equivalent)"
 
-	// DefaultBitsPerSymbol is the number of bits encoded per optical symbol (8 bits = 1 Byte).
-	DefaultBitsPerSymbol = 8
+	// DefaultBitsPerSymbol is the number of bits encoded per optical symbol (4 bits = 1 Nibble).
+	DefaultBitsPerSymbol = 4
 
-	// DefaultMultiLevelStatesCount is the number of discrete optical states per symbol (2^8 = 256).
-	DefaultMultiLevelStatesCount = 256
+	// DefaultMultiLevelStatesCount is the number of discrete optical states per symbol (2^4 = 16).
+	DefaultMultiLevelStatesCount = 16
 
 	// ------------------------------------------------------------------------
 	// 3. PHOTONIC MEMORY HIERARCHY & PHOTONIC GLASS SSD

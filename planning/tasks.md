@@ -16,6 +16,7 @@
 - [x] 11. Esclarecimento da inspiração conceitual do motor laser CW Noritsu na documentação e aprimoramento físico do simulador Go (RIN noise, interferência quântica HOM, M-ary encoding) [complexidade: alta] [concluída em 28-09-26]
 - [x] 12. Calibração estatística automática da janela de tempo (Time-Gating Window $W_{\text{gate}} = 6\sigma$) com 100+ execuções de teste para zerar erros de leitura ToF [complexidade: média] [concluída em 28-09-26]
 - [x] 13. Modelagem técnica e simulação de consumo energético (fJ/bit, TOPS/W, TDP Watts) e comparativo com processadores de silício de alta performance (Intel i9, AMD EPYC, NVIDIA H100) [complexidade: alta] [concluída em 28-09-26]
-- [ ] 14. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
-- [ ] 15. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
-- [ ] 16. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)
+- [x] 14. Ajuste da codificação M-ária para 16 estados (4 bits/símbolo - Hexadecimal / 16-QAM) e inclusão da tabela comparativa de latência L1/Ciclo no main.go [complexidade: baixa] [concluída em 28-09-26]
+- [ ] 15. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
+- [ ] 16. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
+- [ ] 17. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)

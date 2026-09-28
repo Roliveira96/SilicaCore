@@ -43,10 +43,11 @@ func TestSimulateMAryEncoding(t *testing.T) {
 		t.Fatalf("Expected 10000 total symbols, got %d", res.TotalSymbols)
 	}
 
-	if res.ThroughputBoostX != 8.0 {
-		t.Fatalf("Expected 8x throughput boost, got %f", res.ThroughputBoostX)
+	if res.ThroughputBoostX != 4.0 {
+		t.Fatalf("Expected 4x throughput boost, got %f", res.ThroughputBoostX)
 	}
 }
+
 
 func TestSimulateQuantumLOQC(t *testing.T) {
 	sim := NewSimulator(DefaultParams())
