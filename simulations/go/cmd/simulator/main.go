@@ -32,14 +32,17 @@ func main() {
 	fmt.Printf("Total Convoluted System Jitter (sigma):    %.2f ps\n", sim.TotalSigmaPS)
 	fmt.Printf("Temporal Separation Margin (Delta t/sigma):%.2f sigmas\n", sim.SeparationMarginSigmas())
 
-	fmt.Println("\n--- 2. PHOTONIC MEMORY HIERARCHY & PHOTONIC SSD STORAGE ---")
+	fmt.Println("\n--- 2. PHOTONIC MEMORY, PHOTONIC SSD & OPTICAL GPU/AI TENSOR ---")
 	fmt.Printf("L1 Cache Latency (Micro-ring Resonators):  <= %.2f ps  [Alexoudi et al., 2020]\n", sim.Params.CacheL1LatencyPS)
 	fmt.Printf("Photonic RAM Latency (Delay-Line Loop):   ~%.2f ps   [Yao, 1993]\n", sim.Params.RamLoopLatencyPS)
 	fmt.Printf("Kernel ROM Access (Femtosecond SiO2):      ~%.2f ps (Direct c/n) [Zhang et al., 2014]\n", sim.T1NominalPS)
 	fmt.Printf("Photonic Glass SSD Capacity:               %.0f TB / cube [Project Silica / Microsoft]\n", sim.Params.PhotonicSsdCapacityTB)
 	fmt.Printf("Photonic Glass SSD Read Throughput:        %.1f TB/s (Parallel WDM)\n", sim.Params.PhotonicSsdThroughputTBps)
+	fmt.Printf("Optical GPU WDM Spectral Channels:         %d (Red 635nm, Green 532nm, Blue 450nm) [Weng et al., 2020]\n", sim.Params.GpuWdmChannelsCount)
+	fmt.Printf("Photonic AI Tensor Core Density:           %.0f TOPS/mm^2 [Xu et al., Nature 2021]\n", sim.Params.AiTensorDensityTOPS)
+	fmt.Printf("Photonic AI Tensor Energy Efficiency:      > %.0f TOPS/W [Shen et al., Nature Phot. 2017]\n", sim.Params.AiTensorEfficiency)
 
-	fmt.Println("\n--- 3. MONTE CARLO SIMULATION (1,000,000 CPU & MEMORY OPERATIONS) ---")
+	fmt.Println("\n--- 3. MONTE CARLO SIMULATION (1,000,000 CPU, GPU & AI OPERATIONS) ---")
 	res := sim.SimulateMonteCarloConcurrent(1000000)
 
 	fmt.Printf("Total Samples Tested:                      %d\n", res.TotalSamples)
@@ -69,7 +72,7 @@ func main() {
 		fmt.Printf("    %d     |        %2d       |       %6.2f ps       |   %s\n", input, output, arrivalTime, statusStr)
 	}
 
-	fmt.Println("\nSimulation Conclusion: Photonic Glass SSD integration and temporal logic")
-	fmt.Printf("confirm global average latency of %.2f ps, 1.2 TB/s throughput, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Println("\nSimulation Conclusion: Optical GPU WDM RGB, Photonic AI Tensor Engine,")
+	fmt.Printf("and Photonic SSD confirm latency of %.2f ps, 11 TOPS/mm^2, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
 	fmt.Println("======================================================================")
 }

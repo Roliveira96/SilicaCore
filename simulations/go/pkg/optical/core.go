@@ -7,7 +7,7 @@ import (
 // SpeedOfLightVacuo is the speed of light in vacuum in meters per second (m/s).
 const SpeedOfLightVacuo = 299792458.0
 
-// OpticalParams encapsulates physical, geometric, hardware, and Photonic SSD storage variables.
+// OpticalParams encapsulates physical, geometric, hardware, memory, GPU, and AI variables.
 type OpticalParams struct {
 	RefractiveIndex   float64 // Effective refractive index of substrate (e.g., 1.4500 for SiO2)
 	FastDistanceMM    float64 // d1: Straight-line path distance (mm)
@@ -23,9 +23,14 @@ type OpticalParams struct {
 	CacheL1HitRate            float64 // Nominal empirical hit rate probability for L1 Cache (e.g., 0.92)
 	PhotonicSsdThroughputTBps float64 // Photonic Glass SSD parallel read throughput in Terabytes per second (e.g., 1.2 TB/s)
 	PhotonicSsdCapacityTB     float64 // Photonic Glass SSD volumetric storage capacity per cube (e.g., 100 TB)
+
+	// Optical GPU & Photonic AI Tensor Engine Parameters
+	GpuWdmChannelsCount int     // Number of WDM spectral channels (Red 635nm, Green 532nm, Blue 450nm -> 3)
+	AiTensorDensityTOPS float64 // Photonic AI Tensor Core density (e.g., 11 TOPS/mm^2) [Xu et al., Nature 2021]
+	AiTensorEfficiency  float64 // Photonic AI Tensor Core energy efficiency (e.g., 100 TOPS/W) [Shen et al., 2017]
 }
 
-// DefaultParams returns the nominal configuration for the ToF processor, memory hierarchy, and Photonic SSD.
+// DefaultParams returns the nominal configuration for ToF CPU, Photonic SSD, Optical GPU, and AI Tensor Core.
 func DefaultParams() OpticalParams {
 	return OpticalParams{
 		RefractiveIndex:           1.4500,
@@ -40,6 +45,9 @@ func DefaultParams() OpticalParams {
 		CacheL1HitRate:            0.92,
 		PhotonicSsdThroughputTBps: 1.2,
 		PhotonicSsdCapacityTB:     100.0,
+		GpuWdmChannelsCount:       3,     // RGB Channels
+		AiTensorDensityTOPS:       11.0,  // 11 TOPS/mm^2
+		AiTensorEfficiency:        100.0, // 100 TOPS/W
 	}
 }
 

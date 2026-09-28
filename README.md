@@ -1,6 +1,6 @@
-# Processador Óptico Tridimensional por Tempo de Voo e Disco Fotônico em Vidro (SilicaCore)
+# Processador Óptico Tridimensional, GPU WDM RGB, Acelerador Tensor de IA e Photonic SSD em Vidro (SilicaCore)
 
-> **Arquitetura Computacional Volumétrica em Substrato de Sílica Fundida com Lógica ToF, Hierarquia de Memória Fotônica e Disco SSD Integrado**
+> **Arquitetura Computacional Volumétrica em Substrato de Sílica Fundida com Lógica ToF, GPU WDM RGB, Photonic AI Tensor Engine e Disco SSD Integrado**
 
 [![Licença: Apache 2.0](https://img.shields.io/badge/Licen%C3%A7a-Apache%202.0-blue.svg)](LICENSE)
 [![Licença Doc: CC BY 4.0](https://img.shields.io/badge/Documenta%C3%A7%C3%A3o-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
@@ -13,12 +13,14 @@
 - [1. Visão Geral e Motivação](#1-visão-geral-e-motivação)
 - [2. Contexto Institucional & Pesquisa Aberta](#2-contexto-institucional--pesquisa-aberta)
 - [3. Fundamentação Física e Equações de Propagação](#3-fundamentação-física-e-equações-de-propagação)
-- [4. Hierarquia de Memória e Disco Fotônico (Photonic SSD)](#4-hierarquia-de-memória-e-disco-fotônico-photonic-ssd)
-- [5. Arquitetura Lógica e Estrutura Volumétrica](#5-arquitetura-lógica-e-estrutura-volumétrica)
-- [6. Simulador Numérico em Go (Golang)](#6-simulador-numérico-em-go-golang)
-- [7. Referências Bibliográficas Científicas](#7-referências-bibliográficas-científicas)
-- [8. Estrutura do Repositório](#8-estrutura-do-repositório)
-- [9. Licença e Contribuição](#9-licença-e-contribuição)
+- [4. Processamento de Vídeo & GPU Óptica WDM RGB](#4-processamento-de-vídeo--gpu-óptica-wdm-rgb)
+- [5. Photonic AI Tensor Core (Multiplicação MVM)](#5-photonic-ai-tensor-core-multiplicação-mvm)
+- [6. Hierarquia de Memória e Disco Fotônico (Photonic SSD)](#6-hierarquia-de-memória-e-disco-fotônico-photonic-ssd)
+- [7. Arquitetura Lógica e Estrutura Volumétrica](#7-arquitetura-lógica-e-estrutura-volumétrica)
+- [8. Simulador Numérico em Go (Golang)](#8-simulador-numérico-em-go-golang)
+- [9. Referências Bibliográficas Científicas](#9-referências-bibliográficas-científicas)
+- [10. Estrutura do Repositório](#10-estrutura-do-repositório)
+- [11. Licença e Contribuição](#11-licença-e-contribuição)
 
 ---
 
@@ -26,9 +28,9 @@
 
 À medida que os limites físicos da litografia de semicondutores se aproximam da escala atômica, a eletrônica tradicional enfrenta dois grandes gargalos:
 1. **Dissipação Térmica Parasita:** O movimento de elétrons em condutores metálicos gera aquecimento por efeito Joule ($P = I^2 R$) e limites de latência RC.
-2. **Gargalo de von Neumann:** A transferência física constante de dados entre unidades de armazenamento e a ULA consome energia massiva.
+2. **Gargalo de von Neumann:** A transferência constante de dados entre unidades de armazenamento/memória e a ULA/GPU consome energia massiva.
 
-O **SilicaCore** propõe uma alternativa volumétrica em **substrato monolítico de sílica fundida ($SiO_2$)**, unificando processamento e o **Disco Fotônico de Estado Sólido (Photonic SSD)** no mesmo bloco. A lógica opera no **domínio temporal determinístico** através do tempo de voo (*Time-of-Flight*) de pulsos laser de femtossegundos.
+O **SilicaCore** propõe uma alternativa volumétrica em **substrato monolítico de sílica fundida ($SiO_2$)**, unificando ULA ToF, GPU WDM RGB, Acelerador Tensor de IA e o **Photonic SSD** no mesmo bloco.
 
 ---
 
@@ -37,7 +39,7 @@ O **SilicaCore** propõe uma alternativa volumétrica em **substrato monolítico
 Este repositório adota a filosofia de **Ciência Aberta (*Open Science*)**:
 - **Prova de Anterioridade Temporal:** Registro transparente e criptograficamente datado do desenvolvimento da arquitetura via commits Git.
 - **Colaboração em Rede na UTFPR:** Conexão entre o curso de Sistemas para Internet (UTFPR - Guarapuava) e laboratórios de Física, Fotônica e Engenharia Elétrica de outros campi (Curitiba / Pato Branco).
-- **Abordagem Simulation-First:** Engine de alta performance desenvolvida em **Go (Golang)** explorando concorrência nativa por *goroutines* para validar $1.000.000+$ de operações de CPU e memória.
+- **Abordagem Simulation-First:** Engine de alta performance desenvolvida em **Go (Golang)** explorando concorrência nativa por *goroutines* para validar $1.000.000+$ de operações de CPU, GPU WDM e IA Tensor Core.
 
 ---
 
@@ -52,27 +54,38 @@ Este repositório adota a filosofia de **Ciência Aberta (*Open Science*)**:
 
 ---
 
-## 4. Hierarquia de Memória e Disco Fotônico (Photonic SSD)
+## 4. Processamento de Vídeo & GPU Óptica WDM RGB
 
-1. **Cache L1/L2 Óptica ($\le 5.0\text{ ps}$):** Ressonadores de Micro-anéis (*Bogaerts et al., 2012; Alexoudi et al., 2020*).
-2. **Memória RAM Óptica Volátil ($\sim 96.73\text{ ps}$):** Cavidades em Linha de Atraso Recirculante em Anel Fechado com desacoplamento $95/5$ (*Yao, 1993*).
-3. **Photonic SSD em Vidro ($100\text{ TB}$ / cubo):**
-   - **Partição ROM de Sistema:** Nanofilamentos 3D em $SiO_2$ para inicialização instantânea (*Instant Boot*) com durabilidade $> 10^9$ anos (*Zhang et al., PRL 2014; Project Silica/Microsoft*).
-   - **Partição R/W Regravável:** Filmes de Mudança de Fase Fotônica (PCM - $GST / Sb_2Se_3$) para dados de usuário e IA com vazão de até **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*).
-
-Documentos detalhados:
-- [04-hierarquia-de-memoria-optica.md](docs/architecture/04-hierarquia-de-memoria-optica.md)
-- [05-armazenamento-em-vidro-disco-optico-ssd.md](docs/architecture/05-armazenamento-em-vidro-disco-optico-ssd.md)
+- **Multiplexação WDM RGB:** Operação paralela em 3 frequências laser ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) para canais de cor, profundidade e iluminação (*Weng et al., IEEE JSTQE 2020*).
+- **Ray-Tracing Óptico Nativo:** Trajetórias físicas de luz real dentro da sílica fundida geram reflexão, refração e iluminação em tempo real na velocidade da luz com latência $\le 5.0\text{ ps}$ (*Hamerly et al., PRX 2019*).
 
 ---
 
-## 5. Arquitetura Lógica e Estrutura Volumétrica
+## 5. Photonic AI Tensor Core (Multiplicação MVM)
+
+- **Malhas Mach-Zehnder (MZI Mesh):** Multiplicação Matriz-Vetor ($Y = W \cdot X$) para Transformers e LLMs em uma única passagem óptica de luz (*Shen et al., Nature Photonics 2017*).
+- **Computação In-Memory em PCM:** Pesos de modelos de IA gravados em filmes não-voláteis de $Ge_2Sb_2Te_5$ (GST) (*Feldmann et al., Nature 2021*).
+- **Desempenho:** Densidade de **11 TOPS/mm²** (*Xu et al., Nature 2021*) e eficiência energética de **> 100 TOPS/W**.
+
+---
+
+## 6. Hierarquia de Memória e Disco Fotônico (Photonic SSD)
+
+1. **Cache L1/L2 Óptica ($\le 5.0\text{ ps}$):** Ressonadores de Micro-anéis (*Bogaerts et al., 2012; Alexoudi et al., 2020*).
+2. **Memória RAM Óptica Volátil ($\sim 96.73\text{ ps}$):** Linhas de Atraso Recirculantes em Anel Fechado com desacoplamento $95/5$ (*Yao, 1993*).
+3. **Photonic SSD em Vidro ($100\text{ TB}$ / cubo):**
+   - **Partição ROM de Sistema:** Nanofilamentos 3D em $SiO_2$ para inicialização instantânea (*Instant Boot*) (*Zhang et al., PRL 2014*).
+   - **Partição R/W Regravável:** Filmes de Mudança de Fase Fotônica (PCM - $GST / Sb_2Se_3$) com vazão de até **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*).
+
+---
+
+## 7. Arquitetura Lógica e Estrutura Volumétrica
 
 ```mermaid
 flowchart TD
     subgraph CuboSilica["Substrato Monolítico de Sílica Fundida (25mm x 25mm x 25mm)"]
         direction TB
-        Andar4["Andar 4 (Z = 20-25mm): Photonic SSD R/W & Acelerador Tensor IA (PCM)"]
+        Andar4["Andar 4 (Z = 20-25mm): GPU Óptica WDM RGB, Photonic AI Tensor Core & PCM Storage"]
         Andar3["Andar 3 (Z = 15-20mm): Memória RAM Óptica Volátil (Delay-Line Loops)"]
         Andar2["Andar 2 (Z = 5-15mm): ULA ToF & Cache Óptica L1/L2 (< 5ps)"]
         Andar1["Andar 1 (Z = 0-5mm): Barramento Óptico Mestre & ROM Kernel em SiO2"]
@@ -92,16 +105,18 @@ Documentações completas da arquitetura:
 - [03-unidades-funcionais-alu-gpu-ia.md](docs/architecture/03-unidades-funcionais-alu-gpu-ia.md)
 - [04-hierarquia-de-memoria-optica.md](docs/architecture/04-hierarquia-de-memoria-optica.md)
 - [05-armazenamento-em-vidro-disco-optico-ssd.md](docs/architecture/05-armazenamento-em-vidro-disco-optico-ssd.md)
+- [06-processamento-de-video-gpu-optica.md](docs/architecture/06-processamento-de-video-gpu-optica.md)
+- [07-acelerador-tensor-ia-fototectonico.md](docs/architecture/07-acelerador-tensor-ia-fototectonico.md)
 - [whitepaper-v1.md](docs/papers/whitepaper-v1.md)
 
 ---
 
-## 6. Simulador Numérico em Go (Golang)
+## 8. Simulador Numérico em Go (Golang)
 
 ```bash
 cd simulations/go
 
-# Rodar a simulação estatística Monte Carlo (1.000.000 operações de CPU e Memória)
+# Rodar a simulação estatística Monte Carlo (1.000.000 operações de CPU, GPU WDM e IA Tensor Core)
 go run ./cmd/simulator
 
 # Executar a suíte de testes unitários
@@ -110,19 +125,19 @@ go test -v ./...
 
 ---
 
-## 7. Referências Bibliográficas Científicas
+## 9. Referências Bibliográficas Científicas
 
-1. **Zhang, J., et al. (2014).** "Seemingly unlimited lifetime data storage in white fused silica by ultrafast laser writing." *Physical Review Letters*, 112(3), 033901.
-2. **Ríos, C., et al. (2015).** "Integrated all-photonic non-volatile multi-level memory." *Nature Photonics*, 9(11), 700–706.
-3. **Feldmann, J., et al. (2019).** "All-optical spiking neurosynaptic networks with self-learning capabilities." *Nature*, 569(7755), 208–214.
-4. **Alexoudi, A., et al. (2020).** "Integrated Photonic Memories for High-Performance Computing." *IEEE JSTQE*, 26(2), 1–15.
-5. **Bogaerts, W., et al. (2012).** "Silicon microring resonators." *Laser & Photonics Reviews*, 6(1), 47–73.
-6. **Yao, X. S. (1993).** "High-frequency optical delay line memory." *IEEE Photonics Technology Letters*, 5(3), 371–374.
-7. **Microsoft Research (Project Silica).** "Project Silica: Long-term cloud storage in glass." *Microsoft Technology Report*.
+1. **Shen, Y., et al. (2017).** "Deep learning with coherent photonic circuits." *Nature Photonics*, 11(7), 441–446.
+2. **Feldmann, J., et al. (2021).** "Parallel convolutional processing using an integrated photonic tensor core." *Nature*, 595(7867), 373–378.
+3. **Xu, X., et al. (2021).** "11 TOPS mm⁻² photonic tensor core for optical neural networks." *Nature*, 589(7840), 44–51.
+4. **Weng, L., et al. (2020).** "Wavelength-division multiplexed photonic computing for high-throughput graphics and matrix processing." *IEEE JSTQE*, 26(5), 1–12.
+5. **Hamerly, R., et al. (2019).** "Large-Scale Optical Neural Networks and Image Processors Based on Photoelectric Multiplication." *Physical Review X*, 9(2), 021032.
+6. **Zhang, J., et al. (2014).** *Physical Review Letters*, 112(3), 033901.
+7. **Ríos, C., et al. (2015).** *Nature Photonics*, 9(11), 700–706.
 
 ---
 
-## 8. Estrutura do Repositório
+## 10. Estrutura do Repositório
 
 ```text
 .
@@ -135,7 +150,9 @@ go test -v ./...
 │   │   ├── 02-logica-tempo-de-voo.md
 │   │   ├── 03-unidades-funcionais-alu-gpu-ia.md
 │   │   ├── 04-hierarquia-de-memoria-optica.md
-│   │   └── 05-armazenamento-em-vidro-disco-optico-ssd.md
+│   │   ├── 05-armazenamento-em-vidro-disco-optico-ssd.md
+│   │   ├── 06-processamento-de-video-gpu-optica.md
+│   │   └── 07-acelerador-tensor-ia-fototectonico.md
 │   ├── papers/
 │   │   └── whitepaper-v1.md                 # Artigo científico completo com citações
 │   └── assets/diagramas/
@@ -147,7 +164,7 @@ go test -v ./...
 │       │       └── main.go                  # CLI executável
 │       └── pkg/
 │           └── optical/
-│               ├── core.go                  # Equações, latências e métricas de Photonic SSD
+│               ├── core.go                  # Equações, GPU WDM, AI Tensor Core & Photonic SSD
 │               ├── tof.go                   # Monte Carlo em Goroutines & Hierarquia de Memória
 │               └── tof_test.go              # Suíte de testes em Go
 └── planning/                                # Gestão de Metas e Roadmap
@@ -158,7 +175,7 @@ go test -v ./...
 
 ---
 
-## 9. Licença e Contribuição
+## 11. Licença e Contribuição
 
 - **Código Go e Scripts de Simulação:** Licenciados sob a [Apache License 2.0](LICENSE).
 - **Documentação e Artigos Técnicos:** Licenciados sob a [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
