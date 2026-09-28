@@ -201,7 +201,7 @@ Um modelo físico com parâmetros publicados descarta o roteamento por espelhos 
 
 Trabalhos futuros:
 - **Simulação eletromagnética (FDTD)** de espirais, curvas e transições Si₃N₄/TFLN, para substituir premissas de perda e atraso.
-- **Demonstrador em fibra**: bobinas de fibra como atrasos, moduladores de niobato de lítio comerciais, fotodiodos rápidos e TDC, resolvendo menor caminho num grafo pequeno.
+- **Demonstrador em fibra** (desenho em `docs/architecture/13-bancada-experimental-em-fibra.md`): atrasos em SMF-28 (20,4 mm por 100 ps), moduladores de niobato de lítio comerciais, fotodiodos rápidos e time tagger de 1,5–2 ps rms, em três fases: porta ToF, nó de race logic e grafo 3×3 com curva de erro por salto sob jitter injetado.
 - **Baseline moderno**: Dijkstra/A* otimizados em CPU e GPU atuais.
 - **Escala**: atrasos compartilhados entre arestas para reduzir área, e medição real do acoplamento entre chips (faceta ou interposer) que viabiliza o modo exato.
 

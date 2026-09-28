@@ -16,4 +16,4 @@
 - [ ] Apresentação em editais de Iniciação Científica (PIBIC/PIBITI UTFPR).
 
 ### Fase 4: Prototipagem Macro-Escala em Bancada
-- [ ] Montagem de bancada com divisores de feixe cúbicos, lasers pulsados 850nm e placas de aquisição TDC.
+- [ ] Bancada em fibra 1550 nm com moduladores LiNbO₃, atrasos em SMF-28, fotodiodos rápidos e time tagger (ver `docs/architecture/13-bancada-experimental-em-fibra.md`).

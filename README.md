@@ -167,6 +167,7 @@ Documentações completas da arquitetura:
 - [10-consumo-energetico-e-comparativo-silicio.md](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md)
 - [11-roteamento-e-comutacao-optica.md](docs/architecture/11-roteamento-e-comutacao-optica.md) — orçamento físico dos espelhos internos, materiais (Si₃N₄, TFLN, Sb₂Se₃) e BER corrigida
 - [12-memoria-unificada-jogos-e-ia-local.md](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md) — memória unificada óptica, IA local e jogos com base na literatura 2024–2026
+- [13-bancada-experimental-em-fibra.md](docs/architecture/13-bancada-experimental-em-fibra.md) — bancada em fibra 1550 nm para medir as premissas do simulador (porta ToF, nó de race logic, grafo 3×3)
 - [whitepaper-v1.md](docs/papers/whitepaper-v1.md)
 - [artigo-preliminar.md](docs/papers/artigo-preliminar.md) — rascunho do artigo: race logic fotônica em Si₃N₄/TFLN com orçamento físico e validação estatística
 
@@ -222,7 +223,8 @@ go test -v ./...
 │   │   ├── 09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md
 │   │   ├── 10-consumo-energetico-e-comparativo-silicio.md
 │   │   ├── 11-roteamento-e-comutacao-optica.md
-│   │   └── 12-memoria-unificada-jogos-e-ia-local.md
+│   │   ├── 12-memoria-unificada-jogos-e-ia-local.md
+│   │   └── 13-bancada-experimental-em-fibra.md
 │   ├── papers/
 │   │   ├── whitepaper-v1.md                 # Artigo científico completo com citações e agradecimentos
 │   │   ├── artigo-preliminar.md             # Rascunho do artigo de race logic fotônica

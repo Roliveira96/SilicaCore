@@ -27,5 +27,5 @@
 - [x] 25. Rascunho do artigo preliminar (race logic fotônica em Si₃N₄/TFLN) com Figura 1 de erro medido vs previsto gerada do CSV (`docs/papers/artigo-preliminar.md`, `simulations/results/plot_race_logic_hops.py`) [complexidade: alta] [concluída em 28-09-26]
 - [x] 26. Composição multi-chip de race logic: modo exato (enlaces entre chips com perda, jitter e erro estático) vs hierárquico estilo HPA*; conflito unidade de atraso × área × acoplamento (`multichip.go`, `cmd/racemultichip`, artigo seção 5.5) [complexidade: alta] [concluída em 28-09-26]
 - [ ] 16. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
-- [ ] 17. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
+- [ ] 17. Protótipo de bancada em fibra 1550 nm (moduladores LiNbO₃, fibras SMF-28 como atrasos, fotodiodos rápidos, time tagger): Fase A porta ToF, Fase B nó de race logic, Fase C grafo 3×3 com curva de erro por salto — desenho em `docs/architecture/13-bancada-experimental-em-fibra.md` (substitui a bancada de feixe livre com divisores cúbicos e SPAD)
 - [ ] 18. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)
