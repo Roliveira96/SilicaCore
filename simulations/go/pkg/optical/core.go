@@ -39,11 +39,11 @@ const (
 	DefaultWindowWidthPS = 75.0
 
 	// ------------------------------------------------------------------------
-	// 2. CONTINUOUS WAVE LASER ENGINE (NORITSU CW) & M-ARY DENSE ENCODING
+	// 2. CONTINUOUS WAVE LASER ENGINE (SOLID-STATE CW) & M-ARY DENSE ENCODING
 	// ------------------------------------------------------------------------
 
 	// DefaultLaserEngineMode is the operational mode of the continuous wave lasers.
-	DefaultLaserEngineMode = "Continuous Wave (Noritsu CW Style - Always-ON)"
+	DefaultLaserEngineMode = "Continuous Wave (Solid-State CW Engine - Always-ON)"
 
 	// DefaultEncodingFormat is the spectral/phase data encoding scheme.
 	DefaultEncodingFormat = "M-ary Multi-Level WDM (Hexadecimal 4-bit / 16-QAM/PAM-4 Equivalent)"
@@ -151,8 +151,8 @@ type OpticalParams struct {
 	TdcResolutionPS   float64 // Time-to-Digital Converter LSB resolution in ps
 	WindowWidthPS     float64 // Sampling time-gating window width in ps
 
-	// Noritsu-Style Continuous Wave (CW) Laser Engine & M-ary Multi-Level Encoding
-	LaserEngineMode       string // Laser Mode: "Continuous Wave (Noritsu CW Style - Always-ON)"
+	// Solid-State Continuous Wave (CW) Laser Engine & M-ary Multi-Level Encoding
+	LaserEngineMode       string // Laser Mode: "Continuous Wave (Solid-State CW Engine - Always-ON)"
 	EncodingFormat        string // Data Encoding: "M-ary Multi-Level WDM (Hexadecimal 4-bit / Byte 8-bit)"
 	BitsPerSymbol         int    // Bits per optical symbol (8 bits = 1 Byte / symbol)
 	MultiLevelStatesCount int    // Number of discrete spectral/phase states (256 states for 8-bit Byte)

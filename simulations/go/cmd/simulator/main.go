@@ -34,7 +34,7 @@ func main() {
 	fmt.Println("======================================================================")
 	fmt.Println("   VOLUMETRIC OPTICAL PROCESSOR SIMULATION - SILICA CORE (GOLANG)    ")
 	fmt.Println("   Substrate: Fused Silica (SiO2) | Detection: SPAD + TDC            ")
-	fmt.Println("   Conceptual Inspiration: Noritsu CW Laser Scanning Principles      ")
+	fmt.Println("   Conceptual Inspiration: Continuous Wave Solid-State Laser Scanning")
 	fmt.Println("   Special Acknowledgment: Ricardo Oliveira & Valmor Moreira (Grafis)")
 	fmt.Printf("   Parallel Execution on %d CPU Cores (Goroutines)\n", runtime.NumCPU())
 	fmt.Println("======================================================================")
@@ -61,7 +61,7 @@ func main() {
 	calibratedWindow := sim.CalibrateOptimalWindow(CalibrationPulseCount)
 	fmt.Printf("Auto-Calibrated Time Window (%d pulses): %.2f ps (Half-Window: +/-%.2f ps)\n", CalibrationPulseCount, calibratedWindow, calibratedWindow/2.0)
 
-	fmt.Println("\n--- 2. NORITSU CW LASERS, M-ARY ENCODING & SYSTEM HARDWARE ---")
+	fmt.Println("\n--- 2. CONTINUOUS WAVE LASERS, M-ARY ENCODING & SYSTEM HARDWARE ---")
 	fmt.Printf("Laser Engine Mode:                         %s\n", sim.Params.LaserEngineMode)
 	fmt.Printf("Data Encoding Scheme:                      %s\n", sim.Params.EncodingFormat)
 	fmt.Printf("Bits Per Optical Symbol:                   %d bits (%d Discrete States / Symbol)\n", sim.Params.BitsPerSymbol, sim.Params.MultiLevelStatesCount)
@@ -161,7 +161,7 @@ func main() {
 	fmt.Println("Geração Térmica / Fricção    | Altíssima (Efeito Joule)    | Próxima de zero no substrato óptico")
 	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
 
-	fmt.Println("\nSimulation Conclusion: Noritsu CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
+	fmt.Println("\nSimulation Conclusion: Solid-State CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
 	fmt.Printf("Optical GPU WDM RGB, and Photonic SSD confirm %.2f ps latency, %dx throughput boost, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS, sim.Params.BitsPerSymbol)
 	fmt.Println("======================================================================")
 }

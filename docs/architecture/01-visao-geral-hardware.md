@@ -10,8 +10,8 @@ O núcleo do processador consiste em um bloco cúbico de **sílica fundida de ul
 
 ---
 
-## 2. Motor Laser Contínuo CW (Estilo Minilab Noritsu)
-1. **Emissão Contínua (Always-ON CW Lasers):** Diodos/DPSS laser RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam **permanentemente acesos em potência estabilizada**, eliminando surtos térmicos e repetição de chaveamento elétrico (*Noritsu Laser Tech Report*).
+## 2. Motor Laser Contínuo CW em Estado Sólido (Always-ON)
+1. **Emissão Contínua (Always-ON CW Lasers):** Diodos/DPSS laser RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam **permanentemente acesos em potência estabilizada**, eliminando surtos térmicos e repetição de chaveamento elétrico (*CW Solid-State Laser Report*).
 2. **Deflexão e Roteamento Eletro-Óptico:** Ao energizar a placa, moduladores AOM/EOM e micro-espelhos 3D gravados no vidro iniciam o espelhamento e o direcionamento contínuo dos feixes pelas rotas lógicas.
 3. **Face de Recepção (Detectores M-ários):** Matriz 2D de Fotodiodos SPAD/CMOS operando amostragem síncrona TDC para leitura de estados em Hexadecimal (4 bits) e Bytes (8 bits por símbolo).
 4. **Revestimento Reflexivo:** Faces externas revestidas com espelhos dielétricos multincamadas (Bragg) de titânia/sílica ($TiO_2/SiO_2$) apresentando refletividade $> 99.95\%$.

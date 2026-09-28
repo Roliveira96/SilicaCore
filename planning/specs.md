@@ -3,11 +3,11 @@
 | Parâmetro | Valor Nominal | Unidade | Referência / Mecanismo Físico |
 | :--- | :--- | :--- | :--- |
 | Substrato | Sílica Fundida ($SiO_2$) | - | Grau UV/IR de ultra-alta pureza |
-| Motor Laser | Continuous Wave (CW) | - | **Estilo Minilab Noritsu (Lasers Always-ON)** |
+| Motor Laser | Continuous Wave (CW) | - | **Lasers Continuous Wave de Estado Sólido (Lasers Always-ON)** |
 | Roteamento de Dados | Deflexão EOM/AOM | - | Ativado ao energizar a placa por micro-espelhos 3D |
 | Codificação de Dados | M-ária Espectral WDM | - | **Hexadecimal (4-bit) / Byte Completo (8-bit)** |
 | Multiplicador de Vazão | $8\times$ | - | Saída direta em palavras de Bytes/Megabytes |
-| Comprimentos de Onda ($\lambda$) | 635, 532, 450, 850 | nm | Laser RGB Noritsu + Emissão ToF |
+| Comprimentos de Onda ($\lambda$) | 635, 532, 450, 850 | nm | Laser RGB Optoeletrônico + Emissão ToF |
 | Índice de Refração ($n$) | 1.4500 | - | Índice efetivo no vidro |
 | Velocidade no Meio ($v$) | 0.20675 | mm/ps | Velocidade de fase da luz ($c/n$) |
 | Distância Linha Rápida ($d_1$) | 20.000 | mm | Trajetória direta (Estado 1) |

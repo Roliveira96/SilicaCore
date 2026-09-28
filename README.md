@@ -1,6 +1,6 @@
-# Processador Óptico Tridimensional com Canhões Laser Contínuos Noritsu, Codificação Densa Hexadecimal/Byte, Computação Quântica LOQC, GPU WDM RGB, Acelerador Tensor de IA e Photonic SSD (SilicaCore)
+# Processador Óptico Tridimensional com Canhões Laser Contínuos em Estado Sólido, Codificação Densa Hexadecimal/Byte, Computação Quântica LOQC, GPU WDM RGB, Acelerador Tensor de IA e Photonic SSD (SilicaCore)
 
-> **Arquitetura Computacional Volumétrica em Substrato de Sílica Fundida com Motor Laser CW Estilo Noritsu (Always-ON), Codificação M-ária (Byte/Hex), Lógica ToF, Processador Quântico Fotônico Híbrido, GPU WDM RGB, Photonic AI Tensor Engine e Disco SSD Integrado**
+> **Arquitetura Computacional Volumétrica em Substrato de Sílica Fundida com Motor Laser CW (Always-ON), Codificação M-ária (Byte/Hex), Lógica ToF, Processador Quântico Fotônico Híbrido, GPU WDM RGB, Photonic AI Tensor Engine e Disco SSD Integrado**
 
 [![Licença: Apache 2.0](https://img.shields.io/badge/Licen%C3%A7a-Apache%202.0-blue.svg)](LICENSE)
 [![Licença Doc: CC BY 4.0](https://img.shields.io/badge/Documenta%C3%A7%C3%A3o-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
@@ -12,7 +12,7 @@
 ## 📌 Sumário
 - [1. Visão Geral e Motivação](#1-visão-geral-e-motivação)
 - [2. Origem Prática de Engenharia & Agradecimentos (Grafis / Valmor Moreira)](#2-origem-prática-de-engenharia--agradecimentos-grafis--valmor-moreira)
-- [3. Motor Laser Contínuo CW (Estilo Minilab Noritsu)](#3-motor-laser-contínuo-cw-estilo-minilab-noritsu)
+- [3. Motor Laser Contínuo CW (Always-ON Laser Engine)](#3-motor-laser-contínuo-cw-always-on-laser-engine)
 - [4. Codificação Densa M-ária (Hexadecimal / Byte)](#4-codificação-densa-m-ária-hexadecimal--byte)
 - [5. Fundamentação Física e Equações de Propagação](#5-fundamentação-física-e-equações-de-propagação)
 - [6. Processamento Quântico Fotônico LOQC em Temperatura Ambiente](#6-processamento-quântico-fotônico-loqc-em-temperatura-ambiente)
@@ -35,15 +35,15 @@ O **SilicaCore** é uma arquitetura computacional volumétrica em **sílica fund
 
 ## 2. Origem Prática de Engenharia & Agradecimentos (Grafis / Valmor Moreira)
 
-A concepção teórica e prática do SilicaCore **não utiliza componentes físicos extraídos de minilabs Noritsu**, tratando-se de uma **inspiração conceitual de engenharia de alta estabilidade**. Essa ideia foi diretamente extraída da experiência prática de campo acumulada pelo autor (Ricardo Oliveira) em colaboração com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
+A concepção teórica e prática do SilicaCore foi diretamente extraída da experiência prática de campo acumulada pelo autor (Ricardo Oliveira) em colaboração com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
 
-Na empresa Grafis, operavam-se equipamentos fotográficos industriais da linha Noritsu, cuja exposição de imagem ocorria via canhões laser sólidos contínuos (RGB) direcionados por um **prisma rotativo e espelhos de precisão** sobre papel sensível à luz. A observação dessa varredura física em tempo real originou o *insight* de aplicar feixes de laser acesos e direcionados por micro-espelhos em sílica para sensibilizar matrizes SPAD, realizando computação e armazenamento de alta performance.
+Na empresa Grafis, operavam-se equipamentos fotográficos industriais de exposição a laser contínuo (RGB) direcionados por um **prisma rotativo e espelhos de precisão** sobre papel sensível à luz. A observação dessa varredura física em tempo real originou o *insight* de aplicar feixes de laser acesos e direcionados por micro-espelhos em sílica para sensibilizar matrizes SPAD, realizando computação e armazenamento de alta performance.
 
 ---
 
-## 3. Motor Laser Contínuo CW (Inspiração Conceitual dos Minilabs Noritsu)
+## 3. Motor Laser Contínuo CW (Always-ON Laser Engine)
 
-Inspirado no princípio de exposição constante dos minilabs fotográficos Noritsu:
+Inspirado no princípio de exposição constante dos sistemas fotográficos industriais:
 - **Lasers Sempre Acesos (Always-ON CW Engine):** Canhões laser RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam **constantemente ligados em potência estabilizada**, eliminando surtos térmicos e repetição de chaveamento elétrico de diodos.
 - **Roteamento Eletro-Óptico na Inicialização:** Ao alimentar a placa, moduladores EOM/AOM e micro-espelhos 3D gravados no vidro realizam o direcionamento contínuo dos feixes pelas rotas ópticas.
 
@@ -54,7 +54,7 @@ Inspirado no princípio de exposição constante dos minilabs fotográficos Nori
 - **Modo Hexadecimal (4 bits/símbolo):** 16 estados ópticos discretos por canal espacial (`0x0` a `0xF`).
 - **Modo Byte Completo (8 bits/símbolo):** 256 estados WDM lidos diretamente pelos detectores SPAD, entregando **Bytes e Megabytes por segundo ($8\times$ mais rápido)** diretamente à placa sem decodificadores binários intermediários.
 
-Documento detalhado: [09-canhoes-laser-continuos-noritsu-e-codificacao-multi-nivel.md](docs/architecture/09-canhoes-laser-continuos-noritsu-e-codificacao-multi-nivel.md).
+Documento detalhado: [09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md](docs/architecture/09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md).
 
 ---
 
@@ -125,7 +125,7 @@ flowchart TD
         Andar3 --> Andar4
     end
 
-    Input["Motor Laser CW RGB (Always-ON Noritsu Style - Inspirado na Grafis)"] --> CuboSilica
+    Input["Motor Laser CW RGB (Always-ON Solid-State CW Engine - Inspirado na Grafis)"] --> CuboSilica
     CuboSilica --> Output["Matriz SPAD M-ária -> Saída em Hexadecimal / Bytes Direct"]
 ```
 
@@ -138,7 +138,8 @@ Documentações completas da arquitetura:
 - [06-processamento-de-video-gpu-optica.md](docs/architecture/06-processamento-de-video-gpu-optica.md)
 - [07-acelerador-tensor-ia-fototectonico.md](docs/architecture/07-acelerador-tensor-ia-fototectonico.md)
 - [08-processamento-quantico-fotonico-loqc.md](docs/architecture/08-processamento-quantico-fotonico-loqc.md)
-- [09-canhoes-laser-continuos-noritsu-e-codificacao-multi-nivel.md](docs/architecture/09-canhoes-laser-continuos-noritsu-e-codificacao-multi-nivel.md)
+- [09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md](docs/architecture/09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md)
+- [10-consumo-energetico-e-comparativo-silicio.md](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md)
 - [whitepaper-v1.md](docs/papers/whitepaper-v1.md)
 
 ---
@@ -159,8 +160,8 @@ go test -v ./...
 
 ## 12. Referências Bibliográficas Científicas & Práticas
 
-1. **Grafis & Registro Prático:** Experiência prática de campo em minilabs fotográficos Noritsu por Ricardo Oliveira e Valmor Moreira (Empresa Grafis).
-2. **Noritsu Koki Co., Ltd.** "Precision Laser Exposure Engine Technology for Photofinishing Systems." *Technical Report*.
+1. **Grafis & Registro Prático:** Experiência prática de campo em exposição a laser contínuo por Ricardo Oliveira e Valmor Moreira (Empresa Grafis).
+2. **Miller, D. A. B. (2017).** "Attojoule optoelectronics for low-energy information processing and communications." *Nature Photonics*, 11(1), 39–43.
 3. **Kok, P., et al. (2007).** "Linear optical quantum computing with photonic qubits." *Reviews of Modern Physics*, 79(1), 135–174.
 4. **Carolan, J., et al. (2015).** "Universal linear optics." *Science*, 349(6249), 711–716.
 5. **Crespi, A., et al. (2013).** *Nature Photonics*, 7(7), 545–549.
@@ -190,7 +191,8 @@ go test -v ./...
 │   │   ├── 06-processamento-de-video-gpu-optica.md
 │   │   ├── 07-acelerador-tensor-ia-fototectonico.md
 │   │   ├── 08-processamento-quantico-fotonico-loqc.md
-│   │   └── 09-canhoes-laser-continuos-noritsu-e-codificacao-multi-nivel.md
+│   │   ├── 09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md
+│   │   └── 10-consumo-energetico-e-comparativo-silicio.md
 │   ├── papers/
 │   │   └── whitepaper-v1.md                 # Artigo científico completo com citações e agradecimentos
 │   └── assets/diagramas/
@@ -202,7 +204,7 @@ go test -v ./...
 │       │       └── main.go                  # CLI executável com mensagem de homenagem
 │       └── pkg/
 │           └── optical/
-│               ├── core.go                  # Equações, Noritsu CW, M-ary Byte, LOQC, GPU & SSD
+│               ├── core.go                  # Equações, Solid-State CW Engine, M-ary Hex, LOQC, GPU & SSD
 │               ├── tof.go                   # Monte Carlo em Goroutines & Hierarquia de Memória
 │               └── tof_test.go              # Suíte de testes em Go
 └── planning/                                # Gestão de Metas e Roadmap
@@ -210,6 +212,7 @@ go test -v ./...
     ├── tasks.md
     └── specs.md
 ```
+
 
 ---
 
