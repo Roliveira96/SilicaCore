@@ -39,6 +39,7 @@ O **SilicaCore** é uma arquitetura computacional volumétrica em **sílica fund
 | BER da decisão ToF | **$\approx 4.3 \times 10^{-6}$** (Monte Carlo: $\sim 2 \times 10^{-5}$) | BER $10^{-12}$ exige $Q = 7.03$, ou seja, $\sigma_{\text{total}} \le 7.1$ ps |
 | Taxa por canal (slot $\Delta t + W$) | **$\approx 5.1$ GHz** ($\approx 20.5$ Gb/s com 4 bits/símbolo) | Micro-cubo de 2 mm: $\approx 55.6$ GHz, mas com $Q = 3.64$ |
 | Teto do detector SPAD | **$\le 0.5$ GHz** (tempo morto $\ge 2$ ns) | Caminho de dados usa fotodiodos UTC/InGaAs ($\sim 150$ Gbaud) |
+| Race logic fotônica (menor caminho, mapa 16×16) | **0 erros** com unidade de 50 ps; 36.5 ns por consulta | Leitura TDC domina; até 16×16 cabe num retículo ([doc 11, seção 5.1](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
 | Roteamento por espelhos internos em bloco | **Inviável** (46.6 dB/porta) | Plataforma adotada: Si₃N₄ + TFLN, 1.3 dB/porta ([doc 11](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
 
 Os demais números deste README que dependem dessas métricas foram alinhados a elas. Afirmações ainda não validadas estão marcadas como **premissa**.
@@ -232,6 +233,8 @@ go test -v ./...
 │               ├── tof.go                   # Monte Carlo em Goroutines & Hierarquia de Memória
 │               ├── budget.go                # Orçamento físico: espelhos vs guias, comutadores, BER corrigida
 │               ├── memory.go                # Memória unificada, linha de atraso e dimensionamento de IA local
+│               ├── racelogic.go             # Race logic fotônica: menor caminho por tempo de voo vs Dijkstra
+│               ├── racelogic_test.go        # Testes de race logic
 │               ├── budget_test.go           # Testes do orçamento físico e de memória
 │               └── tof_test.go              # Suíte de testes em Go
 └── planning/                                # Gestão de Metas e Roadmap

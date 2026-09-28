@@ -28,6 +28,12 @@ const (
 
 	// NotGateBatchTestCount is the number of batch test executions performed on the ToF NOT inverter gate.
 	NotGateBatchTestCount = 100
+
+	// RaceGridSide is the side of the game-map grid used in the race-logic benchmark.
+	RaceGridSide = 16
+
+	// RaceTrials is the number of random-source races per race-logic configuration.
+	RaceTrials = 200
 )
 
 func main() {
@@ -185,6 +191,7 @@ func main() {
 
 	printPhysicalBudget(sim)
 	printUnifiedMemoryAndLocalAI(sim)
+	printRaceLogicBenchmark()
 
 	fmt.Println("\nSimulation Conclusion:")
 	fmt.Printf("Default geometry: Q = %.2f (BER %.2e), %.2f GHz per channel. Micro-cube: Q = %.2f (BER %.2e), %.2f GHz per channel,\n", timing.QFactor, timing.TheoreticalBER, timing.ToFSymbolRateGHz, microTiming.QFactor, microTiming.TheoreticalBER, microTiming.ToFSymbolRateGHz)
@@ -247,4 +254,47 @@ func printUnifiedMemoryAndLocalAI(sim *optical.ToFSimulator) {
 		fmt.Printf("%4.0fB params @ %d-bit: %6.1f GB | PCM area %8.1f cm^2 (fits reticle: %v) | decode bound %6.1f tok/s\n",
 			r.ParamsBillions, r.BitsPerWeight, r.ModelGB, r.PcmAreaCM2, r.FitsOnReticle, r.DecodeTokensPerSec)
 	}
+}
+
+// printRaceLogicBenchmark races light through game-map grids and checks every distance against classical Dijkstra.
+func printRaceLogicBenchmark() {
+	fmt.Println("\n--- 12. PHOTONIC RACE LOGIC: SHORTEST PATH ON GAME-MAP GRIDS vs DIJKSTRA ---")
+	p := optical.DefaultRaceLogicParams()
+	g := optical.NewGridGraph(RaceGridSide, RaceGridSide, p.MaxWeight(), 42)
+	hw := optical.BuildRaceHardware(g, p, 42)
+
+	fmt.Printf("Grid:                                      %dx%d (%d nodes, %d directed edges, terrain cost 1..%d)\n",
+		RaceGridSide, RaceGridSide, len(g.Adj), g.NumEdges(), p.MaxWeight())
+	fmt.Printf("Hardware:                                  %d photodiodes, %d TFLN modulators, %d Sb2Se3 switches, %d TDCs\n",
+		hw.Detectors, hw.Modulators, hw.PcmSwitches, hw.Tdcs)
+	fmt.Printf("Longest edge delay line (Si3N4 spiral):    %.1f mm\n", hw.MaxEdgeLengthMM)
+	fmt.Printf("Total delay waveguide / spiral area:       %.1f m / %.0f mm^2 (fits one reticle: %v)\n", hw.TotalDelayM, hw.DelayAreaMM2, hw.FitsOnReticle)
+	fmt.Printf("Worst edge loss / margin:                  %.2f / %.1f dB (closes: %v)\n", hw.WorstEdgeLossDb, hw.PowerMarginDb, hw.LinkBudgetOK)
+
+	shared := p
+	shared.PerEdgeModulators = false
+	hwShared := optical.BuildRaceHardware(g, shared, 42)
+	fmt.Printf("Same with one shared modulator per node:   %.2f dB (closes: %v; fan-out split on the data pulse)\n",
+		hwShared.WorstEdgeLossDb, hwShared.LinkBudgetOK)
+
+	fmt.Printf("\n%-10s %-9s %-7s %-12s %-12s %-12s %-12s\n", "Unit(ps)", "MaxHops", "Q", "NodeErr", "QueryErr", "Race(ns)", "Dijkstra(ns)")
+	for _, unit := range []float64{25, 35, 50, 100} {
+		pu := p
+		pu.UnitDelayPS = unit
+		r := optical.SimulateRaceLogic(g, pu, RaceTrials, 42)
+		fmt.Printf("%-10.0f %-9d %-7.2f %-12.2e %-12.2e %-12.2f %-12.0f\n",
+			unit, r.MaxHops, r.DecisionQ, r.NodeErrorRate, r.QueryErrorRate, r.RaceSolveTimeNS, r.DijkstraSolveTimeNS)
+	}
+
+	fmt.Printf("\n%-8s %-7s %-10s %-12s %-11s %-13s %-9s %-10s %s\n", "Grid", "Nodes", "Race(ns)", "Readout(ns)", "Total(ns)", "Dijkstra(ns)", "Speedup", "BreakEven", "Area(mm^2)")
+	for _, side := range []int{8, 16, 32, 64} {
+		gs := optical.NewGridGraph(side, side, p.MaxWeight(), 42)
+		r := optical.SimulateRaceLogic(gs, p, RaceTrials, 42)
+		fmt.Printf("%-8s %-7d %-10.2f %-12.2f %-11.2f %-13.0f %-9.0f %-10.2f %.0f (reticle: %v)\n",
+			fmt.Sprintf("%dx%d", side, side), r.Nodes, r.RaceSolveTimeNS, r.ReadoutTimeNS, r.TotalQueryTimeNS, r.DijkstraSolveTimeNS, r.SpeedupPerQuery, r.BreakEvenQueries, r.DelayAreaMM2, r.FitsOnReticle)
+	}
+	fmt.Printf("Race time grows with the longest shortest path (D x %.0f ps), not O(1); readout of %d-bit TDC values over %.0f Gb/s grows with N.\n",
+		p.UnitDelayPS, p.TdcBitsPerNode, p.ReadoutLinkGbps)
+	fmt.Println("Dijkstra baseline is measured in Go on this machine (single thread); a current desktop CPU is several times faster.")
+	fmt.Printf("Break-even: queries needed to amortize %.0f ns of Sb2Se3 programming; changing the source needs no reprogramming.\n", p.PcmProgramTimeNS)
 }

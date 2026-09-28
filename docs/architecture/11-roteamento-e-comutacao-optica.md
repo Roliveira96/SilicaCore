@@ -86,6 +86,41 @@ A lógica ToF é, em essência, **race logic** (Madhavan, Sherwood & Strukov, IS
 
 Os atrasos são **programados por chaves Sb₂Se₃** uma vez por problema, e a luz percorre a rede em picossegundos. Isso encaixa exatamente no que a física permite hoje (reconfiguração lenta, propagação rápida). Resolve nativamente menor caminho em grafos, alinhamento de sequências e DTW, que servem para pathfinding de NPCs em jogos, por exemplo.
 
+### 5.1 Protótipo Simulado (`pkg/optical/racelogic.go`, simulador seção 12)
+
+**Mapeamento físico:**
+- **Aresta** = linha de atraso programável: 4 estágios binários de espiral Si₃N₄ selecionados por chaves Sb₂Se₃ (pesos 1–15). Unidade de peso = 50 ps.
+- **Nó** = detecta a primeira chegada e re-emite. Um fotodiodo por aresta de entrada, com OR eletrônico (sem combinador passivo com perda), mais um modulador TFLN por aresta de saída.
+- A latência de regeneração do nó (20 ps) é **descontada do atraso de cada aresta**. Sem isso, caminhos com mais saltos seriam penalizados e a corrida daria a resposta errada.
+- **Ruído:** jitter de 1.5 ps rms por nó e erro estático de 0.5 ps rms por aresta, acumulando a cada salto.
+
+**Correção frente ao Dijkstra clássico** (mapa de jogo 16×16, 200 origens aleatórias, todas as distâncias comparadas):
+
+| Unidade (ps) | Q no pior caminho (32 saltos) | Erro por nó | Consultas com algum erro |
+| :---: | :---: | :---: | :---: |
+| 25 | 1.40 | 2.2×10⁻² | 63% |
+| 35 | 1.96 | 2.4×10⁻³ | 13% |
+| **50** | 2.80 | **0** | **0%** |
+| 100 | 5.59 | 0 | 0% |
+
+**Tempo por consulta** (origem única, todas as distâncias):
+
+| Mapa | Corrida da luz | Leitura TDC (12 bits a 100 Gb/s) | Total | Dijkstra (Go, i3-3217U 2012) | Área das espirais |
+| :--- | ---: | ---: | ---: | ---: | :--- |
+| 8×8 | 3.0 ns | 7.7 ns | 10.7 ns | ~11 µs | 76 mm² |
+| 16×16 | 5.7 ns | 30.7 ns | 36.5 ns | ~50–60 µs | 324 mm² |
+| 32×32 | 10.0 ns | 122.9 ns | 132.9 ns | ~0.2–0.4 ms | 1.338 mm² (não cabe num retículo) |
+| 64×64 | 21.0 ns | 491.5 ns | 512.5 ns | ~2 ms | 5.439 mm² (não cabe) |
+
+**Leitura honesta dos resultados:**
+1. **Não é O(1).** A corrida cresce com a maior distância do grafo ($D \times 50$ ps), e a leitura cresce com o número de nós ($N \times 12$ bits). A partir de 8×8, **a leitura eletrônica domina o tempo**, não a luz.
+2. **Speedup medido de ~1.000–4.000×** contra Dijkstra em Go numa CPU de 2012. Numa CPU desktop atual (5–8× mais rápida) o ganho cai para a ordem de **~150–800×**. O A* com heurística, usado em jogos, visita menos nós e reduz ainda mais a diferença.
+3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~109 mm). **Até 16×16 cabe num retículo**; mapas maiores exigem particionamento em blocos ou atrasos compartilhados.
+4. **Hardware pesado:** o 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs. Com um modulador compartilhado por nó, a divisão de fan-out (6 dB) estoura a margem: 10.11 dB contra 10 dB.
+5. **Programação amortizada:** gravar os atrasos (~1 µs, premissa) se paga já na primeira consulta, e trocar a origem não exige reprogramar.
+
+**Nicho validado:** consultas repetidas de menor caminho em mapas de até ~16×16 blocos, por exemplo pathfinding hierárquico de NPCs em que cada bloco do mapa é resolvido na corrida óptica.
+
 Trabalho relacionado mais próximo: **CPU totalmente óptica da Akhetonics** (Kissner et al., arXiv:2403.00045, 2024), com registradores em linha de atraso, memória PCM de escrita única e regeneração 2R. Opera abaixo de 1 GHz no demonstrador e é a referência de comparação honesta para o SilicaCore.
 
 ---
