@@ -17,7 +17,7 @@ const (
 	// CalibrationPulseCount is the number of reference pulses used in initial time-gating window calibration.
 	CalibrationPulseCount = 10000
 
-	// MAryTestSymbolCount is the number of dense M-ary optical symbols (0x00..0xFF) tested during transmission.
+	// MAryTestSymbolCount is the number of dense M-ary optical symbols (0x0..0xF in hexadecimal mode) tested during transmission.
 	MAryTestSymbolCount = 100000
 
 	// AiTensorMeshDimension is the N x N matrix dimension of the Mach-Zehnder Interferometer (MZI) mesh in the Photonic AI Tensor Core.
@@ -71,23 +71,23 @@ func main() {
 	fmt.Printf("Laser Engine Mode:                         %s\n", sim.Params.LaserEngineMode)
 	fmt.Printf("Data Encoding Scheme:                      %s\n", sim.Params.EncodingFormat)
 	fmt.Printf("Bits Per Optical Symbol:                   %d bits (%d Discrete States / Symbol)\n", sim.Params.BitsPerSymbol, sim.Params.MultiLevelStatesCount)
-	fmt.Printf("L1 Cache Latency (Micro-ring Resonators):  <= %.2f ps  [Alexoudi et al., 2020]\n", sim.Params.CacheL1LatencyPS)
-	fmt.Printf("Photonic RAM Latency (Delay-Line Loop):   ~%.2f ps   [Yao, 1993]\n", sim.Params.RamLoopLatencyPS)
-	fmt.Printf("Kernel ROM Access (Femtosecond SiO2):      ~%.2f ps (Direct c/n) [Zhang et al., 2014]\n", sim.T1NominalPS)
-	fmt.Printf("Photonic Glass SSD Capacity:               %.0f TB / cube [Project Silica / Microsoft]\n", sim.Params.PhotonicSsdCapacityTB)
-	fmt.Printf("Photonic Glass SSD Read Throughput:        %.1f TB/s (Parallel WDM)\n", sim.Params.PhotonicSsdThroughputTBps)
+	fmt.Printf("L1 Photonic SRAM Cell Latency (pSRAM):     ~%.2f ps (40 GHz, KB-class) [arXiv:2503.19544]\n", sim.Params.CacheL1LatencyPS)
+	fmt.Printf("Delay-Line Buffer Loop Period:             ~%.2f ps (buffer, not main RAM) [Yao, 1993]\n", sim.Params.RamLoopLatencyPS)
+	fmt.Printf("Glass Voxel Storage:                       write-once archival; flight time %.2f ps, read by microscopy [Zhang et al., 2014]\n", sim.T1NominalPS)
+	fmt.Printf("Photonic Glass SSD Capacity:               %.0f TB in 15.6 cm^3 (ASSUMPTION) [Project Silica / Microsoft]\n", sim.Params.PhotonicSsdCapacityTB)
+	fmt.Printf("Photonic Glass SSD Read Throughput:        %.1f TB/s (ASSUMPTION, not demonstrated)\n", sim.Params.PhotonicSsdThroughputTBps)
 	fmt.Printf("Optical GPU WDM Spectral Channels:         %d (Red 635nm, Green 532nm, Blue 450nm) [Weng et al., 2020]\n", sim.Params.GpuWdmChannelsCount)
 
 	fmt.Println("\n--- 3. M-ARY DENSE SYMBOL TRANSMISSION SIMULATION ---")
 	mAryRes := sim.SimulateMAryEncoding(MAryTestSymbolCount)
-	fmt.Printf("M-ary Byte Symbols Tested:                 %d (0x00..0xFF)\n", mAryRes.TotalSymbols)
+	fmt.Printf("M-ary Hexadecimal Symbols Tested:          %d (0x0..0xF, %d states)\n", mAryRes.TotalSymbols, sim.Params.MultiLevelStatesCount)
 	fmt.Printf("Symbol Error Rate (SER):                   %.2e\n", mAryRes.SymbolErrorRate)
-	fmt.Printf("Throughput Boost Multiplier:               %.0fx (Byte-level direct delivery)\n", mAryRes.ThroughputBoostX)
+	fmt.Printf("Bits per Symbol Multiplier:                %.0fx (bits per symbol, not clock frequency)\n", mAryRes.ThroughputBoostX)
 
-	fmt.Println("\n--- 4. ROOM-TEMPERATURE PHOTONIC QUANTUM LOQC SIMULATION (298K) ---")
+	fmt.Println("\n--- 4. PHOTONIC QUANTUM LOQC SIMULATION (CIRCUIT AT 298 K, SNSPD DETECTION AT ~1-4 K) ---")
 	quantumRes := sim.SimulateQuantumLOQC(sim.Params.QuantumQubitsCount)
 	fmt.Printf("Dual-Rail Photonic Qubits Tested:          %d Qubits\n", quantumRes.QubitsTested)
-	fmt.Printf("Waveguide Attenuation Loss:                %.2f dB over 20mm\n", sim.Params.GlassLossDbPerCm*0.2)
+	fmt.Printf("Waveguide Attenuation Loss:                %.2f dB over %.0f mm\n", sim.Params.GlassLossDbPerCm*sim.Params.FastDistanceMM/10.0, sim.Params.FastDistanceMM)
 	fmt.Printf("Effective HOM 2-Photon Dip Visibility:    %.2f%% [Crespi et al., Nature Phot. 2013]\n", quantumRes.HomVisibilityPct)
 	fmt.Printf("Effective CNOT Photonic Gate Fidelity:     %.2f%% [Carolan et al., Science 2015]\n", quantumRes.CnotFidelityPct)
 	fmt.Printf("Quantum Gate Bit Error Rate (QBER):        %.2e\n", quantumRes.QuantumBER)
@@ -97,7 +97,7 @@ func main() {
 	fmt.Printf("Matrix-Vector Multiplication Dimension:    %dx%d MZI Mesh\n", tensorRes.MatrixDimension, tensorRes.MatrixDimension)
 	fmt.Printf("MZI Phase Drift Error (sigma):            %.3f rad\n", tensorRes.MziPhaseErrorRad)
 	fmt.Printf("Photonic AI Tensor Compute Density:        %.0f TOPS/mm^2 [Xu et al., Nature 2021]\n", tensorRes.EffectiveTOPS)
-	fmt.Printf("Photonic AI Energy Efficiency:             > %.0f TOPS/W [Shen et al., 2017]\n", tensorRes.EnergyEffTOPSW)
+	fmt.Printf("Photonic AI Energy Efficiency:             > %.0f TOPS/W optical core only; system SOTA ~0.84 TOPS/W [Ahmed et al., Nature 2025]\n", tensorRes.EnergyEffTOPSW)
 	fmt.Printf("Simulated MVM Precision Accuracy:          %.4f%%\n", tensorRes.MvmAccuracyPct)
 
 	fmt.Println("\n--- 6. MONTE CARLO SIMULATION (1,000,000 CPU & MEMORY OPERATIONS) ---")
@@ -109,17 +109,19 @@ func main() {
 	fmt.Printf("Quality Factor Q:                          %.2f\n", res.QFactor)
 	fmt.Printf("Empirical Bit Error Rate (BER):            %.2e\n", res.EmpiricalBER)
 	fmt.Printf("Theoretical Bit Error Rate (BER):          %.2e\n", res.TheoreticalBER)
-	fmt.Printf("L1 Cache Hits:                             %d\n", res.MemStats.CacheL1Hits)
-	fmt.Printf("L1 Cache Misses (RAM Loop Accesses):       %d\n", res.MemStats.CacheL1Misses)
-	fmt.Printf("Direct Kernel ROM Accesses in SiO2:        %d\n", res.MemStats.RomKernelAccesses)
-	fmt.Printf("Global Average Data Latency:               %.2f ps\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Printf("L1 pSRAM Hits:                             %d\n", res.MemStats.CacheL1Hits)
+	fmt.Printf("L1 Misses:                                 %d\n", res.MemStats.CacheL1Misses)
+	fmt.Printf("L2/L3 3D SRAM Hits:                        %d\n", res.MemStats.CacheL2Hits)
+	fmt.Printf("Unified HBM Accesses (optical I/O):        %d\n", res.MemStats.UnifiedRamAccesses)
+	fmt.Printf("Global Average Data Latency:               %.2f ps (dominated by DRAM cell time, not light flight)\n", res.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Go Concurrent Execution Duration:          %s\n", res.ExecutionTime)
 
 	fmt.Println("\n--- 6.1 POWER CONSUMPTION & SILICON COMPARISON BENCHMARK ---")
 	pRes := sim.SimulatePowerEfficiency(MonteCarloOperationsCount)
-	fmt.Printf("SilicaCore Board Thermal Design Power (TDP): %.1f Watts\n", pRes.SilicaCoreTdpWatts)
-	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (EOM + SPAD + CW laser share at 206.75 GHz x 8)\n", pRes.EnergyPerBitFj)
-	fmt.Printf("Photonic AI Compute Energy Efficiency:      > %.0f TOPS/W [Shen et al., 2017]\n", pRes.EnergyEfficiencyTOPSW)
+	fmt.Printf("SilicaCore Board Thermal Design Power (TDP): %.1f Watts (ASSUMPTION, not derived)\n", pRes.SilicaCoreTdpWatts)
+	fmt.Printf("Aggregate Optical Bit Rate:                 %.0f Gb/s (ToF rate x bits/symbol x DWDM channels)\n", pRes.AggregateBitRateGbps)
+	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (EOM + SPAD + CW laser share over the aggregate bit rate)\n", pRes.EnergyPerBitFj)
+	fmt.Printf("Photonic AI Compute Energy Efficiency:      > %.0f TOPS/W optical core only (system SOTA ~0.84)\n", pRes.EnergyEfficiencyTOPSW)
 	fmt.Printf("Baseline Intel Core i9-14900KS TDP:         %.0f Watts (PL2: 320W)\n", pRes.IntelI9TdpWatts)
 	fmt.Printf("SilicaCore Energy Efficiency Ratio vs i9:   %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.IntelI9EfficiencyMult)
 	fmt.Printf("Baseline AMD EPYC 9654 Server CPU TDP:      %.0f Watts\n", pRes.AmdEpycTdpWatts)
@@ -161,12 +163,12 @@ func main() {
 	fmt.Println("\n--- 8. COMPARATIVO DE PERFORMANCE: SILICA CORE VS SILÍCIO CONVENCIONAL ---")
 	fmt.Println("Métrica                      | Silício Comercial (6.0 GHz) | SilicaCore (Óptico Fused SiO2)")
 	fmt.Println("-----------------------------------------------------------------------------------------")
-	fmt.Printf("Tempo de Ciclo / Latência    | ~166.67 ps                  | %.2f ps (~%.1fx mais veloz)\n", res.MemStats.GlobalAvgLatencyPS, 166.67/res.MemStats.GlobalAvgLatencyPS)
-	fmt.Printf("Acesso L1 Cache              | ~666.00 ps (4 ciclos)       | %.2f ps (~%.0fx mais veloz)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
+	fmt.Printf("Latência Célula L1           | ~666.00 ps (4 ciclos)       | %.2f ps pSRAM (~%.0fx; capacidade KB)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
+	fmt.Printf("Latência Média de Memória    | dominada pela DRAM (~ns)    | %.2f ps (L1 %.0f%%, L2 %.0f%%, HBM; também dominada pela DRAM)\n", res.MemStats.GlobalAvgLatencyPS, sim.Params.CacheL1HitRate*100, sim.Params.CacheL2HitRate*100)
 	timing := sim.ComputeTimingBudget(optical.DefaultTargetBER)
 	fmt.Printf("Taxa por Canal               | SerDes 112 Gb/s (PAM4)      | %.2f GHz x %d bits = %.1f Gb/s (slot Delta t + W)\n", timing.ToFSymbolRateGHz, sim.Params.BitsPerSymbol, timing.ToFSymbolRateGHz*float64(sim.Params.BitsPerSymbol))
 	fmt.Printf("BER da Decisão ToF           | < 1e-15                     | %.2e (Q = %.2f; 1e-12 exige Q = %.2f)\n", timing.TheoreticalBER, timing.QFactor, timing.RequiredQForTarget)
-	fmt.Println("Geração Térmica / Fricção    | Altíssima (Efeito Joule)    | Próxima de zero no substrato óptico")
+	fmt.Println("Geração Térmica              | Alta (Efeito Joule)         | Sem Joule nos guias; lasers, drivers, TDCs e controle consomem")
 	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
 
 	fmt.Println("\n--- 9. ESCALONAMENTO DE DESEMPENHO MASSIVO: MICRO-CUBO (2.0mm) + DWDM MASSIVO (64 CANAIS) ---")

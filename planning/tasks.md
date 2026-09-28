@@ -23,6 +23,7 @@
 - [x] 22. Alinhar docs de arquitetura 01–10 com a simulação (EOM/TIR em SiO₂, espelhos internos, ray-tracing, 298 K, 18.5 W, 0.05 pJ/bit, L1 ≤5 ps) e geometria agnóstica do substrato (cubo → substrato fotônico integrado) [complexidade: média] [concluída em 28-09-26]
 - [x] 21. Protótipo em Go de race logic fotônica (menor caminho em grafo por rede de atrasos programáveis) [complexidade: alta] [concluída em 28-09-26]
 - [x] 23. Campanha estatística de race logic (10 chips × 10⁴ consultas, IC 95%, validação por número de saltos); unidade padrão elevada para 100 ps (`cmd/racestats`, `simulations/results/`) [complexidade: média] [concluída em 28-09-26]
+- [x] 24. Alinhar núcleo do simulador (`core.go`/`tof.go`) aos docs: L1 pSRAM 25 ps, hierarquia L1→L2/L3→HBM (~416 ps), energia pela taxa agregada (~1.9 pJ/bit), premissas de TDP/SSD, suposições do modelo quântico e correção da perda de guia (0.4 dB) [complexidade: média] [concluída em 28-09-26]
 - [ ] 16. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
 - [ ] 17. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
 - [ ] 18. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)

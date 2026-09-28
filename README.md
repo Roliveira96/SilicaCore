@@ -78,7 +78,7 @@ Documento detalhado: [09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md
 A propagação nos guias ópticos não tem aquecimento Joule, mas lasers, moduladores, detectores, conversores e controle eletrônico consomem energia:
 - **TDP da Placa SilicaCore:** **$18.5\text{ W}$ é premissa**, ainda não derivada do modelo (referências: $253\text{ W}$ do Intel i9-14900KS, $700\text{ W}$ da NVIDIA H100).
 - **Eficiência em IA:** **$> 100\text{ TOPS/W}$ vale só no núcleo óptico.** No sistema completo, o estado da arte publicado é **$\approx 0.84\text{ TOPS/W}$** (Lightmatter, *Nature* 2025: 65.5 TOPS com 78 W elétricos + 1.6 W ópticos).
-- **Custo Energético por Bit:** o próprio simulador calcula **$\approx 1.5\text{ pJ/bit}$** (EOM + SPAD + parcela do laser CW), na mesma faixa do CMOS ($1.2 - 2.5\text{ pJ/bit}$). O valor anterior de $0.05\text{ pJ/bit}$ não é sustentado pelo modelo.
+- **Custo Energético por Bit:** o próprio simulador calcula **$\approx 1.9\text{ pJ/bit}$** (EOM + SPAD + parcela do laser CW dividida pela taxa agregada real de ~1.3 Tb/s), na mesma faixa do CMOS ($1.2 - 2.5\text{ pJ/bit}$). O valor anterior de $0.05\text{ pJ/bit}$ não é sustentado pelo modelo.
 
 Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio.md](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md).
 

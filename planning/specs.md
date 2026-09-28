@@ -20,10 +20,11 @@
 | Taxa por Canal (slot $\Delta t + W$) | $\approx 5.1$ | GHz | $\approx 20.5$ Gb/s com 4 bits/símbolo; micro-cubo $\approx 55.6$ GHz com $Q = 3.64$ |
 | Teto do Detector SPAD | $\le 0.5$ | GHz | Tempo morto $\ge 2$ ns; dados usam fotodiodos UTC ($\sim 150$ Gbaud) |
 | Roteamento Adotado | Si₃N₄ + TFLN | - | 1.3 dB/porta, 7 portas em cascata (bloco com espelhos: 46.6 dB/porta, inviável) |
-| Latência Cache L1 Óptica | $\le 5.00$ | ps | Ressonadores de Micro-anéis (*Alexoudi et al., 2020*) |
-| Latência RAM Óptica Volátil | $\sim 96.73$ | ps | Linhas de Atraso Recirculantes (*Yao, 1993*) |
-| Photonic SSD Capacid. Volumétrica | 100 | TB / cubo | Voxels 3D em $SiO_2$ ($6.4\text{ TB/cm}^3$) (*Project Silica*) |
-| Photonic SSD Vazão de Leitura | 1.2 | TB/s | Multiplexação WDM paralela |
+| Latência Cache L1 Óptica | $\sim 25$ | ps | SRAM fotônica com micro-anéis acoplados, 40 GHz, capacidade KB (arXiv:2503.19544) |
+| Período do Buffer em Linha de Atraso | $\sim 96.73$ | ps | Buffer/registrador de 619 bits por laço, não RAM principal (*Yao, 1993*) |
+| RAM Unificada (HBM via I/O óptico) | $\sim 30$ | ns | Transporte óptico ~130 ps + célula DRAM |
+| Photonic SSD Capacid. Volumétrica | 100 | TB em 15.6 cm³ | **Premissa**: $6.4\text{ TB/cm}^3$; vidro publicado é arquivo de escrita única (*Project Silica*) |
+| Photonic SSD Vazão de Leitura | 1.2 | TB/s | **Premissa** não demonstrada (Project Silica lê por microscopia) |
 | GPU Óptica WDM Canais | 3 | Cores RGB | Red 635nm, Green 532nm, Blue 450nm (*Weng et al., 2020*) |
 | GPU Óptica Ray-Tracing | Eletrônico | - | Óptica acelera upscaling/denoise neural, não a geometria da cena |
 | Photonic AI Tensor Densidade | 11 | TOPS/mm² | Multiplicação MVM via MZI Mesh (*Xu et al., Nature 2021*) |
@@ -31,4 +32,5 @@
 | Qubits Quânticos Fotônicos | 16 | Dual-Rail | Circuito em temperatura ambiente; fontes e SNSPDs criogênicos (~1–4 K) (*Kok et al., 2007*) |
 | Visibilidade Interferência HOM | 99.4 | % | Interferência quântica de 2 fótons (*Crespi et al., 2013*) |
 | Fidelidade Porta CNOT Quântica | 98.7 | % | Portas quânticas fotônicas em vidro (*Carolan et al., 2015*) |
-| Latência Média Global de Memória | $\sim 37.69$ | ps | Simulação Monte Carlo |
+| Latência Média Global de Memória | $\sim 416$ | ps | Monte Carlo: L1 92%, L2/L3 90% das faltas, HBM; dominada pela DRAM |
+| Energia por Bit (modelo) | $\sim 1.9$ | pJ/bit | Laser CW dividido pela taxa agregada de 1.313 Gb/s + EOM + detector |

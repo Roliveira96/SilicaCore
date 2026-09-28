@@ -83,19 +83,26 @@ const (
 	// 3. PHOTONIC MEMORY HIERARCHY & PHOTONIC GLASS SSD
 	// ------------------------------------------------------------------------
 
-	// DefaultCacheL1LatencyPS is the L1 Photonic Cache latency (micro-ring resonators) in ps [Alexoudi et al., 2020].
-	DefaultCacheL1LatencyPS = 5.0
+	// DefaultCacheL1LatencyPS is the L1 photonic SRAM cell latency in ps: cross-coupled microring pSRAM at 40 GHz
+	// on GlobalFoundries 45 nm [arXiv:2503.19544, 2025]. Capacity is KB-class (area-limited).
+	DefaultCacheL1LatencyPS = 25.0
 
-	// DefaultRamLoopLatencyPS is the Photonic RAM recirculating delay loop latency in ps [Yao, 1993].
+	// DefaultRamLoopLatencyPS is the recirculating delay-loop period in ps [Yao, 1993]. It is a buffer/register
+	// (619 bits per loop at 64 ch x 100 Gb/s), not main RAM; main RAM is unified HBM (see memory.go).
 	DefaultRamLoopLatencyPS = 96.73
 
 	// DefaultCacheL1HitRate is the nominal empirical hit rate probability for L1 Photonic Cache.
 	DefaultCacheL1HitRate = 0.92
 
-	// DefaultPhotonicSsdCapacityTB is the storage capacity per fused silica cube in Terabytes [Project Silica / Microsoft].
+	// DefaultCacheL2HitRate is the hit rate of the 3D-stacked electronic L2/L3 SRAM for L1 misses (ASSUMPTION).
+	DefaultCacheL2HitRate = 0.90
+
+	// DefaultPhotonicSsdCapacityTB is the glass storage capacity in 15.6 cm^3 in TB (ASSUMPTION: 6.4 TB/cm^3;
+	// published fs-written glass storage is write-once archival media [Project Silica, SOSP 2023]).
 	DefaultPhotonicSsdCapacityTB = 100.0
 
-	// DefaultPhotonicSsdThroughputTBps is the parallel WDM read throughput in Terabytes per second (TB/s).
+	// DefaultPhotonicSsdThroughputTBps is the parallel WDM read throughput in TB/s (ASSUMPTION: not demonstrated;
+	// Project Silica reads by polarization microscopy).
 	DefaultPhotonicSsdThroughputTBps = 1.2
 
 	// ------------------------------------------------------------------------
@@ -108,14 +115,15 @@ const (
 	// DefaultAiTensorDensityTOPS is the Photonic AI Tensor Core compute density in TOPS/mm^2 [Xu et al., Nature 2021].
 	DefaultAiTensorDensityTOPS = 11.0
 
-	// DefaultAiTensorEfficiency is the Photonic AI Tensor Core energy efficiency in TOPS/W [Shen et al., Nature Phot. 2017].
+	// DefaultAiTensorEfficiency is the optical-core-only efficiency in TOPS/W [Shen et al., Nature Phot. 2017].
+	// Full-system state of the art is ~0.84 TOPS/W [Ahmed et al., Nature 2025].
 	DefaultAiTensorEfficiency = 100.0
 
 	// ------------------------------------------------------------------------
-	// 5. PHOTONIC QUANTUM PROCESSOR (ROOM-TEMPERATURE LOQC - 298K)
+	// 5. PHOTONIC QUANTUM PROCESSOR (LOQC): circuit at room temperature, SNSPDs and sources cryogenic (~1-4 K)
 	// ------------------------------------------------------------------------
 
-	// DefaultQuantumQubitsCount is the number of room-temperature dual-rail photonic qubits (298K).
+	// DefaultQuantumQubitsCount is the number of dual-rail photonic qubits (cryogenic detection subsystem).
 	DefaultQuantumQubitsCount = 16
 
 	// DefaultQuantumHomVisibilityPct is the Hong-Ou-Mandel 2-photon interference dip visibility in % [Crespi et al., 2013].
@@ -153,7 +161,7 @@ const (
 	// DefaultSpadEnergyFjPerPhoton is the energy consumed per SPAD single-photon detection event (fJ/photon).
 	DefaultSpadEnergyFjPerPhoton = 12.0
 
-	// DefaultSilicaCoreTdpWatts is the total board Thermal Design Power (TDP) for SilicaCore (Watts).
+	// DefaultSilicaCoreTdpWatts is the board TDP in Watts (ASSUMPTION: not derived from the component model).
 	DefaultSilicaCoreTdpWatts = 18.5
 
 	// DefaultIntelI9TdpWatts is the TDP of Intel Core i9-14900KS CPU in Watts.
@@ -183,9 +191,10 @@ type OpticalParams struct {
 	MultiLevelStatesCount int    // Number of discrete spectral/phase states (256 states for 8-bit Byte)
 
 	// Photonic Memory & Photonic SSD
-	CacheL1LatencyPS          float64 // L1 Photonic Cache latency (Micro-ring resonators): <= 5ps (Alexoudi et al., 2020)
-	RamLoopLatencyPS          float64 // Dynamic Photonic RAM latency (Recirculating Delay Loops): ~96.73ps (Yao, 1993)
+	CacheL1LatencyPS          float64 // L1 photonic SRAM cell latency: ~25 ps (arXiv:2503.19544)
+	RamLoopLatencyPS          float64 // Delay-loop buffer period: ~96.73 ps (Yao, 1993); buffer, not main RAM
 	CacheL1HitRate            float64 // Nominal empirical hit rate probability for L1 Cache (0.92)
+	CacheL2HitRate            float64 // Hit rate of 3D-stacked L2/L3 SRAM for L1 misses (0.90, ASSUMPTION)
 	PhotonicSsdThroughputTBps float64 // Photonic Glass SSD parallel read throughput in TB/s (1.2 TB/s)
 	PhotonicSsdCapacityTB     float64 // Photonic Glass SSD volumetric storage capacity per cube (100 TB)
 
@@ -238,6 +247,7 @@ func DefaultParams() OpticalParams {
 		CacheL1LatencyPS:          DefaultCacheL1LatencyPS,
 		RamLoopLatencyPS:          DefaultRamLoopLatencyPS,
 		CacheL1HitRate:            DefaultCacheL1HitRate,
+		CacheL2HitRate:            DefaultCacheL2HitRate,
 		PhotonicSsdThroughputTBps: DefaultPhotonicSsdThroughputTBps,
 		PhotonicSsdCapacityTB:     DefaultPhotonicSsdCapacityTB,
 		GpuWdmChannelsCount:       DefaultGpuWdmChannelsCount,
