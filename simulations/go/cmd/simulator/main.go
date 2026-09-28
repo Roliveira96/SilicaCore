@@ -53,7 +53,7 @@ func main() {
 	fmt.Printf("Nominal Delay Line Time (t0):              %.2f ps\n", sim.T0NominalPS)
 	fmt.Printf("Temporal Separation Difference (Delta t):   %.2f ps\n", sim.DeltaTNominalPS)
 	fmt.Printf("Total Convoluted System Jitter (sigma):    %.2f ps\n", sim.TotalSigmaPS)
-	fmt.Printf("Temporal Separation Margin (Delta t/sigma):%.2f sigmas\n", sim.SeparationMarginSigmas())
+	fmt.Printf("Temporal Separation (Delta t/sigma):       %.2f sigmas (decision Q = Delta t/2 sigma = %.2f)\n", sim.SeparationMarginSigmas(), sim.SeparationMarginSigmas()/2.0)
 	fmt.Printf("Laser Relative Intensity Noise (RIN):      %.1f dB/Hz\n", sim.Params.LaserRinDbHz)
 	fmt.Printf("Electro-Optic Phase Noise (sigma):         %.3f rad\n", sim.Params.PhaseNoiseSigmaRad)
 	fmt.Printf("Fused Silica Waveguide Attenuation:        %.2f dB/cm\n", sim.Params.GlassLossDbPerCm)
@@ -112,14 +112,14 @@ func main() {
 	fmt.Println("\n--- 6.1 POWER CONSUMPTION & SILICON COMPARISON BENCHMARK ---")
 	pRes := sim.SimulatePowerEfficiency(MonteCarloOperationsCount)
 	fmt.Printf("SilicaCore Board Thermal Design Power (TDP): %.1f Watts\n", pRes.SilicaCoreTdpWatts)
-	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (0.05 pJ/bit)\n", pRes.EnergyPerBitFj)
+	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (EOM + SPAD + CW laser share at 206.75 GHz x 8)\n", pRes.EnergyPerBitFj)
 	fmt.Printf("Photonic AI Compute Energy Efficiency:      > %.0f TOPS/W [Shen et al., 2017]\n", pRes.EnergyEfficiencyTOPSW)
 	fmt.Printf("Baseline Intel Core i9-14900KS TDP:         %.0f Watts (PL2: 320W)\n", pRes.IntelI9TdpWatts)
-	fmt.Printf("SilicaCore Energy Efficiency Ratio vs i9:   %.1fx Lower Power Consumption\n", pRes.IntelI9EfficiencyMult)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs i9:   %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.IntelI9EfficiencyMult)
 	fmt.Printf("Baseline AMD EPYC 9654 Server CPU TDP:      %.0f Watts\n", pRes.AmdEpycTdpWatts)
-	fmt.Printf("SilicaCore Energy Efficiency Ratio vs EPYC: %.1fx Lower Power Consumption\n", pRes.AmdEpycEfficiencyMult)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs EPYC: %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.AmdEpycEfficiencyMult)
 	fmt.Printf("Baseline NVIDIA H100 Tensor GPU TDP:        %.0f Watts\n", pRes.NvidiaH100TdpWatts)
-	fmt.Printf("SilicaCore Energy Efficiency Ratio vs H100: %.1fx Lower Power Consumption\n", pRes.NvidiaH100EfficiencyMult)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs H100: %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.NvidiaH100EfficiencyMult)
 
 	fmt.Printf("\n--- 7. CALIBRATED ToF NOT LOGIC GATE TEST (%d ITERATIONS BATCH) ---\n", NotGateBatchTestCount)
 
@@ -157,7 +157,9 @@ func main() {
 	fmt.Println("-----------------------------------------------------------------------------------------")
 	fmt.Printf("Tempo de Ciclo / Latência    | ~166.67 ps                  | %.2f ps (~%.1fx mais veloz)\n", res.MemStats.GlobalAvgLatencyPS, 166.67/res.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Acesso L1 Cache              | ~666.00 ps (4 ciclos)       | %.2f ps (~%.0fx mais veloz)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
-	fmt.Printf("Throughput por Canal WDM     | 1 bit / clock elétrico      | %d bits / pulso óptico (%dx)\n", sim.Params.BitsPerSymbol, sim.Params.BitsPerSymbol)
+	timing := sim.ComputeTimingBudget(optical.DefaultTargetBER)
+	fmt.Printf("Taxa por Canal               | SerDes 112 Gb/s (PAM4)      | %.2f GHz x %d bits = %.1f Gb/s (slot Delta t + W)\n", timing.ToFSymbolRateGHz, sim.Params.BitsPerSymbol, timing.ToFSymbolRateGHz*float64(sim.Params.BitsPerSymbol))
+	fmt.Printf("BER da Decisão ToF           | < 1e-15                     | %.2e (Q = %.2f; 1e-12 exige Q = %.2f)\n", timing.TheoreticalBER, timing.QFactor, timing.RequiredQForTarget)
 	fmt.Println("Geração Térmica / Fricção    | Altíssima (Efeito Joule)    | Próxima de zero no substrato óptico")
 	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
 
@@ -167,24 +169,26 @@ func main() {
 	microCalibratedWindow := microSim.CalibrateOptimalWindow(CalibrationPulseCount)
 	microMonteCarloRes := microSim.SimulateMonteCarloConcurrent(MonteCarloOperationsCount)
 
-	siliconLatencyPS := 166.67 // 6.0 GHz CPU Cycle Time
-	speedupLatency := siliconLatencyPS / microSim.T1NominalPS
 	dwdmBitsPerPulse := microParams.DwdmBitsPerPulse() // 64 channels * 4 bits = 256 bits/pulse
-	totalThroughputMultiplier := speedupLatency * float64(dwdmBitsPerPulse)
+	microTiming := microSim.ComputeTimingBudget(optical.DefaultTargetBER)
+	aggregateTbps := microTiming.ToFSymbolRateGHz * float64(dwdmBitsPerPulse) / 1000.0
 
 	fmt.Printf("Micro-Cube Dimension (d1):                 %.1f mm (Redução de 10x na escala física)\n", microSim.Params.FastDistanceMM)
-	fmt.Printf("Micro-Cube Direct Nominal Time (t1):       %.2f ps (~%.1fx mais veloz que 6.0 GHz silicon)\n", microSim.T1NominalPS, speedupLatency)
+	fmt.Printf("Micro-Cube Direct Nominal Time (t1):       %.2f ps (flight time, not a clock period)\n", microSim.T1NominalPS)
 	fmt.Printf("Micro-Cube Global Avg Data Latency:        %.2f ps\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Auto-Calibrated Micro Window (%d pulses): %.2f ps (Half-Window: +/-%.2f ps)\n", CalibrationPulseCount, microCalibratedWindow, microCalibratedWindow/2.0)
 	fmt.Printf("Dense DWDM Spectral Grid:                 %d Wavelength Channels\n", microParams.DwdmChannelsCount)
 	fmt.Printf("Parallel Data Density per Optical Pulse:   %d Bits / Pulse (%d channels x %d bits/symbol)\n", dwdmBitsPerPulse, microParams.DwdmChannelsCount, microParams.BitsPerSymbol)
-	fmt.Printf("AGGREGATED COMPUTATIONAL THROUGHPUT GAIN:  %.0fx MAIS VAZÃO BRUTA QUE SILÍCIO CONVENCIONAL DE 6.0 GHz!\n", totalThroughputMultiplier)
+	fmt.Printf("Micro-Cube Decision Q / BER:               %.2f / %.2e (1 ps laser + 3 ps detector jitter: SNSPD-class, cryogenic)\n", microTiming.QFactor, microTiming.TheoreticalBER)
+	fmt.Printf("Micro-Cube ToF Symbol Rate per Channel:    %.2f GHz (slot %.1f ps = Delta t + W)\n", microTiming.ToFSymbolRateGHz, microTiming.SymbolSlotPS)
+	fmt.Printf("Aggregate Raw Optical Line Rate:           %.2f Tb/s (%d bits x %.2f GHz; transport capacity, not compute)\n", aggregateTbps, dwdmBitsPerPulse, microTiming.ToFSymbolRateGHz)
 
 	printPhysicalBudget(sim)
 	printUnifiedMemoryAndLocalAI(sim)
 
-	fmt.Println("\nSimulation Conclusion: Solid-State CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
-	fmt.Printf("Optical GPU WDM RGB, 64-Channel DWDM Massivo, and Photonic SSD confirm %.2f ps micro-latency, %dx DWDM bit density, and %.0fx throughput gain.\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS, dwdmBitsPerPulse, totalThroughputMultiplier)
+	fmt.Println("\nSimulation Conclusion:")
+	fmt.Printf("Default geometry: Q = %.2f (BER %.2e), %.2f GHz per channel. Micro-cube: Q = %.2f (BER %.2e), %.2f GHz per channel,\n", timing.QFactor, timing.TheoreticalBER, timing.ToFSymbolRateGHz, microTiming.QFactor, microTiming.TheoreticalBER, microTiming.ToFSymbolRateGHz)
+	fmt.Printf("%.2f Tb/s raw over %d DWDM bits. BER 1e-12 requires total jitter sigma <= %.2f ps (default) / %.2f ps (micro).\n", aggregateTbps, dwdmBitsPerPulse, timing.RequiredSigmaPS, microTiming.RequiredSigmaPS)
 	fmt.Println("======================================================================")
 }
 

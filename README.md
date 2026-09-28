@@ -15,7 +15,7 @@
 - [3. Motor Laser Contínuo CW (Always-ON Laser Engine)](#3-motor-laser-contínuo-cw-always-on-laser-engine)
 - [4. Codificação Densa M-ária (Hexadecimal / Byte)](#4-codificação-densa-m-ária-hexadecimal--byte)
 - [5. Fundamentação Física e Equações de Propagação](#5-fundamentação-física-e-equações-de-propagação)
-- [6. Processamento Quântico Fotônico LOQC em Temperatura Ambiente](#6-processamento-quântico-fotônico-loqc-em-temperatura-ambiente)
+- [6. Processamento Quântico Fotônico LOQC](#6-processamento-quântico-fotônico-loqc)
 - [7. Processamento de Vídeo & GPU Óptica WDM RGB](#7-processamento-de-vídeo--gpu-óptica-wdm-rgb)
 - [8. Photonic AI Tensor Core (Multiplicação MVM)](#8-photonic-ai-tensor-core-multiplicação-mvm)
 - [9. Hierarquia de Memória e Disco Fotônico (Photonic SSD)](#9-hierarquia-de-memória-e-disco-fotônico-photonic-ssd)
@@ -31,6 +31,18 @@
 
 O **SilicaCore** é uma arquitetura computacional volumétrica em **sílica fundida ($SiO_2$)** que substitui o chaveamento resistivo por elétrons por feixes ópticos contínuos e propagação determinística no domínio temporal.
 
+### 1.1 Estado de Validação Física (simulador Go, 28/09/2026)
+
+| Métrica | Valor validado | Observação |
+| :--- | :--- | :--- |
+| Fator de decisão ToF ($Q = \Delta t / 2\sigma$) | **4.45** | $\Delta t = 100$ ps, $\sigma_{\text{total}} = 11.24$ ps |
+| BER da decisão ToF | **$\approx 4.3 \times 10^{-6}$** (Monte Carlo: $\sim 2 \times 10^{-5}$) | BER $10^{-12}$ exige $Q = 7.03$, ou seja, $\sigma_{\text{total}} \le 7.1$ ps |
+| Taxa por canal (slot $\Delta t + W$) | **$\approx 5.1$ GHz** ($\approx 20.5$ Gb/s com 4 bits/símbolo) | Micro-cubo de 2 mm: $\approx 55.6$ GHz, mas com $Q = 3.64$ |
+| Teto do detector SPAD | **$\le 0.5$ GHz** (tempo morto $\ge 2$ ns) | Caminho de dados usa fotodiodos UTC/InGaAs ($\sim 150$ Gbaud) |
+| Roteamento por espelhos internos em bloco | **Inviável** (46.6 dB/porta) | Plataforma adotada: Si₃N₄ + TFLN, 1.3 dB/porta ([doc 11](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
+
+Os demais números deste README que dependem dessas métricas foram alinhados a elas. Afirmações ainda não validadas estão marcadas como **premissa**.
+
 ---
 
 ## 2. Origem Prática de Engenharia & Agradecimentos (Grafis / Valmor Moreira)
@@ -45,14 +57,16 @@ Na empresa Grafis, operavam-se equipamentos fotográficos industriais de exposi�
 
 Inspirado no princípio de exposição constante dos sistemas fotográficos industriais:
 - **Lasers Sempre Acesos (Always-ON CW Engine):** Canhões laser RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam **constantemente ligados em potência estabilizada**, eliminando surtos térmicos e repetição de chaveamento elétrico de diodos.
-- **Roteamento Eletro-Óptico na Inicialização:** Ao alimentar a placa, moduladores EOM/AOM e micro-espelhos 3D gravados no vidro realizam o direcionamento contínuo dos feixes pelas rotas ópticas.
+- **Roteamento e Comutação:** o conceito original usava moduladores EOM/AOM e micro-espelhos 3D gravados no vidro. A validação física mostrou que isso é inviável em picossegundos (sílica sem efeito Pockels, AOM na escala de ns, difração em feixe livre). A rota adotada é guia Si₃N₄ + chaves TFLN, com reconfiguração lenta por Sb₂Se₃ ([doc 11](docs/architecture/11-roteamento-e-comutacao-optica.md)).
+- **Pulsos para ToF:** a lógica por tempo de voo exige pulsos; o motor CW precisa de um laser mode-locked ou pente de frequências (1550 nm) para gerar o relógio óptico.
 
 ---
 
 ## 4. Codificação Densa M-ária (Hexadecimal / Byte por Símbolo)
 
 - **Modo Hexadecimal (4 bits/símbolo):** 16 estados ópticos discretos por canal espacial (`0x0` a `0xF`).
-- **Modo Byte Completo (8 bits/símbolo):** 256 estados WDM lidos diretamente pelos detectores SPAD, entregando **Bytes e Megabytes por segundo ($8\times$ mais rápido)** diretamente à placa sem decodificadores binários intermediários.
+- **Modo Byte Completo (8 bits/símbolo):** 256 estados WDM por símbolo. **Não suportado com o ruído de fase atual** ($\sigma = 0.012$ rad): os estados ficam a $\approx 1\sigma$ de distância, o que dá taxa de erro de símbolo de ~30%. O modo padrão do simulador é o hexadecimal (4 bits).
+- **Taxa efetiva:** o ganho é em bits por símbolo, não em frequência. Com a lógica ToF, a taxa por canal é de $\approx 5.1$ GHz × 4 bits $\approx 20.5$ Gb/s (seção 1.1).
 
 Documento detalhado: [09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md](docs/architecture/09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md).
 
@@ -60,10 +74,10 @@ Documento detalhado: [09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md
 
 ## 4.1 Consumo Energético e Comparativo com Silício (Intel i9 / AMD EPYC / NVIDIA H100)
 
-O SilicaCore opera com **ausência total de aquecimento resistivo Joule ($R = 0$)** nas trilhas ópticas de vidro, resultando em:
-- **TDP da Placa SilicaCore:** apenas **$18.5\text{ Watts}$** (contra $253\text{ W}$ do Intel i9-14900KS e $700\text{ W}$ da GPU NVIDIA H100).
-- **Eficiência Computacional em IA:** **$> 100\text{ TOPS/W}$** ($37\times$ mais eficiente que a NVIDIA H100).
-- **Custo Energético por Bit:** **$\approx 0.05\text{ pJ/bit}$ ($50\text{ fJ}$)** contra $1.2 - 2.5\text{ pJ/bit}$ do silício CMOS.
+A propagação nos guias ópticos não tem aquecimento Joule, mas lasers, moduladores, detectores, conversores e controle eletrônico consomem energia:
+- **TDP da Placa SilicaCore:** **$18.5\text{ W}$ é premissa**, ainda não derivada do modelo (referências: $253\text{ W}$ do Intel i9-14900KS, $700\text{ W}$ da NVIDIA H100).
+- **Eficiência em IA:** **$> 100\text{ TOPS/W}$ vale só no núcleo óptico.** No sistema completo, o estado da arte publicado é **$\approx 0.84\text{ TOPS/W}$** (Lightmatter, *Nature* 2025: 65.5 TOPS com 78 W elétricos + 1.6 W ópticos).
+- **Custo Energético por Bit:** o próprio simulador calcula **$\approx 1.5\text{ pJ/bit}$** (EOM + SPAD + parcela do laser CW), na mesma faixa do CMOS ($1.2 - 2.5\text{ pJ/bit}$). O valor anterior de $0.05\text{ pJ/bit}$ não é sustentado pelo modelo.
 
 Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio.md](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md).
 
@@ -75,13 +89,16 @@ Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio
 - **Velocidade de Propagação:** $v = \frac{c}{n} \approx 0.20675 \text{ mm/ps}$.
 - **Linha Rápida ($d_1 = 20.0\text{ mm}$):** $t_1 = 96.73\text{ ps}$.
 - **Linha Atrasada ($d_0 = 40.675\text{ mm}$):** $t_0 = 196.73\text{ ps}$.
-- **Margem de Jitter ($\sigma_{\text{total}} = 11.24\text{ ps}$):** **$8.90\sigma$** ($\text{BER} < 10^{-12}$).
+- **Jitter Total:** $\sigma_{\text{total}} = 11.24\text{ ps}$, logo $\Delta t / \sigma = 8.90$. A decisão entre duas janelas usa **$Q = \Delta t / 2\sigma = 4.45$**, que resulta em **$\text{BER} \approx 4.3 \times 10^{-6}$**. Para $\text{BER} < 10^{-12}$ é preciso $Q \ge 7.03$ ($\sigma_{\text{total}} \le 7.1\text{ ps}$).
+- **Taxa por Canal:** cada símbolo ocupa $\Delta t + W \approx 195\text{ ps}$, o que dá **$\approx 5.1\text{ GHz}$ por canal**. O tempo de voo $t_1$ é latência, não período de clock.
+- **Detectores:** SPADs ficam limitados a $\le 0.5\text{ GHz}$ pelo tempo morto. Para dados, fotodiodos UTC/InGaAs ($> 100\text{ GHz}$).
+- **Plataforma recomendada:** 1550 nm em Si₃N₄ com chaves TFLN ([doc 11](docs/architecture/11-roteamento-e-comutacao-optica.md)).
 
 ---
 
-## 6. Processamento Quântico Fotônico LOQC em Temperatura Ambiente
+## 6. Processamento Quântico Fotônico LOQC
 
-- **Qubits Dual-Rail sem Criogenia:** Superposição quântica ($\alpha |1,0\rangle + \beta |0,1\rangle$) operada em **temperatura ambiente ($298\text{ K}$)** (*Kok et al., Rev. Mod. Phys. 2007; Carolan et al., Science 2015*).
+- **Qubits Dual-Rail:** Superposição quântica ($\alpha |1,0\rangle + \beta |0,1\rangle$). Os fótons propagam sem decoerência térmica relevante em **temperatura ambiente** no circuito, mas **fontes de fóton único de alta qualidade e detectores SNSPD exigem criogenia (~1–4 K)** (*Kok et al., Rev. Mod. Phys. 2007; Carolan et al., Science 2015*).
 - **Interferência Hong-Ou-Mandel (HOM):** $99.4\%$ de visibilidade interferométrica de 2 fótons (*Crespi et al., Nature Photonics 2013*).
 
 ---
@@ -89,7 +106,7 @@ Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio
 ## 7. Processamento de Vídeo & GPU Óptica WDM RGB
 
 - **GPU WDM RGB:** Operação paralela em 3 frequências laser para cor, profundidade (Z-Buffer) e textura (*Weng et al., IEEE JSTQE 2020*).
-- **Ray-Tracing Óptico Nativo:** Trajetórias físicas de luz real dentro da sílica fundida geram reflexão e refração com latência $\le 5.0\text{ ps}$ (*Hamerly et al., PRX 2019*).
+- **Ray-Tracing:** a luz real dentro do vidro **não traça uma cena virtual**; ray tracing é geometria numérica e continua eletrônico. O ganho óptico em jogos está nas redes neurais de upscaling, geração de quadros e denoise, executadas no núcleo tensorial fotônico ([doc 12](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md)).
 
 ---
 
@@ -97,7 +114,8 @@ Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio
 
 - **Malhas Mach-Zehnder (MZI Mesh):** Multiplicação Matriz-Vetor ($Y = W \cdot X$) para Transformers e LLMs em uma única passagem óptica (*Shen et al., Nature Photonics 2017*).
 - **Computação In-Memory em PCM:** Pesos de IA gravados em filmes de $Ge_2Sb_2Te_5$ (GST) (*Feldmann et al., Nature 2021*).
-- **Desempenho:** Densidade de **11 TOPS/mm²** (*Xu et al., Nature 2021*) e eficiência de **> 100 TOPS/W**.
+- **Desempenho:** Densidade de **11 TOPS/mm²** (*Xu et al., Nature 2021*). Eficiência de **> 100 TOPS/W no núcleo óptico**; **$\approx 0.84$ TOPS/W no sistema** no estado da arte (Lightmatter, *Nature* 2025).
+- **Pesos de LLM:** não cabem inteiros em PCM no chip (um modelo 8B em 4 bits exigiria ~2.000 cm²). Os pesos ficam em RAM unificada de alta banda e chegam por I/O óptico ([doc 12](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md)).
 
 ---
 
@@ -105,7 +123,9 @@ Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio
 
 1. **Cache L1/L2 Óptica ($\le 5.0\text{ ps}$):** Ressonadores de Micro-anéis (*Bogaerts et al., 2012*).
 2. **Memória RAM Óptica Volátil ($\sim 96.73\text{ ps}$):** Linhas de Atraso Recirculantes (*Yao, 1993*).
-3. **Photonic SSD em Vidro ($100\text{ TB}$ / cubo):** Nanofilamentos 3D em $SiO_2$ para **Instant Boot** (*Zhang et al., PRL 2014*) e PCM para partição R/W com vazão de **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*).
+3. **Photonic SSD em Vidro ($100\text{ TB}$ / cubo):** Nanofilamentos 3D em $SiO_2$ para **Instant Boot** (*Zhang et al., PRL 2014*) e PCM para partição R/W com vazão de **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*). **Premissa**: o vidro 5D publicado (Project Silica) é armazenamento de arquivo com escrita única e leitura por microscopia.
+
+> **Limites físicos da memória:** uma RAM de linha de atraso com 16 GB exigiria ~3.000 km de guia de onda. A luz pode transportar dados a todos os níveis em ~100 ps, mas a latência é dominada pela célula de armazenamento. Ver [doc 12](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md).
 
 ---
 
