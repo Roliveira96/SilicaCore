@@ -90,7 +90,22 @@ Trabalho relacionado mais próximo: **CPU totalmente óptica da Akhetonics** (Ki
 
 ---
 
-## 6. Referências
+## 6. Rota do Nióbio
+
+O Brasil detém ~97% das reservas economicamente exploráveis de nióbio e ~90% da produção mundial (CBMM, Araxá). A questão para o SilicaCore é **qual forma química do nióbio** serve a qual função:
+
+| Forma | Função no SilicaCore | Decisão | Motivo |
+| :--- | :--- | :---: | :--- |
+| **Niobato de lítio em filme fino (LiNbO₃ / TFLN)** | Chaveamento rápido de dados (ps) | **Adotado** | Efeito Pockels forte ($\chi^{(2)}$), moduladores com 0.2 dB de perda e >67 GHz, transições para Si₃N₄ <0.1 dB (Churaev et al., 2023) |
+| **Nitreto de nióbio (NbN) em SNSPD** | Detecção de fóton único | **Restrito a testes criogênicos e núcleo quântico** | Jitter recorde de 2.7 ps em 1550 nm (Korzh et al., 2020), mas opera a ~1–4 K, tem tempo de recuperação de ns e exige criostato de centenas de watts, o que é incompatível com um processador de baixo consumo |
+| **Nióbio metálico (Nb)** | Espelho refletor interno | **Descartado** | Metal de transição com absorção ôhmica. Reflete menos que o ouro (~98% em 1550 nm), então perde mais que 2–5% por reflexão. Além disso, o roteamento por espelhos já foi substituído por guias (seção 2) |
+| **Pentóxido de nióbio (Nb₂O₅)** | Guia de onda de alto índice | **Descartado** | Índice ~2.2–2.3 é atraente, mas a perda medida em 1550 nm é ~2.4 dB/cm, contra <0.1 dB/cm do Si₃N₄. Com contraste de índice parecido, não oferece curvas menores que o Si₃N₄ |
+
+**Oportunidade nacional:** o gargalo do TFLN não é o minério, e sim o crescimento do cristal de LiNbO₃ (Czochralski) e a produção de wafers de filme fino (Smart Cut). Hoje esses wafers vêm de NanoLN (China), Partow e G&H (EUA) e NGK (Japão). Desenvolver no Brasil a cadeia do cristal ao wafer TFLN agrega valor ao nióbio nacional e é uma linha de pesquisa adequada para editais de iniciação científica e inovação.
+
+---
+
+## 7. Referências
 
 1. **Miller, D. A. B. (2010).** "Are optical transistors the logical next step?" *Nature Photonics*, 4, 3–5.
 2. **Churaev, M., et al. (2023).** "A heterogeneously integrated lithium niobate-on-silicon nitride photonic platform." *Nature Communications*, 14, 3499. [DOI: 10.1038/s41467-023-39047-7](https://doi.org/10.1038/s41467-023-39047-7)
@@ -102,3 +117,7 @@ Trabalho relacionado mais próximo: **CPU totalmente óptica da Akhetonics** (Ki
 8. **Madhavan, A., Sherwood, T., & Strukov, D. (2014).** "Race Logic: A hardware acceleration for dynamic programming algorithms." *ISCA 2014*.
 9. **Kissner, M., et al. (2024).** "An All-Optical General-Purpose CPU and Optical Computer Architecture." [arXiv:2403.00045](https://arxiv.org/abs/2403.00045)
 10. **Free-running single-photon detection via GHz-gated InGaAs/InP APD, up to 500 Mcount/s (2023).** *Sensors*. [PMC9961215](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9961215/)
+11. **Korzh, B., et al. (2020).** "Demonstration of sub-3 ps temporal resolution with a superconducting nanowire single-photon detector." *Nature Photonics*, 14, 250–255. [DOI: 10.1038/s41566-020-0589-x](https://www.nature.com/articles/s41566-020-0589-x)
+12. **Low loss optical channel waveguides for the infrared range using niobium based hybrid sol–gel material (2011).** *Optics Communications*. [Link](https://www.sciencedirect.com/science/article/abs/pii/S0030401810014173)
+13. **Lithium niobate/lithium tantalate single-crystal thin films for post-Moore era chip applications (2024).** *Moore and More*. [DOI: 10.1007/s44275-024-00005-0](https://link.springer.com/article/10.1007/s44275-024-00005-0)
+14. **IBRAM.** "Brazil's niobium 'monopoly' generates global covetousness, controversy and myths." [Link](https://ibram.org.br/en/noticia/monopolio-brasileiro-do-niobio-gera-cobica-mundial-controversia-e-mitos/)
