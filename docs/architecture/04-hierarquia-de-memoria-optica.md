@@ -1,5 +1,7 @@
 # Hierarquia de Memória Óptica Volumétrica (Cache, RAM e Photonic SSD)
 
+> **Nota de validação (v1.1, 28/09/2026):** a hierarquia foi redesenhada como memória unificada com transporte óptico (doc [12](12-memoria-unificada-jogos-e-ia-local.md)). A latência é dominada pela célula de armazenamento, não pela propagação da luz.
+
 ## 1. Visão Geral da Arquitetura de Memória
 
 Para superar o gargalo de von Neumann em sistemas computacionais fotônicos, o **SilicaCore** introduz uma hierarquia de memória óptica tridimensional integrada diretamente ao substrato monolítico de sílica fundida ($SiO_2$). Em vez de depender de transferências elétricas de alta latência e alto consumo térmico entre chips discretos de DRAM/SSD e chips de processamento, a memória no SilicaCore é categorizada em quatro camadas funcionais baseadas no tempo de permanência da informação e no mecanismo de interação fotônica.
@@ -20,7 +22,7 @@ flowchart TD
         N1 --- N2
     end
 
-    subgraph Camada2["Nível 2: Memória RAM Óptica Volátil (Dynamic Delay-Line Loops)"]
+    subgraph Camada2["Nível 2: Buffers em Linha de Atraso + RAM Unificada HBM via I/O Óptico"]
         direction TB
         R1["Linhas de Atraso Recirculantes em Anel Fechado (v = 0.20675 mm/ps)"]
         R2["Micro-Amplificadores Ópticos Semicondutores (SOA) + Acoplamento 95/5"]
@@ -34,23 +36,25 @@ flowchart TD
         C1 --- C2
     end
 
-    Camada4 -- "Acesso Volumétrico em Massa (Vazão até 1.2 TB/s)" --> Camada3
+    Camada4 -- "Acesso em Massa (1.2 TB/s: premissa)" --> Camada3
     Camada3 -- "Acesso Direto à Velocidade da Luz (c/n)" --> Camada1
     Camada1 <--> |"Chaveamento em Picosegundos"| Camada2
 ```
 
 ---
 
-## 2. Nível 1: Cache Óptica L1/L2 (Alta Velocidade)
-- **Mecanismo:** Ressonadores de Micro-anéis (*Micro-ring Resonators*) com chaveamento por efeito Kerr não-linear.
-- **Latência ($\tau_{\text{cache}}$):** $\le 5.0\text{ ps}$.
-- **Função:** Registradores imediatos da ULA ToF no **Andar 2**.
+## 2. Nível 1: Cache Óptica L1 (Alta Velocidade)
+- **Mecanismo:** SRAM fotônica (pSRAM) com micro-anéis acoplados em cruz e fotodiodos diferenciais, validada no processo GlobalFoundries 45 nm (arXiv:2503.19544).
+- **Latência ($\tau_{\text{cache}}$):** **~25 ps** (40 GHz), 0.6 pJ/bit de chaveamento. O valor anterior de $\le 5$ ps por efeito Kerr não tem demonstração integrada.
+- **Capacidade:** KB (limitada por área). L2/L3 em SRAM eletrônica 3D empilhada (64–256 MB, ~2 ns).
+- **Função:** Registradores imediatos da ULA ToF na **Camada 2**.
 
 ---
 
-## 3. Nível 2: Memória RAM Óptica Volátil (Dinâmica / Recirculante)
-- **Mecanismo:** Linhas de Atraso Recirculantes em Anel Fechado (*Recirculating Delay-Line Loops*) com extração $95/5$ e ganho por SOA.
-- **Latência de Ciclo ($\tau_{\text{ram}}$):** $96.73\text{ ps}$ a $196.73\text{ ps}$ no **Andar 3**.
+## 3. Nível 2: Buffers Ópticos (Linha de Atraso) e RAM Unificada
+- **Linhas de Atraso Recirculantes:** extração $95/5$ e ganho por SOA; latência de ciclo de $96.73$ a $196.73$ ps na **Camada 3**. **Capacidade de só 619 bits por laço** (64 canais a 100 Gb/s): servem como registradores e buffers.
+- **RAM principal:** HBM/LPDDR unificada via I/O óptico co-empacotado, 64–192 GB. Latência ~30 ns, dominada pela célula DRAM; o transporte óptico dentro do pacote leva ~130 ps.
+- **Por que não RAM óptica pura:** 16 GB em linha de atraso exigiriam ~3.000 km de guia de onda (simulador, seção 11).
 
 ---
 
@@ -60,10 +64,10 @@ flowchart TD
 - Voxels 3D gravados por laser de femtossegundo armazenam permanentemente o Kernel do SO, firmware e drivers com durabilidade $> 10^9$ anos (*Zhang et al., PRL 2014; Project Silica/Microsoft*).
 - Inicialização instantânea (*Instant Boot*) na velocidade da luz no meio ($v = 0.20675\text{ mm/ps}$).
 
-### 4.2 Partição R/W Regravável (PCM $GST / Sb_2Se_3$)
-- Filmes finos de Materiais de Mudança de Fase Fotônica permitem gravação e apagamento óptico de blocos de dados de usuário e matrizes de IA (*Ríos et al., Nature Photonics 2015*).
-- **Densidade Volumétrica:** $\sim 6.4\text{ TB/cm}^3$ (até $100\text{ TB}$ em um cubo de $25\text{ mm}$).
-- **Vazão de Leitura:** Até **$1.2\text{ TB/s}$** via multiplexação WDM paralela.
+### 4.2 Partição R/W Regravável (PCM Sb₂Se₃)
+- Materiais de mudança de fase permitem gravação e apagamento de pesos de IA e dados (*Ríos et al., Nature Photonics 2015*). **Sb₂Se₃** é preferido ao GST por ser transparente em 1550 nm, com > 1.4×10⁸ ciclos (Yu et al., 2026).
+- **Uso recomendado:** pesos de IA de leitura frequente (adaptadores, modelos pequenos). Um LLM de 8B parâmetros em 4 bits exigiria ~2.000 cm² de células, contra 8.6 cm² de um retículo.
+- **Densidade de $6.4\text{ TB/cm}^3$ e vazão de $1.2\text{ TB/s}$:** **premissas** não demonstradas para PCM regravável; o armazenamento em massa recomendado é NVMe via enlace óptico (doc 12).
 
 ---
 

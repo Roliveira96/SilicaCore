@@ -1,5 +1,7 @@
 # Consumo Energético, Eficiência Computacional e Comparativo com Processadores de Silício (SilicaCore vs. CMOS Silício)
 
+> **Nota de validação (v1.1, 28/09/2026):** a "frequência de 206.75 GHz" era o inverso do tempo de voo, não uma taxa de operação; foi substituída pela taxa real de ~5.1 GHz por canal. O TDP de 18.5 W é premissa, a energia por bit calculada pelo próprio simulador é ~1.5 pJ/bit, e a eficiência > 100 TOPS/W vale só no núcleo óptico (sistema: ~0.84 TOPS/W, Lightmatter *Nature* 2025).
+
 ## 1. Dissecação da Dissipação Térmica e Gargalo Energético do Silício (CMOS)
 
 Os processadores modernos de alto desempenho baseados em semicondutores de silício (como **Intel Core i9**, **AMD Ryzen/EPYC**, **NVIDIA H100** e **Apple Silicon**) enfrentam barreiras físicas severas decorrentes da dissipação resistiva e do transporte de carga elétrica.
@@ -34,13 +36,13 @@ $$P_{\text{SilicaCore}} = P_{\text{Laser CW}} + P_{\text{Modulação EOM/AOM}} +
 
 1. **Motor Laser Contínuo CW (Always-ON):**
    - Os 3 canhões laser sólidos RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam em potência óptica constante estabilizada de $\approx 5\text{ mW}$ cada.
-   - Eficiência da fonte semicondutora: Com consumo elétrico total de $\approx 2.5\text{ W}$, os lasers alimentam continuamente todo o bloco volumétrico de sílica fundida.
-2. **Propagação Livre de Efeito Joule ($R = 0$):**
-   - À medida que os feixes de luz se propagam pelos guias de onda de sílica, **não há resistência elétrica** ($R = 0$). A luz flui sem gerar calor por atrito resistivo, reduzindo o aquecimento térmico do chip a níveis insignificantes.
+   - Consumo elétrico total de $\approx 2.5\text{ W}$ para os lasers (**premissa**). Na arquitetura validada, a fonte é um pente de frequências em 1550 nm; a eficiência elétrica-óptica do laser e a estabilização térmica entram no consumo do sistema.
+2. **Propagação sem Efeito Joule nos Guias:**
+   - A propagação nos guias não tem resistência elétrica, mas **o chip não é livre de calor**: moduladores e seus drivers, detectores, TDCs, conversores DAC/ADC, controle CMOS e os aquecedores de estabilização de fase (1.8–3.7 rad/K de deriva) consomem energia elétrica.
 3. **Modulação Eletro-Óptica Ultra-Eficiente:**
    - A alteração de fase nos moduladores eletro-ópticos (EOM) em niobato de lítio ou polímeros fotônicos exige apenas variação de campo elétrico sem fluxo contínuo de corrente. Consumo energértico por bit: **$E_{\text{EOM}} \approx 0.8\text{ fJ/bit}$**.
 4. **Matriz de Detecção SPAD + TDC:**
-   - Detectores de fóton único SPAD (*Single-Photon Avalanche Diode*) e conversores TDC operam com sensibilidade quântica extrema. Consumo por detecção: **$E_{\text{SPAD}} \approx 12\text{ fJ/fóton}$**.
+   - Para dados, fotodiodos UTC/InGaAs (> 100 GHz). Um SPAD exige ~55 fótons por bit para BER $10^{-12}$ com 50% de eficiência e fica limitado a $\le 0.5$ GHz pelo tempo morto. O valor de $E_{\text{SPAD}} \approx 12\text{ fJ/fóton}$ é **premissa** e não inclui o circuito de leitura.
 
 ---
 
@@ -52,13 +54,13 @@ A tabela a seguir compara as métricas energéticas e operacionais do **SilicaCo
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Tecnologia / Substrato** | **Sílica Fundida ($SiO_2$)** | Silício Intel 7 ($7\text{ nm}$) | TSMC $5\text{ nm}$ | TSMC $4\text{ N}$ | TSMC $3\text{ nm}$ |
 | **Meio de Sinal** | **Fótons (Luz CW RGB)** | Elétrons (Cobre) | Elétrons (Cobre) | Elétrons (Cobre) | Elétrons (Cobre) |
-| **Frequência de Operação** | **$206.75\text{ GHz}$ (ToF Efetivo)** | $6.20\text{ GHz}$ (Boost) | $3.70\text{ GHz}$ (Boost) | $1.98\text{ GHz}$ (Boost) | $4.05\text{ GHz}$ (Boost) |
-| **Consumo Térmico TDP (Watts)** | **$18.5\text{ W}$** | $253\text{ W} \text{ (PL2: } 320\text{ W)}$ | $360\text{ W} \text{ (Max: } 400\text{ W)}$ | $700\text{ W}$ | $78\text{ W}$ |
-| **Energia por Operação de Bit** | **$\approx 0.05\text{ pJ/bit } (50\text{ fJ})$** | $\approx 2.5\text{ pJ/bit } (2500\text{ fJ})$ | $\approx 1.8\text{ pJ/bit } (1800\text{ fJ})$ | $\approx 1.2\text{ pJ/bit } (1200\text{ fJ})$ | $\approx 0.9\text{ pJ/bit } (900\text{ fJ})$ |
-| **Eficiência Computacional (AI/MVM)** | **$> 100\text{ TOPS/W}$** | $\approx 0.15\text{ TOPS/W}$ | $\approx 0.25\text{ TOPS/W}$ | $\approx 2.8\text{ TOPS/W (FP16)}$ | $\approx 0.8\text{ TOPS/W}$ |
-| **Vazão de Leitura de Memória** | **$1.2\text{ TB/s (Photonic SSD)}$** | $89.6\text{ GB/s (DDR5)}$ | $460.8\text{ GB/s (12-ch)}$ | $3.35\text{ TB/s (HBM3)}$ | $400\text{ GB/s (Unified)}$ |
-| **Necessidade de Refrigeração** | **Passiva (Ar Ambiente)** | Líquida (Watercooling $360\text{mm}$) | Fluxo de Ar Forçado Servidor | Refrigeração Líquida Direct-to-Chip | Ventoinha Ativa Silenciosa |
-| **Ganho de Eficiência Relativo** | **$1.0\times$ (Referência)** | **SilicaCore é $17\times$ mais eficiente** | **SilicaCore é $19\times$ mais eficiente** | **SilicaCore é $37\times$ mais eficiente** | **SilicaCore é $4.2\times$ mais eficiente** |
+| **Taxa por Canal** | **$\approx 5.1\text{ GHz}$ (slot ToF $\Delta t + W$)** | $6.20\text{ GHz}$ (Boost) | $3.70\text{ GHz}$ (Boost) | $1.98\text{ GHz}$ (Boost) | $4.05\text{ GHz}$ (Boost) |
+| **Consumo Térmico TDP (Watts)** | **$18.5\text{ W}$ (premissa, não derivada)** | $253\text{ W} \text{ (PL2: } 320\text{ W)}$ | $360\text{ W} \text{ (Max: } 400\text{ W)}$ | $700\text{ W}$ | $78\text{ W}$ |
+| **Energia por Bit** | **$\approx 1.5\text{ pJ/bit}$ (calculado pelo simulador)** | $\approx 2.5\text{ pJ/bit } (2500\text{ fJ})$ | $\approx 1.8\text{ pJ/bit } (1800\text{ fJ})$ | $\approx 1.2\text{ pJ/bit } (1200\text{ fJ})$ | $\approx 0.9\text{ pJ/bit } (900\text{ fJ})$ |
+| **Eficiência Computacional (AI/MVM)** | **$> 100\text{ TOPS/W}$ (núcleo) / $\approx 0.84\text{ TOPS/W}$ (sistema, estado da arte)** | $\approx 0.15\text{ TOPS/W}$ | $\approx 0.25\text{ TOPS/W}$ | $\approx 2.8\text{ TOPS/W (FP16)}$ | $\approx 0.8\text{ TOPS/W}$ |
+| **Vazão de Leitura de Memória** | **RAM unificada HBM via I/O óptico ($\sim 3.35\text{ TB/s}$)** | $89.6\text{ GB/s (DDR5)}$ | $460.8\text{ GB/s (12-ch)}$ | $3.35\text{ TB/s (HBM3)}$ | $400\text{ GB/s (Unified)}$ |
+| **Necessidade de Refrigeração** | **A definir** (eletrônica de controle, lasers e estabilização térmica ativa) | Líquida (Watercooling $360\text{mm}$) | Fluxo de Ar Forçado Servidor | Refrigeração Líquida Direct-to-Chip | Ventoinha Ativa Silenciosa |
+| **Ganho de Eficiência Relativo** | **Não demonstrado** | Razões de TDP (13.7×, 19.5×, 37.8×) dependem da premissa de 18.5 W | — | — | — |
 
 ---
 
@@ -80,17 +82,17 @@ flowchart LR
         CWLaser["Motor Laser CW Always-ON: ~2.5W"]
         EOM["Moduladores EOM: ~0.8 fJ/bit"]
         SPAD["Matriz SPAD: ~12 fJ/fóton"]
-        TotalOptics["Potência Total Placa: 18.5W TDP | >100 TOPS/W"]
+        TotalOptics["Potência Total: premissa 18.5W | >100 TOPS/W só no núcleo | ~0.84 TOPS/W sistema (estado da arte)"]
         CWLaser --> EOM --> SPAD --> TotalOptics
     end
 
-    SilícioCMOS -- "37x Redução de Consumo Térmico" --> SilicaCoreOptics
+    SilícioCMOS -- "Redução de consumo: a demonstrar" --> SilicaCoreOptics
 ```
 
 ### 4.1 Computação de Alta Performance (HPC) & Data Centers
 Em um Data Center de grande escala com $10.000$ servidores:
 - **Infraestrutura em Silício (NVIDIA H100 + EPYC):** Consumo total de **$10.6\text{ Megawatts}$**, exigindo usinas dedicadas e torres de resfriamento evaporativo.
-- **Infraestrutura com SilicaCore:** Consumo total reduzido para **$285\text{ Kilowatts}$**, representando uma **economia de $97.3\%$ na fatura de energia elétrica** e eliminação de pegada de carbono por refrigeração.
+- **Infraestrutura com SilicaCore:** a estimativa anterior de $285\text{ kW}$ (economia de $97.3\%$) derivava da premissa de 18.5 W por placa e **foi retirada**. Com a eficiência de sistema do estado da arte (~0.84 TOPS/W), aceleradores fotônicos ainda não superam GPUs em energia por operação no sistema completo; a economia real depende de reduzir o consumo de lasers, conversores e controle.
 
 ---
 

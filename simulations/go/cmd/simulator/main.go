@@ -28,6 +28,12 @@ const (
 
 	// NotGateBatchTestCount is the number of batch test executions performed on the ToF NOT inverter gate.
 	NotGateBatchTestCount = 100
+
+	// RaceGridSide is the side of the game-map grid used in the race-logic benchmark.
+	RaceGridSide = 16
+
+	// RaceTrials is the number of random-source races per race-logic configuration.
+	RaceTrials = 200
 )
 
 func main() {
@@ -53,7 +59,7 @@ func main() {
 	fmt.Printf("Nominal Delay Line Time (t0):              %.2f ps\n", sim.T0NominalPS)
 	fmt.Printf("Temporal Separation Difference (Delta t):   %.2f ps\n", sim.DeltaTNominalPS)
 	fmt.Printf("Total Convoluted System Jitter (sigma):    %.2f ps\n", sim.TotalSigmaPS)
-	fmt.Printf("Temporal Separation Margin (Delta t/sigma):%.2f sigmas\n", sim.SeparationMarginSigmas())
+	fmt.Printf("Temporal Separation (Delta t/sigma):       %.2f sigmas (decision Q = Delta t/2 sigma = %.2f)\n", sim.SeparationMarginSigmas(), sim.SeparationMarginSigmas()/2.0)
 	fmt.Printf("Laser Relative Intensity Noise (RIN):      %.1f dB/Hz\n", sim.Params.LaserRinDbHz)
 	fmt.Printf("Electro-Optic Phase Noise (sigma):         %.3f rad\n", sim.Params.PhaseNoiseSigmaRad)
 	fmt.Printf("Fused Silica Waveguide Attenuation:        %.2f dB/cm\n", sim.Params.GlassLossDbPerCm)
@@ -112,14 +118,14 @@ func main() {
 	fmt.Println("\n--- 6.1 POWER CONSUMPTION & SILICON COMPARISON BENCHMARK ---")
 	pRes := sim.SimulatePowerEfficiency(MonteCarloOperationsCount)
 	fmt.Printf("SilicaCore Board Thermal Design Power (TDP): %.1f Watts\n", pRes.SilicaCoreTdpWatts)
-	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (0.05 pJ/bit)\n", pRes.EnergyPerBitFj)
+	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (EOM + SPAD + CW laser share at 206.75 GHz x 8)\n", pRes.EnergyPerBitFj)
 	fmt.Printf("Photonic AI Compute Energy Efficiency:      > %.0f TOPS/W [Shen et al., 2017]\n", pRes.EnergyEfficiencyTOPSW)
 	fmt.Printf("Baseline Intel Core i9-14900KS TDP:         %.0f Watts (PL2: 320W)\n", pRes.IntelI9TdpWatts)
-	fmt.Printf("SilicaCore Energy Efficiency Ratio vs i9:   %.1fx Lower Power Consumption\n", pRes.IntelI9EfficiencyMult)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs i9:   %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.IntelI9EfficiencyMult)
 	fmt.Printf("Baseline AMD EPYC 9654 Server CPU TDP:      %.0f Watts\n", pRes.AmdEpycTdpWatts)
-	fmt.Printf("SilicaCore Energy Efficiency Ratio vs EPYC: %.1fx Lower Power Consumption\n", pRes.AmdEpycEfficiencyMult)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs EPYC: %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.AmdEpycEfficiencyMult)
 	fmt.Printf("Baseline NVIDIA H100 Tensor GPU TDP:        %.0f Watts\n", pRes.NvidiaH100TdpWatts)
-	fmt.Printf("SilicaCore Energy Efficiency Ratio vs H100: %.1fx Lower Power Consumption\n", pRes.NvidiaH100EfficiencyMult)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs H100: %.1fx (TDP ratio; 18.5 W is an assumption, not measured)\n", pRes.NvidiaH100EfficiencyMult)
 
 	fmt.Printf("\n--- 7. CALIBRATED ToF NOT LOGIC GATE TEST (%d ITERATIONS BATCH) ---\n", NotGateBatchTestCount)
 
@@ -157,7 +163,9 @@ func main() {
 	fmt.Println("-----------------------------------------------------------------------------------------")
 	fmt.Printf("Tempo de Ciclo / Latência    | ~166.67 ps                  | %.2f ps (~%.1fx mais veloz)\n", res.MemStats.GlobalAvgLatencyPS, 166.67/res.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Acesso L1 Cache              | ~666.00 ps (4 ciclos)       | %.2f ps (~%.0fx mais veloz)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
-	fmt.Printf("Throughput por Canal WDM     | 1 bit / clock elétrico      | %d bits / pulso óptico (%dx)\n", sim.Params.BitsPerSymbol, sim.Params.BitsPerSymbol)
+	timing := sim.ComputeTimingBudget(optical.DefaultTargetBER)
+	fmt.Printf("Taxa por Canal               | SerDes 112 Gb/s (PAM4)      | %.2f GHz x %d bits = %.1f Gb/s (slot Delta t + W)\n", timing.ToFSymbolRateGHz, sim.Params.BitsPerSymbol, timing.ToFSymbolRateGHz*float64(sim.Params.BitsPerSymbol))
+	fmt.Printf("BER da Decisão ToF           | < 1e-15                     | %.2e (Q = %.2f; 1e-12 exige Q = %.2f)\n", timing.TheoreticalBER, timing.QFactor, timing.RequiredQForTarget)
 	fmt.Println("Geração Térmica / Fricção    | Altíssima (Efeito Joule)    | Próxima de zero no substrato óptico")
 	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
 
@@ -167,21 +175,127 @@ func main() {
 	microCalibratedWindow := microSim.CalibrateOptimalWindow(CalibrationPulseCount)
 	microMonteCarloRes := microSim.SimulateMonteCarloConcurrent(MonteCarloOperationsCount)
 
-	siliconLatencyPS := 166.67 // 6.0 GHz CPU Cycle Time
-	speedupLatency := siliconLatencyPS / microSim.T1NominalPS
 	dwdmBitsPerPulse := microParams.DwdmBitsPerPulse() // 64 channels * 4 bits = 256 bits/pulse
-	totalThroughputMultiplier := speedupLatency * float64(dwdmBitsPerPulse)
+	microTiming := microSim.ComputeTimingBudget(optical.DefaultTargetBER)
+	aggregateTbps := microTiming.ToFSymbolRateGHz * float64(dwdmBitsPerPulse) / 1000.0
 
 	fmt.Printf("Micro-Cube Dimension (d1):                 %.1f mm (Redução de 10x na escala física)\n", microSim.Params.FastDistanceMM)
-	fmt.Printf("Micro-Cube Direct Nominal Time (t1):       %.2f ps (~%.1fx mais veloz que 6.0 GHz silicon)\n", microSim.T1NominalPS, speedupLatency)
+	fmt.Printf("Micro-Cube Direct Nominal Time (t1):       %.2f ps (flight time, not a clock period)\n", microSim.T1NominalPS)
 	fmt.Printf("Micro-Cube Global Avg Data Latency:        %.2f ps\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Auto-Calibrated Micro Window (%d pulses): %.2f ps (Half-Window: +/-%.2f ps)\n", CalibrationPulseCount, microCalibratedWindow, microCalibratedWindow/2.0)
 	fmt.Printf("Dense DWDM Spectral Grid:                 %d Wavelength Channels\n", microParams.DwdmChannelsCount)
 	fmt.Printf("Parallel Data Density per Optical Pulse:   %d Bits / Pulse (%d channels x %d bits/symbol)\n", dwdmBitsPerPulse, microParams.DwdmChannelsCount, microParams.BitsPerSymbol)
-	fmt.Printf("AGGREGATED COMPUTATIONAL THROUGHPUT GAIN:  %.0fx MAIS VAZÃO BRUTA QUE SILÍCIO CONVENCIONAL DE 6.0 GHz!\n", totalThroughputMultiplier)
+	fmt.Printf("Micro-Cube Decision Q / BER:               %.2f / %.2e (1 ps laser + 3 ps detector jitter: SNSPD-class, cryogenic)\n", microTiming.QFactor, microTiming.TheoreticalBER)
+	fmt.Printf("Micro-Cube ToF Symbol Rate per Channel:    %.2f GHz (slot %.1f ps = Delta t + W)\n", microTiming.ToFSymbolRateGHz, microTiming.SymbolSlotPS)
+	fmt.Printf("Aggregate Raw Optical Line Rate:           %.2f Tb/s (%d bits x %.2f GHz; transport capacity, not compute)\n", aggregateTbps, dwdmBitsPerPulse, microTiming.ToFSymbolRateGHz)
 
-	fmt.Println("\nSimulation Conclusion: Solid-State CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
-	fmt.Printf("Optical GPU WDM RGB, 64-Channel DWDM Massivo, and Photonic SSD confirm %.2f ps micro-latency, %dx DWDM bit density, and %.0fx throughput gain.\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS, dwdmBitsPerPulse, totalThroughputMultiplier)
+	printPhysicalBudget(sim)
+	printUnifiedMemoryAndLocalAI(sim)
+	printRaceLogicBenchmark()
+
+	fmt.Println("\nSimulation Conclusion:")
+	fmt.Printf("Default geometry: Q = %.2f (BER %.2e), %.2f GHz per channel. Micro-cube: Q = %.2f (BER %.2e), %.2f GHz per channel,\n", timing.QFactor, timing.TheoreticalBER, timing.ToFSymbolRateGHz, microTiming.QFactor, microTiming.TheoreticalBER, microTiming.ToFSymbolRateGHz)
+	fmt.Printf("%.2f Tb/s raw over %d DWDM bits. BER 1e-12 requires total jitter sigma <= %.2f ps (default) / %.2f ps (micro).\n", aggregateTbps, dwdmBitsPerPulse, timing.RequiredSigmaPS, microTiming.RequiredSigmaPS)
 	fmt.Println("======================================================================")
 }
 
+
+// printPhysicalBudget reports the routing/mirror link budget, switching limits and the corrected timing budget.
+func printPhysicalBudget(sim *optical.ToFSimulator) {
+	fmt.Println("\n--- 10. PHYSICAL LINK BUDGET: INTERNAL MIRRORS vs GUIDED PLATFORMS (1550 nm) ---")
+	fmt.Printf("Beam radius after delayed line in bulk:    %.0f um (waist %.0f um, no waveguide)\n",
+		optical.GaussianBeamRadiusUM(optical.DefaultBeamWaistUM, optical.DefaultTelecomWavelengthNM, sim.Params.RefractiveIndex, sim.Params.DelayedDistanceMM),
+		optical.DefaultBeamWaistUM)
+	fmt.Printf("Max TIR grazing angle, field-induced dn:   %.4f deg (dn = %.0e, unpoled SiO2 has no Pockels)\n",
+		optical.TirGlancingAngleDeg(sim.Params.RefractiveIndex, optical.FusedSilicaMaxFieldDeltaN), optical.FusedSilicaMaxFieldDeltaN)
+	fmt.Printf("AOM switching floor (100 um beam):         %.1f ns\n", optical.AomAccessTimePS(100)/1000)
+
+	for _, p := range optical.AllRoutingPlatforms() {
+		b := sim.ComputeGateBudget(p)
+		fmt.Printf("\n[%s]\n", b.Platform)
+		fmt.Printf("  Fast switch:                             %s (rise %.1f ps)\n", p.SwitchTechnology, b.SwitchRiseTimePS)
+		fmt.Printf("  Delayed path length:                     %.2f mm\n", b.PathLengthMM)
+		fmt.Printf("  Loss per gate:                           %.2f dB (prop %.2f + turns %.2f + diffraction %.2f + switch %.2f)\n",
+			b.TotalLossPerGateDb, b.PropagationLossDb, b.TurnsLossDb, b.DiffractionLossDb, b.SwitchLossDb)
+		fmt.Printf("  Gates in cascade before regeneration:    %d (power margin %.1f dB)\n", b.MaxCascadedGates, b.PowerMarginDb)
+		fmt.Printf("  Thermal phase drift:                     %.2f rad/K\n", b.PhaseDriftRadPerK)
+		fmt.Printf("  Feasible as ps logic:                    %v\n", b.Feasible)
+	}
+
+	tb := sim.ComputeTimingBudget(optical.DefaultTargetBER)
+	fmt.Println("\n--- 10.1 CORRECTED TIMING BUDGET ---")
+	fmt.Printf("Q factor (delta_t / 2 sigma):              %.2f -> BER %.2e\n", tb.QFactor, tb.TheoreticalBER)
+	fmt.Printf("Q required for BER %.0e:                  %.2f -> max sigma %.2f ps\n", optical.DefaultTargetBER, tb.RequiredQForTarget, tb.RequiredSigmaPS)
+	fmt.Printf("ToF symbol slot (delta_t + window):        %.1f ps -> %.2f GHz per channel\n", tb.SymbolSlotPS, tb.ToFSymbolRateGHz)
+	fmt.Printf("SPAD max rate (dead time):                 %.2f GHz, %.0f photons/bit at BER target\n", tb.SpadMaxRateGHz, tb.SpadPhotonsPerBit)
+	fmt.Printf("UTC photodiode max rate:                   %.0f Gbaud\n", tb.PhotodiodeMaxRateGbaud)
+}
+
+// printUnifiedMemoryAndLocalAI reports the unified hierarchy (transport vs cell time) and on-device LLM sizing.
+func printUnifiedMemoryAndLocalAI(sim *optical.ToFSimulator) {
+	fmt.Println("\n--- 11. UNIFIED MEMORY: LIGHT-SPEED TRANSPORT vs STORAGE-CELL TIME ---")
+	fmt.Printf("%-26s %-12s %-14s %-14s %s\n", "Tier", "Transport", "Cell read", "Total", "Capacity")
+	for _, m := range optical.UnifiedMemoryHierarchy() {
+		fmt.Printf("%-26s %8.1f ps  %11.0f ps  %11.0f ps  %s\n", m.Name, m.TransportPS, m.CellReadPS, m.TotalReadPS, m.Capacity)
+	}
+
+	loopBits := optical.DelayLineCapacityBits(optical.DefaultOpticalLineRateGbps, sim.Params.RamLoopLatencyPS, optical.DefaultDwdmChannelsCount)
+	length16GB := optical.DelayLineLengthForCapacityM(16*8e9, optical.DefaultOpticalLineRateGbps, optical.DefaultDwdmChannelsCount, optical.SiliconNitrideGroupIndex)
+	fmt.Printf("\nDelay-line RAM loop (%.2f ps, %d ch @ %.0f Gbps): %.0f bits held\n",
+		sim.Params.RamLoopLatencyPS, optical.DefaultDwdmChannelsCount, optical.DefaultOpticalLineRateGbps, loopBits)
+	fmt.Printf("Waveguide needed for 16 GB delay-line RAM: %.0f km\n", length16GB/1000)
+
+	fmt.Println("\n--- 11.1 LOCAL AI: ON-CHIP PCM WEIGHTS vs STREAMING FROM UNIFIED RAM ---")
+	for _, m := range []struct {
+		params float64
+		bits   int
+	}{{1, 4}, {8, 4}, {70, 4}} {
+		r := optical.SizeLocalAI(m.params, m.bits)
+		fmt.Printf("%4.0fB params @ %d-bit: %6.1f GB | PCM area %8.1f cm^2 (fits reticle: %v) | decode bound %6.1f tok/s\n",
+			r.ParamsBillions, r.BitsPerWeight, r.ModelGB, r.PcmAreaCM2, r.FitsOnReticle, r.DecodeTokensPerSec)
+	}
+}
+
+// printRaceLogicBenchmark races light through game-map grids and checks every distance against classical Dijkstra.
+func printRaceLogicBenchmark() {
+	fmt.Println("\n--- 12. PHOTONIC RACE LOGIC: SHORTEST PATH ON GAME-MAP GRIDS vs DIJKSTRA ---")
+	p := optical.DefaultRaceLogicParams()
+	g := optical.NewGridGraph(RaceGridSide, RaceGridSide, p.MaxWeight(), 42)
+	hw := optical.BuildRaceHardware(g, p, 42)
+
+	fmt.Printf("Grid:                                      %dx%d (%d nodes, %d directed edges, terrain cost 1..%d)\n",
+		RaceGridSide, RaceGridSide, len(g.Adj), g.NumEdges(), p.MaxWeight())
+	fmt.Printf("Hardware:                                  %d photodiodes, %d TFLN modulators, %d Sb2Se3 switches, %d TDCs\n",
+		hw.Detectors, hw.Modulators, hw.PcmSwitches, hw.Tdcs)
+	fmt.Printf("Longest edge delay line (Si3N4 spiral):    %.1f mm\n", hw.MaxEdgeLengthMM)
+	fmt.Printf("Total delay waveguide / spiral area:       %.1f m / %.0f mm^2 (fits one reticle: %v)\n", hw.TotalDelayM, hw.DelayAreaMM2, hw.FitsOnReticle)
+	fmt.Printf("Worst edge loss / margin:                  %.2f / %.1f dB (closes: %v)\n", hw.WorstEdgeLossDb, hw.PowerMarginDb, hw.LinkBudgetOK)
+
+	shared := p
+	shared.PerEdgeModulators = false
+	hwShared := optical.BuildRaceHardware(g, shared, 42)
+	fmt.Printf("Same with one shared modulator per node:   %.2f dB (closes: %v; fan-out split on the data pulse)\n",
+		hwShared.WorstEdgeLossDb, hwShared.LinkBudgetOK)
+
+	fmt.Printf("\nQuick sweep (%d queries, 1 chip; run `go run ./cmd/racestats` for the 1e5-query multi-chip campaign):\n", RaceTrials)
+	fmt.Printf("\n%-10s %-9s %-7s %-12s %-12s %-12s %-12s\n", "Unit(ps)", "MaxHops", "Q", "NodeErr", "QueryErr", "Race(ns)", "Dijkstra(ns)")
+	for _, unit := range []float64{25, 35, 50, 100} {
+		pu := p
+		pu.UnitDelayPS = unit
+		r := optical.SimulateRaceLogic(g, pu, RaceTrials, 42)
+		fmt.Printf("%-10.0f %-9d %-7.2f %-12.2e %-12.2e %-12.2f %-12.0f\n",
+			unit, r.MaxHops, r.DecisionQ, r.NodeErrorRate, r.QueryErrorRate, r.RaceSolveTimeNS, r.DijkstraSolveTimeNS)
+	}
+
+	fmt.Printf("\n%-8s %-7s %-10s %-12s %-11s %-13s %-9s %-10s %s\n", "Grid", "Nodes", "Race(ns)", "Readout(ns)", "Total(ns)", "Dijkstra(ns)", "Speedup", "BreakEven", "Area(mm^2)")
+	for _, side := range []int{8, 16, 32, 64} {
+		gs := optical.NewGridGraph(side, side, p.MaxWeight(), 42)
+		r := optical.SimulateRaceLogic(gs, p, RaceTrials, 42)
+		fmt.Printf("%-8s %-7d %-10.2f %-12.2f %-11.2f %-13.0f %-9.0f %-10.2f %.0f (reticle: %v)\n",
+			fmt.Sprintf("%dx%d", side, side), r.Nodes, r.RaceSolveTimeNS, r.ReadoutTimeNS, r.TotalQueryTimeNS, r.DijkstraSolveTimeNS, r.SpeedupPerQuery, r.BreakEvenQueries, r.DelayAreaMM2, r.FitsOnReticle)
+	}
+	fmt.Printf("Race time grows with the longest shortest path (D x %.0f ps), not O(1); readout of %d-bit TDC values over %.0f Gb/s grows with N.\n",
+		p.UnitDelayPS, p.TdcBitsPerNode, p.ReadoutLinkGbps)
+	fmt.Println("Dijkstra baseline is measured in Go on this machine (single thread); a current desktop CPU is several times faster.")
+	fmt.Printf("Break-even: queries needed to amortize %.0f ns of Sb2Se3 programming; changing the source needs no reprogramming.\n", p.PcmProgramTimeNS)
+}

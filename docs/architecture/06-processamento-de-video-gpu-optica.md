@@ -1,15 +1,17 @@
 # Processamento de Vídeo e GPU Óptica por Multiplexação WDM RGB
 
+> **Nota de validação (v1.1, 28/09/2026):** o "ray tracing óptico nativo" foi removido: a óptica acelera as partes neurais do pipeline gráfico e a interconexão; o shading escalar/FP32 fica na eletrônica (doc [12](12-memoria-unificada-jogos-e-ia-local.md), seção 4). A plataforma recomendada é 1550 nm; os canais RGB visíveis espalham ~140× mais que 1550 nm.
+
 ## 1. Visão Geral da GPU Óptica Volumétrica
 
-O **SilicaCore** integra uma unidade de processamento gráfico fotônica (**Optical GPU**) localizada no **Andar 4 (Z = 20 a 25mm)** do bloco de sílica fundida. Em vez de utilizar rasterizadores eletrônicos baseados em transistores de silício alimentados por correntes elétricas de alta latência, a GPU óptica utiliza **Multiplexação por Comprimento de Onda (WDM - *Wavelength Division Multiplexing*)** em três frequências ópticas fundamentais (RGB - Red, Green, Blue).
+O **SilicaCore** integra uma unidade de processamento gráfico fotônica (**Optical GPU**) localizada na **Camada 4 da pilha fotônica** do bloco de sílica fundida. Em vez de utilizar rasterizadores eletrônicos baseados em transistores de silício alimentados por correntes elétricas de alta latência, a GPU óptica utiliza **Multiplexação por Comprimento de Onda (WDM - *Wavelength Division Multiplexing*)** em três frequências ópticas fundamentais (RGB - Red, Green, Blue).
 
 ```mermaid
 flowchart TD
-    subgraph GPUOptica["GPU Óptica Volumétrica WDM RGB (Andar 4: Z = 20-25mm)"]
+    subgraph GPUOptica["GPU Óptica Volumétrica WDM RGB (Camada 4)"]
         direction TB
         EmissaoWDM["Laser VCSEL WDM RGB: Vermelho (635nm) | Verde (532nm) | Azul (450nm)"]
-        RayTracing["Motor de Ray-Tracing Óptico Nativo (Refração e Reflexão em Guia Dielétrico)"]
+        RayTracing["Aceleração Neural Óptica (Upscaling, Geração de Quadros, Denoise via MZI)"]
         Shaders["Pipeline de Shaders Interferométricos (Filtragem de Pixels & Convolução)"]
         
         EmissaoWDM --> RayTracing
@@ -36,19 +38,21 @@ A multiplexação espacial e espectral permite processar três camadas completas
 
 ---
 
-## 3. Ray-Tracing Óptico Nativo
+## 3. Ray Tracing: o que Continua Eletrônico
 
-Nas GPUs eletrônicas tradicionais, o *ray-tracing* exige o cálculo numérico massivo de equações de intersecção vetor-triângulo ($P = O + t \cdot D$). Na GPU óptica do SilicaCore, o ray-tracing é **anlógico e nativo**:
+O *ray tracing* calcula intersecções raio-triângulo ($P = O + t \cdot D$) numa **cena virtual** descrita por geometria. A luz que se propaga dentro do chip segue a geometria do chip, não a da cena, então **não existe ray tracing óptico nativo** para jogos. Shading, rasterização e travessia de BVH continuam em lógica eletrônica FP32.
 
-- **Física Real de Trajetória:** Feixes de luz laser propagando no bloco de sílica sofrem reflexão interna total nos espelhos dielétricos externos (Bragg) e refração nos guias micro-estruturados internos.
-- **Modelagem de Iluminação:** A iluminação global, reflexão especular e sombreamento são gerados diretamente pela interferência física e espalhamento controlado do feixe de sinal, alcançando latência por raio propagado de apenas **$\le 5.0\text{ ps}$**.
+Onde a óptica ajuda no pipeline gráfico:
+- **Denoise de ray tracing, upscaling e geração de quadros:** são redes neurais (multiplicações matriz-vetor em INT8/FP8), o ponto forte do núcleo tensorial fotônico.
+- **Interconexão:** banda alta e baixa energia por bit entre GPU, CPU e RAM unificada via I/O óptico.
+- **Pathfinding:** race logic fotônica para NPCs (doc 11, seção 5.1).
 
 ---
 
 ## 4. Desempenho e Filtragem de Frames (16K UHD)
 
 - **Shaders Interferométricos:** Operações de matrizes de convolução para pós-processamento de imagem (blur, sharpening, antialiasing) são realizadas por matrizes de interferômetros de Mach-Zehnder (*MZI Mesh*) integradas.
-- **Vazão de Renderização:** Processamento de frames em resolução 8K e 16K em taxas de atualização de terahertz sem geração de estresse térmico por efeito Joule.
+- **Vazão de Renderização:** limitada pela parte eletrônica do pipeline e pela taxa real por canal óptico (~5.1 GHz com lógica ToF, ou ~100 GHz em enlaces com fotodiodos UTC). "Taxas de atualização de terahertz" não são sustentadas por nenhum componente do modelo.
 
 ---
 

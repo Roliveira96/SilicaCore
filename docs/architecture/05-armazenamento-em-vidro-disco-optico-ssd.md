@@ -1,5 +1,7 @@
 # Arquitetura de Armazenamento em Vidro: Disco Fotônico de Estado Sólido (Photonic SSD)
 
+> **Nota de validação (v1.1, 28/09/2026):** a partição ROM em voxels de vidro é tecnologia real de **arquivo** (escrita única, leitura por microscopia, Project Silica/SOSP 2023), não um SSD de picossegundos. Na arquitetura para jogos e IA local, o armazenamento em massa é NVMe acessado por enlace óptico (doc [12](12-memoria-unificada-jogos-e-ia-local.md)); densidade e vazão abaixo ficam como premissas.
+
 ## 1. Visão Geral do Photonic SSD
 
 O **SilicaCore** expande o conceito tradicional de discos rígidos e memórias flash (SSDs NAND) ao integrar o armazenamento de massa permanente e regravável diretamente no substrato monolítico de sílica fundida ($SiO_2$). 
@@ -8,7 +10,7 @@ O **Photonic Solid-State Drive (Photonic SSD)** combina a densidade de armazenam
 
 ```mermaid
 flowchart TD
-    subgraph CuboSSD["Bloco Volumétrico Photonic SSD (Sílica Fundida 25mm x 25mm x 25mm)"]
+    subgraph SubstratoSSD["Substrato de Armazenamento em Vidro (geometria agnóstica: placa, lâmina ou bloco)"]
         direction TB
         ParticaoROM["Partição ROM Permanente (Nanofilamentos 3D): OS Kernel, Binários & Firmware"]
         ParticaoPCM["Partição R/W Regravável (Filmes PCM - GST): Arquivos de Usuário, BD & Datasets de IA"]
@@ -18,8 +20,8 @@ flowchart TD
         ParticaoPCM --- ParticaoCache
     end
 
-    CabecoteLeitura["Matriz VCSEL + SPAD (Cabeçote de Leitura Óptico Sem Peças Móveis)"] --> CuboSSD
-    CuboSSD --> OutputData["Vazão de Leitura Paralela WDM (Até 1.2 TB/s)"]
+    CabecoteLeitura["Matriz VCSEL + SPAD (Cabeçote de Leitura Óptico Sem Peças Móveis)"] --> SubstratoSSD
+    SubstratoSSD --> OutputData["Vazão de Leitura Paralela WDM (Até 1.2 TB/s)"]
 ```
 
 ---
@@ -35,7 +37,7 @@ flowchart TD
   - **Consumo:** Zero consumo de energia em repouso (*Zero-Power Idle Retention*).
 
 ### 2.2 Partição R/W Regravável (Materiais de Mudança de Fase Fotônica - PCM)
-- **Mecanismo de Gravação/Apagamento:** Guias de onda ópticos acoplados a microcamadas de compostos de calcogenetos (como $Ge_2Sb_2Te_5$ - GST e $Sb_2Se_3$).
+- **Mecanismo de Gravação/Apagamento:** Guias de onda ópticos acoplados a microcamadas de calcogenetos. **Sb₂Se₃ é o material recomendado** (transparente em 1550 nm, > 1.4×10⁸ ciclos); o GST absorve fortemente em 1550 nm no estado cristalino.
 - **Operação de Escrita (Block Write / Erase):**
   - **Pulso de Gravação (Amorfo $\to$ Cristalino):** Pulso laser curto com aquecimento local promove a cristalização rápida (alto índice de refração / bit `1`).
   - **Pulso de Apagamento (Cristalino $\to$ Amorfo):** Pulso laser curto e intenso derrete localmente o filme seguido de resfriamento ultrarrápido (baixo índice de refração / bit `0`).
@@ -48,9 +50,9 @@ flowchart TD
 | Métrica de Desempenho | SSD Eletrônico NAND Flash | Photonic SSD em Sílica (SilicaCore) |
 | :--- | :--- | :--- |
 | **Mecanismo de Armazenamento** | Carga elétrica em portas flutuantes | Voxels 3D em sílica / Fase cristalina PCM |
-| **Densidade Volumétrica** | Planar 3D NAND ($\sim 0.1 \text{ TB/cm}^3$) | Volumétrica 3D ($\sim 6.4 \text{ TB/cm}^3$ / até $100\text{ TB}$ por cubo) |
-| **Vazão de Leitura (Read Throughput)** | $3.5\text{ GB/s}$ a $14\text{ GB/s}$ (PCIe Gen4/5) | Até **$1.2\text{ TB/s}$** (Multiplexação WDM RGB paralela) |
-| **Latência de Acesso** | $50\text{ }\mu\text{s}$ a $100\text{ }\mu\text{s}$ | **$96.73\text{ ps}$ a $196.73\text{ ps}$** (Velocidade da luz no meio) |
+| **Densidade Volumétrica** | Planar 3D NAND ($\sim 0.1 \text{ TB/cm}^3$) | Volumétrica 3D ($\sim 6.4 \text{ TB/cm}^3$ / até $100\text{ TB}$ em $15.6\text{ cm}^3$) — **premissa** |
+| **Vazão de Leitura (Read Throughput)** | $3.5\text{ GB/s}$ a $14\text{ GB/s}$ (PCIe Gen4/5) | $1.2\text{ TB/s}$ — **premissa**; o vidro publicado é lido por microscopia (Project Silica) |
+| **Latência de Acesso** | $50\text{ }\mu\text{s}$ a $100\text{ }\mu\text{s}$ | Voxels 5D: **ms–s** (leitura por imagem). O tempo de voo de ~100–200 ps é só o transporte, não a leitura da célula |
 | **Vida Útil / Retenção** | 3 a 10 anos (Vazamento de carga) | **$> 10^9$ anos** (Estabilidade estrutural da sílica) |
 | **Consumo em Repouso (Idle Power)** | Miliwatts a Watts | **0 Watts** (Retenção óptica passiva sem alimentação) |
 

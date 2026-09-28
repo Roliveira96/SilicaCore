@@ -1,0 +1,171 @@
+# Roteamento e Comutação Óptica: do Espelho Interno ao Comutador em Picossegundos
+
+## 1. O Problema dos Espelhos Internos
+
+A lógica ToF do SilicaCore depende de desviar um pulso para a linha rápida ($d_1$) ou para a linha atrasada ($d_0$). Na arquitetura original, esse desvio é feito por espelhos internos em um bloco de sílica com feixe livre. O modelo físico em `simulations/go/pkg/optical/budget.go` mostra seis obstáculos:
+
+| Obstáculo | Número (simulador, 1550 nm) | Consequência |
+| :--- | :--- | :--- |
+| **Difração do feixe livre** | Cintura de 5 µm vira raio de **~2.8 mm** após 40.7 mm | **~46 dB** de perda por porta: o feixe não chega ao detector |
+| **Sílica não é eletro-óptica** | Sem efeito Pockels (vidro amorfo). Kerr DC: $\Delta n \lesssim 10^{-9}$ | Reflexão interna total só abaixo de **0.002°** de rasância: "espelho EO" em SiO₂ inviável |
+| **AOM é lento** | Trânsito acústico em 100 µm de sílica: **16.8 ns** | 3 ordens de grandeza acima da escala de ps |
+| **Perda acumulada** | Espelho metálico: 2–5% por reflexão. Bragg: banda e ângulo estreitos | Sem regeneração, a cascata de portas morre em poucas etapas |
+| **Tolerância angular** | Deslocamento $= 2\,\delta\theta\,L$ → $\delta\theta < 0.007°$ para 5 µm a 20 mm | Alinhamento de fabricação impraticável |
+| **Espalhamento e crosstalk** | Rayleigh $\propto 1/\lambda^4$: 450 nm espalha **~140×** mais que 1550 nm | Luz parasita entre caminhos num bloco aberto |
+
+> **Conclusão:** o espelho *passivo* não é o problema central. O problema é o **comutador ativo** que escolhe o caminho, e ele não pode ser feito na própria sílica.
+
+---
+
+## 2. Separação em Três Funções
+
+A palavra "espelho" no projeto misturava três funções com requisitos físicos muito diferentes:
+
+```mermaid
+flowchart LR
+    subgraph Fixo["1. Roteamento fixo (passivo)"]
+        A["Guias Si3N4 com curvas de 50 µm<br/>ou guias fs + micro-espelhos TIR"]
+    end
+    subgraph Reconf["2. Reconfiguração (µs–ms, por tarefa)"]
+        B["Chaves PCM Sb2Se3<br/>não-voláteis, 0 W em repouso"]
+    end
+    subgraph Rapido["3. Chaveamento de dados (ps, por bit)"]
+        C["Moduladores/chaves TFLN<br/>>67 GHz, heterogêneos em Si3N4"]
+    end
+    Fixo --> Reconf --> Rapido
+```
+
+| Função | Velocidade | Material recomendado | Estado da arte |
+| :--- | :--- | :--- | :--- |
+| **Roteamento fixo** | — | **Si₃N₄ sobre SiO₂ multicamada**: curvas de 50 µm, acopladores entre camadas de 0.01 dB | Shang et al., *Opt. Express* 23, 21334 (2015); perdas de 0.7 dB/m em guias de alto aspecto |
+| (alternativa em vidro 3D) | — | Guias gravados por laser fs + **micro-espelhos TIR em fenda de ar** (FLICE, 45°) | Perda típica 0.3 dB/cm, benchmark 0.05 dB/cm (*Sci. Rep.* 2018) |
+| **Reconfiguração** | µs | **Sb₂Se₃** em guia Si₃N₄ com aquecedor de ITO transparente | >1.4×10⁸ ciclos, 25 dB de extinção, >6 bits multinível (Yu et al., arXiv:2604.11649, 2026); ~0.1 dB por π com afunilamento |
+| **Chaveamento rápido** | ps | **Niobato de lítio em filme fino (TFLN)** ligado a Si₃N₄ | Transições LN↔Si₃N₄ <0.1 dB, guia <0.1 dB/cm (Churaev et al., *Nat. Commun.* 14, 3499, 2023); moduladores de 0.2 dB de perda e 67 GHz |
+
+**Por que o GST sai:** o $Ge_2Sb_2Te_5$ absorve fortemente em 1550 nm no estado cristalino. O Sb₂Se₃ é transparente no infravermelho próximo e agora atinge resistência de ciclos compatível com reconfiguração frequente.
+
+---
+
+## 3. Orçamento de Potência por Porta ToF (Simulador, Seção 10)
+
+Premissas: 0 dBm por canal (linha de pente de frequência), sensibilidade de fotodiodo de −10 dBm (margem de 10 dB), 4 curvas/espelhos por porta, caminho atrasado de $t_0 \approx 196.7$ ps.
+
+| Plataforma | Perda por porta | Portas em cascata sem regenerar | Deriva de fase |
+| :--- | :---: | :---: | :---: |
+| Bloco SiO₂ + espelhos internos (atual) | 46.6 dB | **0** (sem comutador em ps) | 1.78 rad/K |
+| Guias fs em vidro + micro-espelhos TIR + TFLN | 6.2 dB | **1** | 1.78 rad/K |
+| **Si₃N₄ multicamada + TFLN heterogêneo** | **1.3 dB** | **7** | 3.72 rad/K |
+
+A plataforma Si₃N₄ + TFLN é a única com cascata útil. Mesmo nela, **a cada ~7 portas é preciso regenerar o sinal** (amplificador SOA ou conversão O-E-O). Esse é o critério de *restauração de nível lógico* de Miller (*Nat. Photon.* 4, 3, 2010), que nenhuma porta óptica puramente passiva satisfaz.
+
+A deriva de fase térmica (1.8–3.7 rad/K) é irrelevante para ToF (que lê tempo, não fase), mas **exige estabilização ativa** em tudo que é interferométrico: malha MZI do acelerador de IA e codificação M-ária por fase.
+
+---
+
+## 4. Correção do Orçamento Temporal (Simulador, Seção 10.1)
+
+A documentação anterior afirmava margem de 8.9σ e BER $< 10^{-12}$. O critério correto para decisão entre duas janelas é $Q = \Delta t / 2\sigma$:
+
+- Geometria atual: $Q = 100 / (2 \times 11.24) = 4.45$ → **BER ≈ 4.3×10⁻⁶** (Monte Carlo mede ~2×10⁻⁵).
+- Para BER $10^{-12}$: $Q = 7.03$ → **σ total ≤ 7.1 ps** com $\Delta t = 100$ ps.
+- **Taxa real por canal:** o slot de símbolo precisa conter as duas janelas: $\Delta t + W \approx 195$ ps → **~5 GHz por canal**, não 206 GHz.
+- **Detector:** SPADs têm tempo morto de ~1–2 ns no melhor caso (≤0.5 GHz). Para dados, usar **fotodiodos UTC** (>100 GHz). SPAD fica restrito ao núcleo quântico.
+
+---
+
+## 5. Direção Recomendada: Race Logic Fotônica
+
+A lógica ToF é, em essência, **race logic** (Madhavan, Sherwood & Strukov, ISCA 2014): o valor é o tempo de chegada de uma frente de onda.
+
+| Operação | Implementação óptica |
+| :--- | :--- |
+| `MIN` (OR temporal) | Combinador + primeira detecção |
+| `MAX` (AND temporal) | Última chegada entre entradas |
+| `+ constante` | Trecho de guia de atraso (espiral Si₃N₄) |
+| Inibição | Chave TFLN bloqueando o caminho |
+
+Os atrasos são **programados por chaves Sb₂Se₃** uma vez por problema, e a luz percorre a rede em picossegundos. Isso encaixa exatamente no que a física permite hoje (reconfiguração lenta, propagação rápida). Resolve nativamente menor caminho em grafos, alinhamento de sequências e DTW, que servem para pathfinding de NPCs em jogos, por exemplo.
+
+### 5.1 Protótipo Simulado (`pkg/optical/racelogic.go`, simulador seção 12)
+
+**Mapeamento físico:**
+- **Aresta** = linha de atraso programável: 4 estágios binários de espiral Si₃N₄ selecionados por chaves Sb₂Se₃ (pesos 1–15). Unidade de peso = **100 ps** (escolhida pela campanha estatística abaixo).
+- **Nó** = detecta a primeira chegada e re-emite. Um fotodiodo por aresta de entrada, com OR eletrônico (sem combinador passivo com perda), mais um modulador TFLN por aresta de saída.
+- A latência de regeneração do nó (20 ps) é **descontada do atraso de cada aresta**. Sem isso, caminhos com mais saltos seriam penalizados e a corrida daria a resposta errada.
+- **Ruído:** jitter de 1.5 ps rms por nó e erro estático de 0.5 ps rms por aresta, acumulando a cada salto.
+
+**Campanha estatística** (`go run ./cmd/racestats`): mapa 16×16, **10 chips fabricados independentemente** (erro estático de aresta sorteado por chip) × **10⁴ consultas de origem aleatória** = 10⁵ consultas e 2,55×10⁷ distâncias decodificadas por unidade de atraso. Limite superior com 95% de confiança: regra de 3/N sem erros, intervalo de Wilson com erros.
+
+| Unidade (ps) | Q no pior caminho (32 saltos) | Distâncias erradas | Taxa por distância (limite 95%) | Previsto (gaussiano) | Consultas com algum erro |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 35 | 1.96 | 101.390 | 3.98×10⁻³ (4.00×10⁻³) | 3.68×10⁻³ | 17.6% |
+| 50 | 2.80 | 3.136 | 1.23×10⁻⁴ (1.27×10⁻⁴) | 1.08×10⁻⁴ | 0.83% |
+| 75 | 4.19 | 3 | 1.2×10⁻⁷ (3.5×10⁻⁷) | 9.3×10⁻⁸ | 0.002% |
+| **100** | **5.59** | **0** | **0 (< 1.2×10⁻⁷)** | 2.0×10⁻¹¹ | **0 (< 3×10⁻⁵)** |
+
+**Validação do modelo de ruído por número de saltos** (unidade 50 ps; CSV completo em `simulations/results/race_logic_hops_16x16.csv`):
+
+| Saltos | Distâncias | Erro medido | Erro previsto por $\sigma\sqrt{h}$ |
+| :---: | ---: | :---: | :---: |
+| 12 | 1.530.455 | 7.2×10⁻⁶ | 5.0×10⁻⁶ |
+| 16 | 1.272.043 | 9.4×10⁻⁵ | 7.7×10⁻⁵ |
+| 20 | 627.896 | 4.8×10⁻⁴ | 4.1×10⁻⁴ |
+| 24 | 182.707 | 1.31×10⁻³ | 1.25×10⁻³ |
+| 28 | 31.964 | 2.60×10⁻³ | 2.81×10⁻³ |
+| 32 | 1.558 | 5.1×10⁻³ | 5.2×10⁻³ |
+
+O erro medido segue a previsão gaussiana de ruído acumulado por salto. O excesso de ~14% no total vem da própria corrida: quando dois caminhos têm comprimento quase igual, o nó dispara pelo mais adiantado dos dois ruídos, o que desloca a média para cedo. A amostra piloto de 200 consultas mostrava "0 erros" com 50 ps; com 10⁵ consultas, 0.83% delas têm algum erro. **Resultado reportável:** com unidade de 100 ps, **0 erros em 2,55×10⁷ distâncias** (taxa < 1.2×10⁻⁷ com 95% de confiança).
+
+**Tempo por consulta com unidade de 100 ps** (origem única, todas as distâncias):
+
+| Mapa | Corrida da luz | Leitura TDC (12 bits a 100 Gb/s) | Total | Dijkstra (Go, i3-3217U 2012) | Área das espirais |
+| :--- | ---: | ---: | ---: | ---: | :--- |
+| 8×8 | 6.0 ns | 7.7 ns | 13.7 ns | ~20 µs | 151 mm² |
+| 16×16 | 11.5 ns | 30.7 ns | 42.2 ns | ~50–100 µs | 648 mm² |
+| 32×32 | 20.0 ns | 122.9 ns | 142.9 ns | ~0.3 ms | 2.677 mm² (não cabe num retículo) |
+| 64×64 | 41.9 ns | 491.5 ns | 533.5 ns | ~2 ms | 10.879 mm² (não cabe) |
+
+**Leitura honesta dos resultados:**
+1. **Não é O(1).** A corrida cresce com a maior distância do grafo ($D \times 100$ ps), e a leitura cresce com o número de nós ($N \times 12$ bits). A partir de 8×8, **a leitura eletrônica domina o tempo**, não a luz.
+2. **Speedup medido de ~1.000–4.000×** contra Dijkstra em Go numa CPU de 2012. Numa CPU desktop atual (5–8× mais rápida) o ganho cai para a ordem de **~150–800×**. O A* com heurística, usado em jogos, visita menos nós e reduz ainda mais a diferença.
+3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~222 mm com unidade de 100 ps). **Até 16×16 cabe num retículo** (648 de 858 mm²); mapas maiores exigem particionamento em blocos ou atrasos compartilhados.
+4. **Hardware pesado:** o 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs. Com um modulador compartilhado por nó, a divisão de fan-out (6 dB) estoura a margem: 11.24 dB contra 10 dB (com modulador por aresta: 5.22 dB).
+5. **Programação amortizada:** gravar os atrasos (~1 µs, premissa) se paga já na primeira consulta, e trocar a origem não exige reprogramar.
+
+**Nicho validado:** consultas repetidas de menor caminho em mapas de até ~16×16 blocos, por exemplo pathfinding hierárquico de NPCs em que cada bloco do mapa é resolvido na corrida óptica.
+
+Trabalho relacionado mais próximo: **CPU totalmente óptica da Akhetonics** (Kissner et al., arXiv:2403.00045, 2024), com registradores em linha de atraso, memória PCM de escrita única e regeneração 2R. Opera abaixo de 1 GHz no demonstrador e é a referência de comparação honesta para o SilicaCore.
+
+---
+
+## 6. Rota do Nióbio
+
+O Brasil detém ~97% das reservas economicamente exploráveis de nióbio e ~90% da produção mundial (CBMM, Araxá). A questão para o SilicaCore é **qual forma química do nióbio** serve a qual função:
+
+| Forma | Função no SilicaCore | Decisão | Motivo |
+| :--- | :--- | :---: | :--- |
+| **Niobato de lítio em filme fino (LiNbO₃ / TFLN)** | Chaveamento rápido de dados (ps) | **Adotado** | Efeito Pockels forte ($\chi^{(2)}$), moduladores com 0.2 dB de perda e >67 GHz, transições para Si₃N₄ <0.1 dB (Churaev et al., 2023) |
+| **Nitreto de nióbio (NbN) em SNSPD** | Detecção de fóton único | **Restrito a testes criogênicos e núcleo quântico** | Jitter recorde de 2.7 ps em 1550 nm (Korzh et al., 2020), mas opera a ~1–4 K, tem tempo de recuperação de ns e exige criostato de centenas de watts, o que é incompatível com um processador de baixo consumo |
+| **Nióbio metálico (Nb)** | Espelho refletor interno | **Descartado** | Metal de transição com absorção ôhmica. Reflete menos que o ouro (~98% em 1550 nm), então perde mais que 2–5% por reflexão. Além disso, o roteamento por espelhos já foi substituído por guias (seção 2) |
+| **Pentóxido de nióbio (Nb₂O₅)** | Guia de onda de alto índice | **Descartado** | Índice ~2.2–2.3 é atraente, mas a perda medida em 1550 nm é ~2.4 dB/cm, contra <0.1 dB/cm do Si₃N₄. Com contraste de índice parecido, não oferece curvas menores que o Si₃N₄ |
+
+**Oportunidade nacional:** o gargalo do TFLN não é o minério, e sim o crescimento do cristal de LiNbO₃ (Czochralski) e a produção de wafers de filme fino (Smart Cut). Hoje esses wafers vêm de NanoLN (China), Partow e G&H (EUA) e NGK (Japão). Desenvolver no Brasil a cadeia do cristal ao wafer TFLN agrega valor ao nióbio nacional e é uma linha de pesquisa adequada para editais de iniciação científica e inovação.
+
+---
+
+## 7. Referências
+
+1. **Miller, D. A. B. (2010).** "Are optical transistors the logical next step?" *Nature Photonics*, 4, 3–5.
+2. **Churaev, M., et al. (2023).** "A heterogeneously integrated lithium niobate-on-silicon nitride photonic platform." *Nature Communications*, 14, 3499. [DOI: 10.1038/s41467-023-39047-7](https://doi.org/10.1038/s41467-023-39047-7)
+3. **Shang, K., et al. (2015).** "Low-loss compact multilayer silicon nitride platform for 3D photonic integrated circuits." *Optics Express*, 23(16), 21334.
+4. **Yu, X., et al. (2026).** "High-Endurance, Low-loss Sb₂Se₃ Optical Switches on Silicon Nitride using Transparent Conductive Heaters." [arXiv:2604.11649](https://arxiv.org/abs/2604.11649)
+5. **Alam, M. S., et al. (2024).** "Fast Cycling Speed with Multimillion Cycling Endurance of Ultra-Low Loss Phase Change Material (Sb₂Se₃)." *Advanced Functional Materials*. [DOI: 10.1002/adfm.202310306](https://doi.org/10.1002/adfm.202310306)
+6. **Integrated electro-optics on thin-film lithium niobate (2025).** *Nature Reviews Physics*. [DOI: 10.1038/s42254-025-00825-5](https://www.nature.com/articles/s42254-025-00825-5)
+7. **Femtosecond-laser-written microstructured waveguides in BK7 glass (2018).** *Scientific Reports*, 8. [DOI: 10.1038/s41598-018-28631-3](https://www.nature.com/articles/s41598-018-28631-3)
+8. **Madhavan, A., Sherwood, T., & Strukov, D. (2014).** "Race Logic: A hardware acceleration for dynamic programming algorithms." *ISCA 2014*.
+9. **Kissner, M., et al. (2024).** "An All-Optical General-Purpose CPU and Optical Computer Architecture." [arXiv:2403.00045](https://arxiv.org/abs/2403.00045)
+10. **Free-running single-photon detection via GHz-gated InGaAs/InP APD, up to 500 Mcount/s (2023).** *Sensors*. [PMC9961215](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9961215/)
+11. **Korzh, B., et al. (2020).** "Demonstration of sub-3 ps temporal resolution with a superconducting nanowire single-photon detector." *Nature Photonics*, 14, 250–255. [DOI: 10.1038/s41566-020-0589-x](https://www.nature.com/articles/s41566-020-0589-x)
+12. **Low loss optical channel waveguides for the infrared range using niobium based hybrid sol–gel material (2011).** *Optics Communications*. [Link](https://www.sciencedirect.com/science/article/abs/pii/S0030401810014173)
+13. **Lithium niobate/lithium tantalate single-crystal thin films for post-Moore era chip applications (2024).** *Moore and More*. [DOI: 10.1007/s44275-024-00005-0](https://link.springer.com/article/10.1007/s44275-024-00005-0)
+14. **IBRAM.** "Brazil's niobium 'monopoly' generates global covetousness, controversy and myths." [Link](https://ibram.org.br/en/noticia/monopolio-brasileiro-do-niobio-gera-cobica-mundial-controversia-e-mitos/)
