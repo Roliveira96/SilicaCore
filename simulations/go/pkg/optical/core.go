@@ -7,9 +7,9 @@ import (
 // SpeedOfLightVacuo is the speed of light in vacuum in meters per second (m/s).
 const SpeedOfLightVacuo = 299792458.0
 
-// OpticalParams encapsulates the physical, geometric, and hardware variables of the system.
+// OpticalParams encapsulates physical, geometric, hardware, and Photonic SSD storage variables.
 type OpticalParams struct {
-	RefractiveIndex   float64 // Effective refractive index of the substrate (e.g., 1.4500 for SiO2)
+	RefractiveIndex   float64 // Effective refractive index of substrate (e.g., 1.4500 for SiO2)
 	FastDistanceMM    float64 // d1: Straight-line path distance (mm)
 	DelayedDistanceMM float64 // d0: Deflected/extended reflection path distance (mm)
 	LaserJitterFwhmPS float64 // Laser pulse temporal jitter in ps (FWHM)
@@ -17,25 +17,29 @@ type OpticalParams struct {
 	TdcResolutionPS   float64 // Time-to-Digital Converter LSB resolution in ps
 	WindowWidthPS     float64 // Sampling time-gating window width in ps
 
-	// Photonic Memory Hierarchy Parameters
-	CacheL1LatencyPS float64 // L1 Photonic Cache latency (Micro-ring resonators): <= 5ps (Alexoudi et al., 2020)
-	RamLoopLatencyPS float64 // Dynamic Photonic RAM latency (Recirculating Delay Loops): ~96.73ps (Yao, 1993)
-	CacheL1HitRate   float64 // Nominal empirical hit rate probability for L1 Cache (e.g., 0.92)
+	// Photonic Memory & Photonic SSD Parameters
+	CacheL1LatencyPS          float64 // L1 Photonic Cache latency (Micro-ring resonators): <= 5ps (Alexoudi et al., 2020)
+	RamLoopLatencyPS          float64 // Dynamic Photonic RAM latency (Recirculating Delay Loops): ~96.73ps (Yao, 1993)
+	CacheL1HitRate            float64 // Nominal empirical hit rate probability for L1 Cache (e.g., 0.92)
+	PhotonicSsdThroughputTBps float64 // Photonic Glass SSD parallel read throughput in Terabytes per second (e.g., 1.2 TB/s)
+	PhotonicSsdCapacityTB     float64 // Photonic Glass SSD volumetric storage capacity per cube (e.g., 100 TB)
 }
 
-// DefaultParams returns the nominal configuration for the ToF processor and memory hierarchy.
+// DefaultParams returns the nominal configuration for the ToF processor, memory hierarchy, and Photonic SSD.
 func DefaultParams() OpticalParams {
 	return OpticalParams{
-		RefractiveIndex:   1.4500,
-		FastDistanceMM:    20.0,
-		DelayedDistanceMM: 40.675,
-		LaserJitterFwhmPS: 8.0,
-		SpadJitterFwhmPS:  25.0,
-		TdcResolutionPS:   5.0,
-		WindowWidthPS:     35.0,
-		CacheL1LatencyPS:  5.0,
-		RamLoopLatencyPS:  96.73,
-		CacheL1HitRate:    0.92,
+		RefractiveIndex:           1.4500,
+		FastDistanceMM:            20.0,
+		DelayedDistanceMM:         40.675,
+		LaserJitterFwhmPS:         8.0,
+		SpadJitterFwhmPS:          25.0,
+		TdcResolutionPS:           5.0,
+		WindowWidthPS:             35.0,
+		CacheL1LatencyPS:          5.0,
+		RamLoopLatencyPS:          96.73,
+		CacheL1HitRate:            0.92,
+		PhotonicSsdThroughputTBps: 1.2,
+		PhotonicSsdCapacityTB:     100.0,
 	}
 }
 
@@ -46,18 +50,17 @@ func FwhmToSigma(fwhm float64) float64 {
 
 // ToFSimulator represents the core simulation engine holding physical parameters and noise model.
 type ToFSimulator struct {
-	Params           OpticalParams
-	MediumSpeedMMps  float64 // Speed of light in the substrate medium in mm/ps
+	Params            OpticalParams
+	MediumSpeedMMps   float64 // Speed of light in the substrate medium in mm/ps
 	SpecificDelayPSmm float64 // Propagation delay rate in ps/mm
-	T1NominalPS      float64 // Fast Line nominal propagation time (ps)
-	T0NominalPS      float64 // Delayed Line nominal propagation time (ps)
-	DeltaTNominalPS  float64 // Temporal difference t0 - t1 (ps)
-	TotalSigmaPS     float64 // Total convoluted Gaussian jitter (ps)
+	T1NominalPS       float64 // Fast Line nominal propagation time (ps)
+	T0NominalPS       float64 // Delayed Line nominal propagation time (ps)
+	DeltaTNominalPS   float64 // Temporal difference t0 - t1 (ps)
+	TotalSigmaPS      float64 // Total convoluted Gaussian jitter (ps)
 }
 
 // NewSimulator initializes the simulation engine with the provided optical parameters.
 func NewSimulator(params OpticalParams) *ToFSimulator {
-	// Speed of light in medium (mm/ps): (c / n) * 1e3 mm / 1e12 ps = (c / n) * 1e-9 mm/ps
 	vMedium := (SpeedOfLightVacuo / params.RefractiveIndex) * 1e-9
 	delaySpec := 1.0 / vMedium
 
@@ -67,19 +70,18 @@ func NewSimulator(params OpticalParams) *ToFSimulator {
 
 	sigmaLaser := FwhmToSigma(params.LaserJitterFwhmPS)
 	sigmaSpad := FwhmToSigma(params.SpadJitterFwhmPS)
-	// TDC uniform quantization noise [-LSB/2, LSB/2] has standard deviation LSB / sqrt(12)
 	sigmaTDC := params.TdcResolutionPS / math.Sqrt(12.0)
 
 	sigmaTotal := math.Sqrt(sigmaLaser*sigmaLaser + sigmaSpad*sigmaSpad + sigmaTDC*sigmaTDC)
 
 	return &ToFSimulator{
-		Params:           params,
-		MediumSpeedMMps:  vMedium,
+		Params:            params,
+		MediumSpeedMMps:   vMedium,
 		SpecificDelayPSmm: delaySpec,
-		T1NominalPS:      t1,
-		T0NominalPS:      t0,
-		DeltaTNominalPS:  deltaT,
-		TotalSigmaPS:     sigmaTotal,
+		T1NominalPS:       t1,
+		T0NominalPS:       t0,
+		DeltaTNominalPS:   deltaT,
+		TotalSigmaPS:      sigmaTotal,
 	}
 }
 

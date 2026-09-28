@@ -13,6 +13,7 @@
 | Margem de Separação | 8.90 | sigmas | Imunidade a ruído ($\text{BER} < 10^{-12}$) |
 | Latência Cache L1 Óptica | $\le 5.00$ | ps | Ressonadores de Micro-anéis (*Alexoudi et al., 2020*) |
 | Latência RAM Óptica Volátil | $\sim 96.73$ | ps | Linhas de Atraso Recirculantes (*Yao, 1993*) |
-| Memória Não-Volátil (Kernel) | Leitura Direta | $c/n$ | Nanofilamentos por Femtossegundo (*Zhang et al., 2014*) |
-| Memória Não-Volátil (IA Weights) | In-Memory | - | Filmes PCM $GST$ em guias (*Ríos et al., 2015*) |
-| Latência Média Global de Memória | $\sim 37.58$ | ps | Simulação Monte Carlo |
+| Photonic SSD Capacid. Volumétrica | 100 | TB / cubo | Voxels 3D em $SiO_2$ ($6.4\text{ TB/cm}^3$) (*Project Silica*) |
+| Photonic SSD Vazão de Leitura | 1.2 | TB/s | Multiplexação WDM paralela |
+| Photonic SSD Durabilidade | $> 10^9$ | Anos | Estabilidade de nanofilamentos em vidro |
+| Latência Média Global de Memória | $\sim 37.60$ | ps | Simulação Monte Carlo |

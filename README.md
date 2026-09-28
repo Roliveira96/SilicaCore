@@ -1,6 +1,6 @@
-# Processador Óptico Tridimensional por Tempo de Voo (SilicaCore)
+# Processador Óptico Tridimensional por Tempo de Voo e Disco Fotônico em Vidro (SilicaCore)
 
-> **Arquitetura Computacional Volumétrica em Substrato de Sílica Fundida com Lógica ToF e Hierarquia de Memória Fotônica de Três Níveis**
+> **Arquitetura Computacional Volumétrica em Substrato de Sílica Fundida com Lógica ToF, Hierarquia de Memória Fotônica e Disco SSD Integrado**
 
 [![Licença: Apache 2.0](https://img.shields.io/badge/Licen%C3%A7a-Apache%202.0-blue.svg)](LICENSE)
 [![Licença Doc: CC BY 4.0](https://img.shields.io/badge/Documenta%C3%A7%C3%A3o-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
@@ -13,7 +13,7 @@
 - [1. Visão Geral e Motivação](#1-visão-geral-e-motivação)
 - [2. Contexto Institucional & Pesquisa Aberta](#2-contexto-institucional--pesquisa-aberta)
 - [3. Fundamentação Física e Equações de Propagação](#3-fundamentação-física-e-equações-de-propagação)
-- [4. Hierarquia de Memória Fotônica](#4-hierarquia-de-memória-fotônica)
+- [4. Hierarquia de Memória e Disco Fotônico (Photonic SSD)](#4-hierarquia-de-memória-e-disco-fotônico-photonic-ssd)
 - [5. Arquitetura Lógica e Estrutura Volumétrica](#5-arquitetura-lógica-e-estrutura-volumétrica)
 - [6. Simulador Numérico em Go (Golang)](#6-simulador-numérico-em-go-golang)
 - [7. Referências Bibliográficas Científicas](#7-referências-bibliográficas-científicas)
@@ -25,10 +25,10 @@
 ## 1. Visão Geral e Motivação
 
 À medida que os limites físicos da litografia de semicondutores se aproximam da escala atômica, a eletrônica tradicional enfrenta dois grandes gargalos:
-1. **Dissipação Térmica Parasita:** O movimento de elétrons em condutores metálicos gera aquecimento por efeito Joule ($P = I^2 R$) e limites de latência RC em interconexões de alta densidade.
-2. **Gargalo de von Neumann:** A transferência física constante de dados entre a memória DRAM/SRAM e a ULA gasta até 80% da energia total.
+1. **Dissipação Térmica Parasita:** O movimento de elétrons em condutores metálicos gera aquecimento por efeito Joule ($P = I^2 R$) e limites de latência RC.
+2. **Gargalo de von Neumann:** A transferência física constante de dados entre unidades de armazenamento e a ULA consome energia massiva.
 
-O **SilicaCore** propõe uma alternativa volumétrica em **substrato monolítico de sílica fundida ($SiO_2$)**, unificando processamento e memória no mesmo bloco óptico. Em vez de codificar a informação na amplitude da luz, a lógica opera no **domínio temporal determinístico** através da medição precisa do tempo de voo (*Time-of-Flight*) de pulsos laser de femtossegundos.
+O **SilicaCore** propõe uma alternativa volumétrica em **substrato monolítico de sílica fundida ($SiO_2$)**, unificando processamento e o **Disco Fotônico de Estado Sólido (Photonic SSD)** no mesmo bloco. A lógica opera no **domínio temporal determinístico** através do tempo de voo (*Time-of-Flight*) de pulsos laser de femtossegundos.
 
 ---
 
@@ -52,17 +52,17 @@ Este repositório adota a filosofia de **Ciência Aberta (*Open Science*)**:
 
 ---
 
-## 4. Hierarquia de Memória Fotônica
+## 4. Hierarquia de Memória e Disco Fotônico (Photonic SSD)
 
-O SilicaCore introduz três camadas de memória fotônica integradas diretamente ao substrato:
+1. **Cache L1/L2 Óptica ($\le 5.0\text{ ps}$):** Ressonadores de Micro-anéis (*Bogaerts et al., 2012; Alexoudi et al., 2020*).
+2. **Memória RAM Óptica Volátil ($\sim 96.73\text{ ps}$):** Cavidades em Linha de Atraso Recirculante em Anel Fechado com desacoplamento $95/5$ (*Yao, 1993*).
+3. **Photonic SSD em Vidro ($100\text{ TB}$ / cubo):**
+   - **Partição ROM de Sistema:** Nanofilamentos 3D em $SiO_2$ para inicialização instantânea (*Instant Boot*) com durabilidade $> 10^9$ anos (*Zhang et al., PRL 2014; Project Silica/Microsoft*).
+   - **Partição R/W Regravável:** Filmes de Mudança de Fase Fotônica (PCM - $GST / Sb_2Se_3$) para dados de usuário e IA com vazão de até **$1.2\text{ TB/s}$** (*Ríos et al., Nature Photonics 2015*).
 
-1. **Cache L1/L2 Óptica ($\le 5.0\text{ ps}$):** Ressonadores de Micro-anéis (*Micro-ring Resonators*) com chaveamento bistável não-linear (*Alexoudi et al., IEEE JSTQE 2020; Bogaerts et al., 2012*).
-2. **Memória RAM Óptica Volátil ($\sim 96.73\text{ ps}$):** Cavidades em Linha de Atraso Recirculante em Anel Fechado com desacoplamento $95/5$ e amplificação por SOAs (*Yao, IEEE PTL 1993*).
-3. **Memória Não-Volátil Persistente:**
-   - **Kernel do SO:** Nanofilamentos gravados por laser de femtossegundo em $SiO_2$ para inicialização instantânea na velocidade da luz (*Zhang et al., PRL 2014*).
-   - **Pesos de IA:** Filmes de Mudança de Fase Fotônica (PCM - $GST / Sb_2Se_3$) para computação *In-Memory* (*Ríos et al., Nature Photonics 2015; Feldmann et al., Nature 2019*).
-
-Documento detalhado: [04-hierarquia-de-memoria-optica.md](docs/architecture/04-hierarquia-de-memoria-optica.md).
+Documentos detalhados:
+- [04-hierarquia-de-memoria-optica.md](docs/architecture/04-hierarquia-de-memoria-optica.md)
+- [05-armazenamento-em-vidro-disco-optico-ssd.md](docs/architecture/05-armazenamento-em-vidro-disco-optico-ssd.md)
 
 ---
 
@@ -72,10 +72,10 @@ Documento detalhado: [04-hierarquia-de-memoria-optica.md](docs/architecture/04-h
 flowchart TD
     subgraph CuboSilica["Substrato Monolítico de Sílica Fundida (25mm x 25mm x 25mm)"]
         direction TB
-        Andar4["Andar 4 (Z = 20-25mm): Acelerador Tensor IA & PCM Non-Volatile Weights"]
+        Andar4["Andar 4 (Z = 20-25mm): Photonic SSD R/W & Acelerador Tensor IA (PCM)"]
         Andar3["Andar 3 (Z = 15-20mm): Memória RAM Óptica Volátil (Delay-Line Loops)"]
         Andar2["Andar 2 (Z = 5-15mm): ULA ToF & Cache Óptica L1/L2 (< 5ps)"]
-        Andar1["Andar 1 (Z = 0-5mm): Barramento Óptico Mestre & ROM Kernel Gravada em SiO2"]
+        Andar1["Andar 1 (Z = 0-5mm): Barramento Óptico Mestre & ROM Kernel em SiO2"]
 
         Andar1 --> Andar2
         Andar2 --> Andar3
@@ -91,6 +91,7 @@ Documentações completas da arquitetura:
 - [02-logica-tempo-de-voo.md](docs/architecture/02-logica-tempo-de-voo.md)
 - [03-unidades-funcionais-alu-gpu-ia.md](docs/architecture/03-unidades-funcionais-alu-gpu-ia.md)
 - [04-hierarquia-de-memoria-optica.md](docs/architecture/04-hierarquia-de-memoria-optica.md)
+- [05-armazenamento-em-vidro-disco-optico-ssd.md](docs/architecture/05-armazenamento-em-vidro-disco-optico-ssd.md)
 - [whitepaper-v1.md](docs/papers/whitepaper-v1.md)
 
 ---
@@ -111,13 +112,13 @@ go test -v ./...
 
 ## 7. Referências Bibliográficas Científicas
 
-1. **Ríos, C., et al. (2015).** "Integrated all-photonic non-volatile multi-level memory." *Nature Photonics*, 9(11), 700–706.
-2. **Feldmann, J., et al. (2019).** "All-optical spiking neurosynaptic networks with self-learning capabilities." *Nature*, 569(7755), 208–214.
-3. **Zhang, J., et al. (2014).** "Seemingly unlimited lifetime data storage in white fused silica by ultrafast laser writing." *Physical Review Letters*, 112(3), 033901.
-4. **Alexoudi, A., et al. (2020).** "Integrated Photonic Memories for High-Performance Computing." *IEEE Journal of Selected Topics in Quantum Electronics*, 26(2), 1–15.
+1. **Zhang, J., et al. (2014).** "Seemingly unlimited lifetime data storage in white fused silica by ultrafast laser writing." *Physical Review Letters*, 112(3), 033901.
+2. **Ríos, C., et al. (2015).** "Integrated all-photonic non-volatile multi-level memory." *Nature Photonics*, 9(11), 700–706.
+3. **Feldmann, J., et al. (2019).** "All-optical spiking neurosynaptic networks with self-learning capabilities." *Nature*, 569(7755), 208–214.
+4. **Alexoudi, A., et al. (2020).** "Integrated Photonic Memories for High-Performance Computing." *IEEE JSTQE*, 26(2), 1–15.
 5. **Bogaerts, W., et al. (2012).** "Silicon microring resonators." *Laser & Photonics Reviews*, 6(1), 47–73.
 6. **Yao, X. S. (1993).** "High-frequency optical delay line memory." *IEEE Photonics Technology Letters*, 5(3), 371–374.
-7. **Prucnal, P. R. (2006).** *Photonic Processors in Optical Networking*. CRC Press.
+7. **Microsoft Research (Project Silica).** "Project Silica: Long-term cloud storage in glass." *Microsoft Technology Report*.
 
 ---
 
@@ -133,7 +134,8 @@ go test -v ./...
 │   │   ├── 01-visao-geral-hardware.md
 │   │   ├── 02-logica-tempo-de-voo.md
 │   │   ├── 03-unidades-funcionais-alu-gpu-ia.md
-│   │   └── 04-hierarquia-de-memoria-optica.md
+│   │   ├── 04-hierarquia-de-memoria-optica.md
+│   │   └── 05-armazenamento-em-vidro-disco-optico-ssd.md
 │   ├── papers/
 │   │   └── whitepaper-v1.md                 # Artigo científico completo com citações
 │   └── assets/diagramas/
@@ -145,7 +147,7 @@ go test -v ./...
 │       │       └── main.go                  # CLI executável
 │       └── pkg/
 │           └── optical/
-│               ├── core.go                  # Equações, latências de memória e parâmetros
+│               ├── core.go                  # Equações, latências e métricas de Photonic SSD
 │               ├── tof.go                   # Monte Carlo em Goroutines & Hierarquia de Memória
 │               └── tof_test.go              # Suíte de testes em Go
 └── planning/                                # Gestão de Metas e Roadmap
