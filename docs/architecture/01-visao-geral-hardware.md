@@ -16,6 +16,16 @@ O núcleo do processador consiste em um bloco cúbico de **sílica fundida de ul
 3. **Face de Recepção (Detectores M-ários):** Matriz 2D de Fotodiodos SPAD/CMOS operando amostragem síncrona TDC para leitura de estados em Hexadecimal (4 bits) e Bytes (8 bits por símbolo).
 4. **Revestimento Reflexivo:** Faces externas revestidas com espelhos dielétricos multincamadas (Bragg) de titânia/sílica ($TiO_2/SiO_2$) apresentando refletividade $> 99.95\%$.
 
+### 2.1 Mecanismos de Roteamento Dinâmico: Estado Sólido Eletro-Óptico vs MOEMS Mecânicos
+
+A arquitetura do SilicaCore adota exclusivamente **mecanismos de comutação em estado sólido (sem partes móveis)** para preservação da escala temporal de picossegundos e imunidade à fadiga mecânica:
+
+- **Espelhos Dinâmicos em Estado Sólido (Adotado):**
+  - **Moduladores Acusto-Ópticos (AOM / Grade de Bragg por Som):** Transdutores piezoelétricos de micro-ondas geram ondas acústicas no vidro, criando redes periódicas de difração que defletem os feixes em nanosegundos/picossegundos.
+  - **Moduladores Eletro-Ópticos (EOM / Efeito Kerr e Pockels):** A aplicação de um campo elétrico modulado altera instantaneamente o índice de refração local do $SiO_2$, criando superfícies de reflexão interna total (TIR) sob demanda sem desgaste físico.
+- **Microestruturas Mecânicas (MOEMS / FLICE - Descartado para ToF High-Speed):**
+  - Cavidades gravadas por laser femtossegundo e corrosão química (*FLICE*) com micro-palhetas suspensas (estilo DMD/DLP) apresentam inércia mecânica intrínseca, limitando a frequência de oscilação às faixas de kHz a MHz (incompatíveis com a computação fotônica em picossegundos).
+
 ---
 
 ## 3. Disposição Geométrica e Codificação Densa
