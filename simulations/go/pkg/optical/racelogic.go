@@ -233,6 +233,7 @@ type RaceHardware struct {
 	Graph            Graph
 	EdgeDelayPS      [][]float64 // Programmed delay per edge, node latency already subtracted
 	EdgeErrorPS      [][]float64 // Static fabrication/calibration error per edge
+	EdgeJitterPS     [][]float64 // Optional per-edge dynamic jitter (rms), e.g. inter-chip links; nil = none
 	MaxEdgeLengthMM  float64
 	TotalDelayM      float64 // Total delay-line waveguide: every edge carries all binary stages
 	DelayAreaMM2     float64 // Footprint of all delay spirals at DefaultSpiralPitchUM
@@ -345,6 +346,9 @@ func (h RaceHardware) Race(src int, r *rand.Rand) []float64 {
 				continue
 			}
 			t := fire[u] + h.EdgeDelayPS[u][i] + h.EdgeErrorPS[u][i]
+			if h.EdgeJitterPS != nil && h.EdgeJitterPS[u][i] > 0 {
+				t += r.NormFloat64() * h.EdgeJitterPS[u][i]
+			}
 			if t < arrival[e.To] {
 				arrival[e.To] = t
 				q.push(pqItem{node: e.To, key: t})

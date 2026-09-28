@@ -134,6 +134,19 @@ O erro medido segue a previsão gaussiana de ruído acumulado por salto. O exces
 
 **Nicho validado:** consultas repetidas de menor caminho em mapas de até ~16×16 blocos, por exemplo pathfinding hierárquico de NPCs em que cada bloco do mapa é resolvido na corrida óptica.
 
+### 5.2 Composição Multi-chip (`cmd/racemultichip`)
+
+Blocos de 16×16, um por chip, compostos de dois modos:
+
+| Modo | Mapa | Resultado |
+| :--- | :--- | :--- |
+| **Exato** (corrida única atravessando chips; 1.5 dB por face) | 32×32, 100 ps | 0 erros em ~3×10⁶ distâncias; 10.9 ns origem→destino |
+| | 64×64, 100 ps | **1.52×10⁻⁴ erros por distância** (120 saltos no pior caminho) |
+| | 64×64, 150 ps | 0 erros em ~1.2×10⁷ distâncias; 20.5–30.7 ns; aresta de borda a 9.3 dB |
+| **Hierárquico** (HPA\*, pontos de passagem na borda; sem óptica entre chips) | 32×32 e 64×64 | 9–57% de rotas ótimas; excesso médio de 3–13%; busca eletrônica de 15–464 µs domina o tempo |
+
+**Conflito de escala:** mapas mais profundos exigem unidade de atraso maior. Com 150 ps, o bloco 16×16 ocupa 971 mm² e deixa de caber no retículo (12×12 cabe, com 534 mm²), e a aresta de borda só fecha a margem com acoplamento ≤ 1.5 dB por face. Detalhes na seção 5.5 do [artigo preliminar](../papers/artigo-preliminar.md).
+
 Trabalho relacionado mais próximo: **CPU totalmente óptica da Akhetonics** (Kissner et al., arXiv:2403.00045, 2024), com registradores em linha de atraso, memória PCM de escrita única e regeneração 2R. Opera abaixo de 1 GHz no demonstrador e é a referência de comparação honesta para o SilicaCore.
 
 ---

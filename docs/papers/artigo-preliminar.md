@@ -8,7 +8,7 @@
 
 ## Resumo
 
-Propostas de processadores ópticos frequentemente reportam ganhos derivados apenas do tempo de voo da luz, sem orçamento de potência, sem limites de detecção e sem estatística de erro. Este trabalho parte de uma arquitetura conceitual de computação por tempo de voo (SilicaCore) e a submete a um modelo físico com parâmetros da literatura de 2023–2026. Mostramos que o roteamento por espelhos internos em bloco de sílica perde ~46,6 dB por porta por difração e não tem comutador em picossegundos, enquanto guias de Si₃N₄ com chaves de niobato de lítio em filme fino (TFLN) perdem ~1,3 dB por porta e permitem 7 portas em cascata antes de regenerar o sinal. Sobre essa plataforma, mapeamos *race logic* — computação em que o valor é o tempo de chegada de um pulso — para resolver menor caminho em grafos: arestas são linhas de atraso programáveis por chaves Sb₂Se₃ e nós detectam a primeira chegada e reemitem. Uma campanha Monte Carlo com 10 chips simulados × 10⁴ consultas (2,55×10⁷ distâncias por configuração) em um mapa 16×16 mostra que a unidade de atraso de 50 ps produz 1,23×10⁻⁴ erros por distância, enquanto 100 ps produz 0 erros (limite superior de 1,2×10⁻⁷ com 95% de confiança). O erro medido por número de saltos segue a previsão gaussiana de ruído acumulado. Cada consulta leva 42,2 ns, dominados pela leitura eletrônica dos tempos (30,7 ns), e o circuito ocupa 648 mm², dentro de um retículo de litografia. O ganho não é O(1): cresce com a distância máxima do grafo e é limitado pela leitura e pela área.
+Propostas de processadores ópticos frequentemente reportam ganhos derivados apenas do tempo de voo da luz, sem orçamento de potência, sem limites de detecção e sem estatística de erro. Este trabalho parte de uma arquitetura conceitual de computação por tempo de voo (SilicaCore) e a submete a um modelo físico com parâmetros da literatura de 2023–2026. Mostramos que o roteamento por espelhos internos em bloco de sílica perde ~46,6 dB por porta por difração e não tem comutador em picossegundos, enquanto guias de Si₃N₄ com chaves de niobato de lítio em filme fino (TFLN) perdem ~1,3 dB por porta e permitem 7 portas em cascata antes de regenerar o sinal. Sobre essa plataforma, mapeamos *race logic* — computação em que o valor é o tempo de chegada de um pulso — para resolver menor caminho em grafos: arestas são linhas de atraso programáveis por chaves Sb₂Se₃ e nós detectam a primeira chegada e reemitem. Uma campanha Monte Carlo com 10 chips simulados × 10⁴ consultas (2,55×10⁷ distâncias por configuração) em um mapa 16×16 mostra que a unidade de atraso de 50 ps produz 1,23×10⁻⁴ erros por distância, enquanto 100 ps produz 0 erros (limite superior de 1,2×10⁻⁷ com 95% de confiança). O erro medido por número de saltos segue a previsão gaussiana de ruído acumulado. Cada consulta leva 42,2 ns, dominados pela leitura eletrônica dos tempos (30,7 ns), e o circuito ocupa 648 mm², dentro de um retículo de litografia. O ganho não é O(1): cresce com a distância máxima do grafo e é limitado pela leitura e pela área. Mapas maiores podem ser compostos por vários chips numa corrida única (64×64: 20,5 ns por consulta com unidade de 150 ps e 0 erros), desde que o acoplamento entre chips fique em ≤ 1,5–2 dB por face.
 
 **Palavras-chave:** computação fotônica, race logic, niobato de lítio em filme fino, nitreto de silício, menor caminho, materiais de mudança de fase.
 
@@ -153,11 +153,44 @@ O erro medido segue a previsão de ruído acumulado. O excesso agregado de ~14% 
 
 O circuito 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs; a aresta mais longa tem 221,8 mm de espiral e perde 5,2 dB (margem de 10 dB). O retículo de litografia (26 × 33 mm, 858 mm²) comporta até 16×16.
 
+### 5.5 Composição multi-chip (mapas maiores que um retículo)
+
+Mapas maiores que 16×16 foram compostos por blocos de 16×16, cada um em um chip (`go run ./cmd/racemultichip`). Enlace entre chips: 1,5 dB por face (duas faces por cruzamento), 25 ps de voo compensados no atraso programado, 1 ps de jitter e 1 ps de erro estático rms por cruzamento (premissas). Dois modos foram comparados em 3.000 consultas origem→destino por configuração.
+
+**Modo exato (uma corrida óptica atravessando os chips).** Os erros foram contados em todas as distâncias de cada corrida:
+
+| Mapa | Unidade | Chips | Saltos máx. | Perda na aresta de borda | Erro por distância (limite 95%) | Bordas no caminho | Origem→destino | Todas as distâncias |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | ---: | ---: |
+| 32×32 | 100 ps | 4 | 61 | 8,2 dB | 0 (< 9,8×10⁻⁷) | 1,2 | 10,9 ns | 50,9 ns |
+| 64×64 | 100 ps | 16 | 120 | 8,2 dB | **1,52×10⁻⁴** | 2,8 | 20,5 ns | 72,6 ns |
+| 64×64 | 150 ps | 16 | 120 | 9,3 dB | 0 (< 2,4×10⁻⁷) | 2,8 | 30,7 ns | 93,5 ns |
+
+A leitura "todas as distâncias" é paralela: cada chip lê seus 256 nós pelo próprio enlace (30,7 ns). O orçamento da aresta de borda fecha até 2,0 dB por face com 100 ps (9,2 dB) e estoura com 2,5 dB (10,2 dB).
+
+**Conflito de escala.** Mapas maiores têm caminhos com mais saltos, e o jitter acumulado exige unidade de atraso maior: com 100 ps o 64×64 erra 1,52×10⁻⁴ por distância. Com 150 ps os erros somem, mas (i) a espiral de cada aresta cresce 1,5×, o bloco 16×16 passa a ocupar 971 mm² e deixa de caber no retículo (um bloco 12×12 cabe, com 534 mm²), e (ii) a aresta de borda chega a 9,3 dB, o que só fecha a margem com acoplamento ≤ 1,5 dB por face. **Mapas maiores exigem unidade maior, que força blocos menores e mais cruzamentos entre chips.**
+
+**Modo hierárquico (estilo HPA\*).** Cada chip calcula uma vez, com a própria corrida óptica, as distâncias internas entre pontos de passagem na borda; a consulta faz duas corridas locais e um Dijkstra eletrônico sobre esses pontos. Dispensa enlaces ópticos entre chips:
+
+| Mapa | Espaçamento dos pontos de passagem | Pontos | Rotas ótimas | Excesso médio | Excesso p99 | Excesso máx. | Tempo por consulta* |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | ---: |
+| 32×32 | 8 | 8 | 30,7% | 10,8% | 69% | 600% | ~15 µs |
+| 32×32 | 4 | 16 | 38,6% | 6,5% | 41% | 310% | ~30 µs |
+| 32×32 | 2 | 31 | 57,1% | 3,0% | 25% | 267% | ~73 µs |
+| 64×64 | 8 | 48 | 9,2% | 13,2% | 53% | 1.160% | ~67 µs |
+| 64×64 | 4 | 96 | 10,0% | 9,8% | 36% | 420% | ~188 µs |
+| 64×64 | 2 | 187 | 26,7% | 4,1% | 19% | 150% | ~464 µs |
+
+\*Dominado pela busca eletrônica no grafo abstrato, medida em Go no i3-3217U.
+
+Com todos os cruzamentos como pontos de passagem e sem ruído, o modo hierárquico reproduz exatamente o Dijkstra (teste unitário), o que confirma que o excesso vem da esparsidade dos pontos. Os excessos máximos grandes ocorrem em pares origem-destino próximos, separados por uma borda, cujo ponto de passagem mais próximo fica distante. Nenhuma estimativa ficou abaixo do ótimo.
+
+**Conclusão da composição.** O modo exato preserva a vantagem da corrida óptica (dezenas de ns) desde que o acoplamento entre chips fique em ≤ 1,5–2 dB por face e a unidade de atraso cresça com a profundidade do mapa. O modo hierárquico evita óptica entre chips, mas perde exatidão e passa a ser limitado pela busca eletrônica.
+
 ## 6. Discussão e Limitações
 
 1. **Não é O(1).** O tempo de corrida cresce com a maior distância do grafo ($D\,\tau$), e a leitura cresce com o número de nós. A partir de 8×8, a leitura eletrônica domina.
 2. **Baseline.** O ganho medido (~2.000× no 16×16) é contra Dijkstra em uma CPU de 2012. Estimamos ~150–800× contra uma CPU desktop atual; A* [Hart et al. 1968] com heurística visita menos nós e reduz a diferença. Uma comparação com implementação otimizada em GPU está pendente.
-3. **Área.** Estágios binários fazem cada aresta carregar a espiral completa. Atrasos compartilhados ou particionamento hierárquico do mapa são necessários acima de 16×16.
+3. **Área e composição.** Estágios binários fazem cada aresta carregar a espiral completa, limitando o bloco a 16×16 com 100 ps. Acima disso, a composição exata entre chips funciona (Seção 5.5), mas mapas mais profundos exigem unidade maior, blocos menores e acoplamento entre chips ≤ 1,5–2 dB por face; a composição hierárquica perde exatidão (excesso médio de 3–13%).
 4. **Premissas.** Latência e jitter do nó, erro estático por aresta, tempo de programação e taxa de leitura não têm valor publicado para esta integração e precisam de medição.
 5. **Modelo.** O ruído é gaussiano e independente por salto; deriva térmica lenta (1,8–3,7 rad/K de fase, irrelevante para ToF mas relevante para atrasos longos) e perdas por curva e cruzamento em layout real não foram modeladas.
 6. **Nicho.** O caso de uso favorável é consulta repetida de menor caminho em blocos de mapa de até 16×16 (p. ex. pathfinding hierárquico de NPCs), em que trocar a origem não exige reprogramação.
@@ -170,7 +203,7 @@ Trabalhos futuros:
 - **Simulação eletromagnética (FDTD)** de espirais, curvas e transições Si₃N₄/TFLN, para substituir premissas de perda e atraso.
 - **Demonstrador em fibra**: bobinas de fibra como atrasos, moduladores de niobato de lítio comerciais, fotodiodos rápidos e TDC, resolvendo menor caminho num grafo pequeno.
 - **Baseline moderno**: Dijkstra/A* otimizados em CPU e GPU atuais.
-- **Escala**: particionamento hierárquico e atrasos compartilhados para mapas maiores que um retículo.
+- **Escala**: atrasos compartilhados entre arestas para reduzir área, e medição real do acoplamento entre chips (faceta ou interposer) que viabiliza o modo exato.
 
 ## Agradecimentos
 

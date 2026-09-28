@@ -40,6 +40,7 @@ O **SilicaCore** é uma arquitetura computacional volumétrica em **sílica fund
 | Taxa por canal (slot $\Delta t + W$) | **$\approx 5.1$ GHz** ($\approx 20.5$ Gb/s com 4 bits/símbolo) | Configuração micro ($d_1 = 2$ mm): $\approx 55.6$ GHz, mas com $Q = 3.64$ |
 | Teto do detector SPAD | **$\le 0.5$ GHz** (tempo morto $\ge 2$ ns) | Caminho de dados usa fotodiodos UTC/InGaAs ($\sim 150$ Gbaud) |
 | Race logic fotônica (menor caminho, mapa 16×16) | **0 erros em 2,55×10⁷ distâncias** (< 1.2×10⁻⁷, 95%) com unidade de 100 ps; 42.2 ns por consulta | Com 50 ps: 1.2×10⁻⁴ por distância. Leitura TDC domina; 648 mm², cabe num retículo ([doc 11, seção 5.1](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
+| Composição multi-chip (64×64 em 16 chips) | Modo exato: 0 erros com 150 ps, 20.5–30.7 ns por consulta | Exige acoplamento ≤ 1.5 dB/face e blocos menores; o modo hierárquico perde exatidão (excesso médio de 3–13%) |
 | Roteamento por espelhos internos em bloco | **Inviável** (46.6 dB/porta) | Plataforma adotada: Si₃N₄ + TFLN, 1.3 dB/porta ([doc 11](docs/architecture/11-roteamento-e-comutacao-optica.md)) |
 
 Os demais números deste README que dependem dessas métricas foram alinhados a elas. Afirmações ainda não validadas estão marcadas como **premissa**.
@@ -233,8 +234,10 @@ go test -v ./...
 │       ├── cmd/
 │       │   ├── simulator/
 │       │   │   └── main.go                  # CLI executável com mensagem de homenagem
-│       │   └── racestats/
-│       │       └── main.go                  # Campanha estatística de race logic (10⁵ consultas, vários chips)
+│       │   ├── racestats/
+│       │   │   └── main.go                  # Campanha estatística de race logic (10⁵ consultas, vários chips)
+│       │   └── racemultichip/
+│       │       └── main.go                  # Composição multi-chip: modo exato vs hierárquico
 │       └── pkg/
 │           └── optical/
 │               ├── core.go                  # Equações, Solid-State CW Engine, M-ary Hex, LOQC, GPU & SSD
