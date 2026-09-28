@@ -13,6 +13,8 @@ func main() {
 	fmt.Println("======================================================================")
 	fmt.Println("   VOLUMETRIC OPTICAL PROCESSOR SIMULATION - SILICA CORE (GOLANG)    ")
 	fmt.Println("   Substrate: Fused Silica (SiO2) | Detection: SPAD + TDC            ")
+	fmt.Println("   Practical Origin: Inspired by Noritsu Laser Engines at Grafis     ")
+	fmt.Println("   Special Acknowledgment: Ricardo Oliveira & Valmor Moreira         ")
 	fmt.Printf("   Parallel Execution on %d CPU Cores (Goroutines)\n", runtime.NumCPU())
 	fmt.Println("======================================================================")
 

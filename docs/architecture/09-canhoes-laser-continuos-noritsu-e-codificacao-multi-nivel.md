@@ -13,6 +13,14 @@ Assim que a placa do SilicaCore é energizada, o processador inicia o direcionam
 - **Moduladores Acusto-Ópticos / Eletro-Ópticos (AOM/EOM):** Deflexão angular ultra-rápida sem partes mecânicas.
 - **Matriz de Micro-Espelhos 3D Gravados em Sílica:** Condução e combinação dos feixes pelas trajetórias do substrato até a matriz de fotodetectores.
 
+### 1.3 Origem de Engenharia & Agradecimentos Especiais (Empresa Grafis / Valmor Moreira)
+
+> **Nota de Origem do Projeto:** A ideia do processador fotônico volumétrico SilicaCore **não surgiu do nada**. Sua premissa fundamental foi diretamente observada e vivenciada na prática pelo autor (Ricardo Oliveira) em conjunto com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
+> 
+> Na empresa Grafis, operavam-se minilabs fotográficos industriais Noritsu equipados com canhões laser sólidos contínuos (RGB) que incidiam sobre um **prisma rotativo e um conjunto de espelhos ópticos**. Ao percorrer o papel fotográfico sensível à luz com velocidade e precisão micrométrica, esse sistema gerava a revelação física da imagem. 
+> 
+> A observação direta dessa máquina em funcionamento gerou o *insight* técnico que deu origem ao SilicaCore: se os canhões laser permanecem sempre acesos e o prisma/espelhos direcionam o feixe sobre o suporte fotossensível para gravar dados visuais, é perfeitamente viável utilizar canhões laser contínuos direcionados por micro-espelhos e modificadores ópticos dentro de um bloco de sílica fundida para sensibilizar matrizes de fotodetectores SPAD, realizando computação e armazenamento no tempo de propagação da luz.
+
 ```mermaid
 flowchart TD
     subgraph NoritsuCWEngine["Motor Laser Contínuo CW (Estilo Minilab Noritsu - Always-ON)"]
@@ -35,7 +43,7 @@ flowchart TD
         SensorHex["Leitura Espectral WDM -> Saída em Hexadecimal (4-bit) / Byte (8-bit) Direct"]
     end
 
-    NoritsuCWEngine -- "Feixes RGB Contínuos de Alta Estabilidade" --> CuboSilica
+    NoritsuCWEngine -- "Feixes RGB Contínuos de Alta Estabilidade (Inspirado na Grafis)" --> CuboSilica
     CuboSilica -- "Combinação de Cores e Rotas Defletidas" --> DetectoresMArio
 ```
 
@@ -55,15 +63,8 @@ Em vez de limitar a transmissão a um sinal binário simples (`0` ou `1`, $1\tex
 
 ---
 
-## 3. Vantagens Computacionais da Saída em Byte/Megabyte
+## 3. Referências Bibliográficas Científicas & Históricas
 
-1. **Eliminação do Bottleneck de Decodificação Binária:** A placa não precisa gastar ciclos de clock agrupando bits individuais em bytes; o dado processado sai no formato nativo de palavras de memória (8, 16, 32 ou 64 bits).
-2. **Vazão de Dados Multiplicada:** A taxa de transferência efetiva do processador é multiplicada por **$8\times$ (em modo Byte)** em relação a sistemas ópticos binários convencionais.
-
----
-
-## 4. Referências Bibliográficas Científicas
-
-1. **Noritsu Koki Co., Ltd.** "Precision Laser Exposure Engine Technology for Photofinishing Systems." *Technical Whitepaper Report*.
-2. **Weng, L., et al. (2020).** "Wavelength-division multiplexed photonic computing for high-throughput matrix processing." *IEEE JSTQE*, 26(5), 1–12.
-3. **Agrawal, G. P. (2012).** *Fiber-Optic Communication Systems: M-ary Modulation Techniques*. John Wiley & Sons.
+1. **Grafis & Registro Prático:** Observação direta de minilabs fotográficos Noritsu com varredura laser por prisma por Ricardo Oliveira e Valmor Moreira (Empresa Grafis).
+2. **Noritsu Koki Co., Ltd.** "Precision Laser Exposure Engine Technology for Photofinishing Systems." *Technical Whitepaper Report*.
+3. **Weng, L., et al. (2020).** "Wavelength-division multiplexed photonic computing for high-throughput matrix processing." *IEEE JSTQE*, 26(5), 1–12.
