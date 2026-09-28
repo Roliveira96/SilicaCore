@@ -4,84 +4,86 @@ import (
 	"math"
 )
 
-// CVacuo é a velocidade da luz no vácuo em metros por segundo (m/s).
-const CVacuo = 299792458.0
+// SpeedOfLightVacuo is the speed of light in vacuum in meters per second (m/s).
+const SpeedOfLightVacuo = 299792458.0
 
-// ParametrosOpticos encapsula as variáveis físicas e de hardware do sistema.
-type ParametrosOpticos struct {
-	IndiceRefracao      float64 // Índice de refração efetivo do substrato (ex: 1.4500 para SiO2)
-	DistanciaRapidaMM   float64 // d1: Distância do percurso em linha reta (mm)
-	DistanciaAtrasadaMM float64 // d0: Distância do percurso refletido/estendido (mm)
-	JitterLaserFWHMps   float64 // Jitter temporal do pulso VCSEL em ps (FWHM)
-	JitterSpadFWHMps    float64 // Jitter do detector SPAD em ps (FWHM)
-	ResolucaoTDCps      float64 // Menor bit significativo (LSB) do TDC em ps
-	LarguraJanelaPS     float64 // Largura da janela de amostragem temporal em ps
+// OpticalParams encapsulates the physical, geometric, and hardware variables of the system.
+type OpticalParams struct {
+	RefractiveIndex   float64 // Effective refractive index of the substrate (e.g., 1.4500 for SiO2)
+	FastDistanceMM    float64 // d1: Straight-line path distance (mm)
+	DelayedDistanceMM float64 // d0: Deflected/extended reflection path distance (mm)
+	LaserJitterFwhmPS float64 // Laser pulse temporal jitter in ps (FWHM)
+	SpadJitterFwhmPS  float64 // Detector SPAD jitter in ps (FWHM)
+	TdcResolutionPS   float64 // Time-to-Digital Converter LSB resolution in ps
+	WindowWidthPS     float64 // Sampling time-gating window width in ps
 
-	// Parâmetros da Hierarquia de Memória Fotônica
-	LatenciaCacheL1PS float64 // Latência da Cache L1 (Micro-anéis): <= 5ps (Alexoudi et al., 2020)
-	LatenciaRamLoopPS float64 // Latência da RAM Recirculante (Delay Loops): ~96.73ps (Yao, 1993)
-	TaxaAcertoCacheL1 float64 // Probabilidade empírica de hit na Cache L1 (ex: 92%)
+	// Photonic Memory Hierarchy Parameters
+	CacheL1LatencyPS float64 // L1 Photonic Cache latency (Micro-ring resonators): <= 5ps (Alexoudi et al., 2020)
+	RamLoopLatencyPS float64 // Dynamic Photonic RAM latency (Recirculating Delay Loops): ~96.73ps (Yao, 1993)
+	CacheL1HitRate   float64 // Nominal empirical hit rate probability for L1 Cache (e.g., 0.92)
 }
 
-// ParametrosPadrao retorna a configuração nominal do processador ToF e da hierarquia de memória.
-func ParametrosPadrao() ParametrosOpticos {
-	return ParametrosOpticos{
-		IndiceRefracao:      1.4500,
-		DistanciaRapidaMM:   20.0,
-		DistanciaAtrasadaMM: 40.675,
-		JitterLaserFWHMps:   8.0,
-		JitterSpadFWHMps:    25.0,
-		ResolucaoTDCps:      5.0,
-		LarguraJanelaPS:     35.0,
-		LatenciaCacheL1PS:   5.0,
-		LatenciaRamLoopPS:   96.73,
-		TaxaAcertoCacheL1:   0.92,
+// DefaultParams returns the nominal configuration for the ToF processor and memory hierarchy.
+func DefaultParams() OpticalParams {
+	return OpticalParams{
+		RefractiveIndex:   1.4500,
+		FastDistanceMM:    20.0,
+		DelayedDistanceMM: 40.675,
+		LaserJitterFwhmPS: 8.0,
+		SpadJitterFwhmPS:  25.0,
+		TdcResolutionPS:   5.0,
+		WindowWidthPS:     35.0,
+		CacheL1LatencyPS:  5.0,
+		RamLoopLatencyPS:  96.73,
+		CacheL1HitRate:    0.92,
 	}
 }
 
-// FwhmParaSigma converte a largura a meia altura (FWHM) de uma distribuição Gaussiana para desvio padrão (sigma).
-func FwhmParaSigma(fwhm float64) float64 {
+// FwhmToSigma converts Full Width at Half Maximum (FWHM) of a Gaussian distribution to standard deviation (sigma).
+func FwhmToSigma(fwhm float64) float64 {
 	return fwhm / (2.0 * math.Sqrt(2.0*math.Log(2.0)))
 }
 
-// SimuladorToF representa o motor de simulação contendo os tempos calculados e perturbações de jitter.
-type SimuladorToF struct {
-	Params               ParametrosOpticos
-	VelocidadeMeioMMps   float64 // Velocidade no meio em mm/ps
-	AtrasoEspecificoPSmm float64 // Taxa de atraso em ps/mm
-	T1NominalPS          float64 // Tempo nominal da Linha Rápida (ps)
-	T0NominalPS          float64 // Tempo nominal da Linha Atrasada (ps)
-	DeltaTNominalPS      float64 // Diferença temporal t0 - t1 (ps)
-	SigmaTotalPS         float64 // Jitter Gaussiano total convoluído (ps)
+// ToFSimulator represents the core simulation engine holding physical parameters and noise model.
+type ToFSimulator struct {
+	Params           OpticalParams
+	MediumSpeedMMps  float64 // Speed of light in the substrate medium in mm/ps
+	SpecificDelayPSmm float64 // Propagation delay rate in ps/mm
+	T1NominalPS      float64 // Fast Line nominal propagation time (ps)
+	T0NominalPS      float64 // Delayed Line nominal propagation time (ps)
+	DeltaTNominalPS  float64 // Temporal difference t0 - t1 (ps)
+	TotalSigmaPS     float64 // Total convoluted Gaussian jitter (ps)
 }
 
-// NovoSimulador inicializa o motor de simulação com os parâmetros fornecidos.
-func NovoSimulador(params ParametrosOpticos) *SimuladorToF {
-	vMeio := (CVacuo / params.IndiceRefracao) * 1e-9
-	atrasoEspec := 1.0 / vMeio
+// NewSimulator initializes the simulation engine with the provided optical parameters.
+func NewSimulator(params OpticalParams) *ToFSimulator {
+	// Speed of light in medium (mm/ps): (c / n) * 1e3 mm / 1e12 ps = (c / n) * 1e-9 mm/ps
+	vMedium := (SpeedOfLightVacuo / params.RefractiveIndex) * 1e-9
+	delaySpec := 1.0 / vMedium
 
-	t1 := params.DistanciaRapidaMM * atrasoEspec
-	t0 := params.DistanciaAtrasadaMM * atrasoEspec
+	t1 := params.FastDistanceMM * delaySpec
+	t0 := params.DelayedDistanceMM * delaySpec
 	deltaT := t0 - t1
 
-	sigmaLaser := FwhmParaSigma(params.JitterLaserFWHMps)
-	sigmaSpad := FwhmParaSigma(params.JitterSpadFWHMps)
-	sigmaTDC := params.ResolucaoTDCps / math.Sqrt(12.0)
+	sigmaLaser := FwhmToSigma(params.LaserJitterFwhmPS)
+	sigmaSpad := FwhmToSigma(params.SpadJitterFwhmPS)
+	// TDC uniform quantization noise [-LSB/2, LSB/2] has standard deviation LSB / sqrt(12)
+	sigmaTDC := params.TdcResolutionPS / math.Sqrt(12.0)
 
 	sigmaTotal := math.Sqrt(sigmaLaser*sigmaLaser + sigmaSpad*sigmaSpad + sigmaTDC*sigmaTDC)
 
-	return &SimuladorToF{
-		Params:               params,
-		VelocidadeMeioMMps:   vMeio,
-		AtrasoEspecificoPSmm: atrasoEspec,
-		T1NominalPS:          t1,
-		T0NominalPS:          t0,
-		DeltaTNominalPS:      deltaT,
-		SigmaTotalPS:         sigmaTotal,
+	return &ToFSimulator{
+		Params:           params,
+		MediumSpeedMMps:  vMedium,
+		SpecificDelayPSmm: delaySpec,
+		T1NominalPS:      t1,
+		T0NominalPS:      t0,
+		DeltaTNominalPS:  deltaT,
+		TotalSigmaPS:     sigmaTotal,
 	}
 }
 
-// MargemSeparacaoSigmas calcula a razão de separação temporal em múltiplos de sigma total.
-func (s *SimuladorToF) MargemSeparacaoSigmas() float64 {
-	return s.DeltaTNominalPS / s.SigmaTotalPS
+// SeparationMarginSigmas calculates the temporal separation ratio in multiples of total sigma.
+func (s *ToFSimulator) SeparationMarginSigmas() float64 {
+	return s.DeltaTNominalPS / s.TotalSigmaPS
 }

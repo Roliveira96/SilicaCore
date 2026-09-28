@@ -11,64 +11,64 @@ import (
 
 func main() {
 	fmt.Println("======================================================================")
-	fmt.Println(" SIMULAÇÃO DE PROCESSAMENTO ÓPTICO TRIDIMENSIONAL ToF (GOLANG) ")
-	fmt.Println(" Substrato: Sílica Fundida (SiO2) | Detecção: SPAD + TDC ")
-	fmt.Printf(" Execução Paralelizada em %d Núcleos de CPU (Goroutines)\n", runtime.NumCPU())
+	fmt.Println("   VOLUMETRIC OPTICAL PROCESSOR SIMULATION - SILICA CORE (GOLANG)    ")
+	fmt.Println("   Substrate: Fused Silica (SiO2) | Detection: SPAD + TDC            ")
+	fmt.Printf("   Parallel Execution on %d CPU Cores (Goroutines)\n", runtime.NumCPU())
 	fmt.Println("======================================================================")
 
-	params := optical.ParametrosPadrao()
-	sim := optical.NovoSimulador(params)
+	params := optical.DefaultParams()
+	sim := optical.NewSimulator(params)
 
-	fmt.Println("\n--- 1. PARÂMETROS FÍSICOS E TEMPOS NOMINAIS ---")
-	fmt.Printf("Índice de refração do vidro (n):           %.4f\n", sim.Params.IndiceRefracao)
-	fmt.Printf("Velocidade de propagação no meio (v):      %.5f mm/ps\n", sim.VelocidadeMeioMMps)
-	fmt.Printf("Atraso específico:                         %.4f ps/mm\n", sim.AtrasoEspecificoPSmm)
-	fmt.Printf("Distância direta (d1 - Linha Rápida):      %.3f mm\n", sim.Params.DistanciaRapidaMM)
-	fmt.Printf("Distância defletida (d0 - Linha Atrasada): %.3f mm\n", sim.Params.DistanciaAtrasadaMM)
-	fmt.Printf("Diferencial geométrico (Delta d):          %.3f mm\n", sim.Params.DistanciaAtrasadaMM-sim.Params.DistanciaRapidaMM)
-	fmt.Printf("Tempo nominal Linha Rápida (t1):           %.2f ps\n", sim.T1NominalPS)
-	fmt.Printf("Tempo nominal Linha Atrasada (t0):         %.2f ps\n", sim.T0NominalPS)
-	fmt.Printf("Diferencial temporal (Delta t):            %.2f ps\n", sim.DeltaTNominalPS)
-	fmt.Printf("Jitter temporal total (sigma):             %.2f ps\n", sim.SigmaTotalPS)
-	fmt.Printf("Margem de separação (Delta t / sigma):     %.2f sigmas\n", sim.MargemSeparacaoSigmas())
+	fmt.Println("\n--- 1. PHYSICAL PARAMETERS & NOMINAL TIMINGS ---")
+	fmt.Printf("Glass Refractive Index (n):                %.4f\n", sim.Params.RefractiveIndex)
+	fmt.Printf("Speed of Light in Medium (v):              %.5f mm/ps\n", sim.MediumSpeedMMps)
+	fmt.Printf("Specific Propagation Delay Rate:           %.4f ps/mm\n", sim.SpecificDelayPSmm)
+	fmt.Printf("Direct Path Distance (d1 - Fast Line):     %.3f mm\n", sim.Params.FastDistanceMM)
+	fmt.Printf("Deflected Path Distance (d0 - Delay Line): %.3f mm\n", sim.Params.DelayedDistanceMM)
+	fmt.Printf("Geometric Path Difference (Delta d):       %.3f mm\n", sim.Params.DelayedDistanceMM-sim.Params.FastDistanceMM)
+	fmt.Printf("Nominal Fast Line Time (t1):               %.2f ps\n", sim.T1NominalPS)
+	fmt.Printf("Nominal Delay Line Time (t0):              %.2f ps\n", sim.T0NominalPS)
+	fmt.Printf("Temporal Separation Difference (Delta t):   %.2f ps\n", sim.DeltaTNominalPS)
+	fmt.Printf("Total Convoluted System Jitter (sigma):    %.2f ps\n", sim.TotalSigmaPS)
+	fmt.Printf("Temporal Separation Margin (Delta t/sigma):%.2f sigmas\n", sim.SeparationMarginSigmas())
 
-	fmt.Println("\n--- 2. HIERARQUIA DE MEMÓRIA ÓPTICA (LATÊNCIAS E FOTÔNICA) ---")
-	fmt.Printf("Latência Cache L1 (Micro-anéis):           <= %.2f ps  [Alexoudi et al., 2020]\n", sim.Params.LatenciaCacheL1PS)
-	fmt.Printf("Latência RAM Óptica (Delay-Line Loop):    ~%.2f ps   [Yao, 1993]\n", sim.Params.LatenciaRamLoopPS)
-	fmt.Printf("Acesso ROM Kernel (Nanofilamentos SiO2):  ~%.2f ps (c/n direto) [Zhang et al., 2014]\n", sim.T1NominalPS)
-	fmt.Printf("Taxa Nominal de Hit na Cache L1:           %.1f%%\n", sim.Params.TaxaAcertoCacheL1*100.0)
+	fmt.Println("\n--- 2. PHOTONIC MEMORY HIERARCHY (LATENCIES & PHOTONICS) ---")
+	fmt.Printf("L1 Cache Latency (Micro-ring Resonators):  <= %.2f ps  [Alexoudi et al., 2020]\n", sim.Params.CacheL1LatencyPS)
+	fmt.Printf("Photonic RAM Latency (Delay-Line Loop):   ~%.2f ps   [Yao, 1993]\n", sim.Params.RamLoopLatencyPS)
+	fmt.Printf("Kernel ROM Access (Femtosecond SiO2):      ~%.2f ps (Direct c/n) [Zhang et al., 2014]\n", sim.T1NominalPS)
+	fmt.Printf("Nominal L1 Cache Hit Rate:                 %.1f%%\n", sim.Params.CacheL1HitRate*100.0)
 
-	fmt.Println("\n--- 3. SIMULAÇÃO MONTE CARLO (1.000.000 OPERAÇÕES DE CPU E MEMÓRIA) ---")
-	res := sim.SimularMonteCarloConcorrente(1000000)
+	fmt.Println("\n--- 3. MONTE CARLO SIMULATION (1,000,000 CPU & MEMORY OPERATIONS) ---")
+	res := sim.SimulateMonteCarloConcurrent(1000000)
 
-	fmt.Printf("Amostras testadas:                         %d\n", res.AmostrasTotal)
-	fmt.Printf("Erros ToF detectados:                      %d\n", res.ErrosDetectados)
-	fmt.Printf("Taxa de Acerto ToF:                        %.4f%%\n", res.TaxaAcerto)
-	fmt.Printf("Fator de Qualidade Q:                      %.2f\n", res.FatorQ)
-	fmt.Printf("BER Empírico:                              %.2e\n", res.BerEmpirico)
-	fmt.Printf("BER Teórico:                               %.2e\n", res.BerTeorico)
-	fmt.Printf("Hits na Cache L1:                          %d\n", res.EstatisticasMem.HitsCacheL1)
-	fmt.Printf("Misses na Cache L1 (Acessos à RAM):        %d\n", res.EstatisticasMem.MissesCacheL1)
-	fmt.Printf("Acessos Diretos à ROM Kernel em SiO2:       %d\n", res.EstatisticasMem.AcessosROMKernel)
-	fmt.Printf("Latência Média Global de Acesso a Dados:   %.2f ps\n", res.EstatisticasMem.LatenciaMediaGlobalPS)
-	fmt.Printf("Tempo de Execução Concorrente em Go:       %s\n", res.DuracaoExecucao)
+	fmt.Printf("Total Samples Tested:                      %d\n", res.TotalSamples)
+	fmt.Printf("Detected ToF Logic Errors:                 %d\n", res.DetectedErrors)
+	fmt.Printf("ToF Accuracy Rate:                         %.4f%%\n", res.AccuracyRatePct)
+	fmt.Printf("Quality Factor Q:                          %.2f\n", res.QFactor)
+	fmt.Printf("Empirical Bit Error Rate (BER):            %.2e\n", res.EmpiricalBER)
+	fmt.Printf("Theoretical Bit Error Rate (BER):          %.2e\n", res.TheoreticalBER)
+	fmt.Printf("L1 Cache Hits:                             %d\n", res.MemStats.CacheL1Hits)
+	fmt.Printf("L1 Cache Misses (RAM Loop Accesses):       %d\n", res.MemStats.CacheL1Misses)
+	fmt.Printf("Direct Kernel ROM Accesses in SiO2:        %d\n", res.MemStats.RomKernelAccesses)
+	fmt.Printf("Global Average Data Latency:               %.2f ps\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Printf("Go Concurrent Execution Duration:          %s\n", res.ExecutionTime)
 
-	fmt.Println("\n--- 4. TESTE DE PORTA LÓGICA NOT ToF (INVERSOR) ---")
-	fmt.Println("Entrada (A) | Saída Invertida | Tempo Registrado (ps) | Status")
+	fmt.Println("\n--- 4. ToF NOT LOGIC GATE TEST (INVERTER) ---")
+	fmt.Println("Input (A) | Inverted Output | Arrival Time (ps) | Status")
 	fmt.Println("------------------------------------------------------------")
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 10; i++ {
-		ent := i % 2
-		saida, tempo, ok := sim.TestarPortaNOT(ent, r)
+		input := i % 2
+		output, arrivalTime, ok := sim.TestNOTGate(input, r)
 		statusStr := "OK"
 		if !ok {
-			statusStr = "FALHA"
+			statusStr = "FAIL"
 		}
-		fmt.Printf("     %d      |        %2d       |        %6.2f ps       |   %s\n", ent, saida, tempo, statusStr)
+		fmt.Printf("    %d     |        %2d       |       %6.2f ps       |   %s\n", input, output, arrivalTime, statusStr)
 	}
 
-	fmt.Println("\nConclusão da simulação: A hierarquia de memória óptica e a discriminação temporal")
-	fmt.Printf("confirmam latência média global de %.2f ps e BER inferior a 10^-12.\n", res.EstatisticasMem.LatenciaMediaGlobalPS)
+	fmt.Println("\nSimulation Conclusion: Photonic memory hierarchy and temporal discrimination")
+	fmt.Printf("confirm global average latency of %.2f ps and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
 	fmt.Println("======================================================================")
 }

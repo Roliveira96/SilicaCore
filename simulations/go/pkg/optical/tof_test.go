@@ -5,40 +5,40 @@ import (
 	"testing"
 )
 
-func TestNovoSimulador(t *testing.T) {
-	params := ParametrosPadrao()
-	sim := NovoSimulador(params)
+func TestNewSimulator(t *testing.T) {
+	params := DefaultParams()
+	sim := NewSimulator(params)
 
 	if sim.T1NominalPS <= 0 || sim.T0NominalPS <= 0 {
-		t.Fatalf("Tempos nominais de propagação inválidos: t1=%f, t0=%f", sim.T1NominalPS, sim.T0NominalPS)
+		t.Fatalf("Invalid nominal propagation times: t1=%f, t0=%f", sim.T1NominalPS, sim.T0NominalPS)
 	}
 
 	if sim.DeltaTNominalPS <= 0 {
-		t.Fatalf("Separação temporal delta_t deve ser positiva, obtido: %f", sim.DeltaTNominalPS)
+		t.Fatalf("Temporal separation delta_t must be positive, got: %f", sim.DeltaTNominalPS)
 	}
 
-	if sim.SigmaTotalPS <= 0 {
-		t.Fatalf("Sigma total de jitter deve ser positivo, obtido: %f", sim.SigmaTotalPS)
+	if sim.TotalSigmaPS <= 0 {
+		t.Fatalf("Total jitter sigma must be positive, got: %f", sim.TotalSigmaPS)
 	}
 }
 
-func TestPortaNOT(t *testing.T) {
-	sim := NovoSimulador(ParametrosPadrao())
+func TestNOTGate(t *testing.T) {
+	sim := NewSimulator(DefaultParams())
 	r := rand.New(rand.NewSource(42))
 
 	for i := 0; i < 100; i++ {
-		ent := i % 2
-		saida, _, ok := sim.TestarPortaNOT(ent, r)
-		if ok && saida == ent {
-			t.Errorf("Falha lógica na porta NOT: entrada=%d, saída=%d", ent, saida)
+		input := i % 2
+		output, _, ok := sim.TestNOTGate(input, r)
+		if ok && output == input {
+			t.Errorf("Logic failure in NOT gate: input=%d, output=%d", input, output)
 		}
 	}
 }
 
-func BenchmarkMonteCarloConcorrente(b *testing.B) {
-	sim := NovoSimulador(ParametrosPadrao())
+func BenchmarkMonteCarloConcurrent(b *testing.B) {
+	sim := NewSimulator(DefaultParams())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = sim.SimularMonteCarloConcorrente(100000)
+		_ = sim.SimulateMonteCarloConcurrent(100000)
 	}
 }
