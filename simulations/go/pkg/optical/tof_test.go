@@ -22,6 +22,23 @@ func TestNewSimulator(t *testing.T) {
 	}
 }
 
+func TestMicroCubeSimulator(t *testing.T) {
+	params := MicroCubeParams()
+	sim := NewSimulator(params)
+
+	if sim.Params.FastDistanceMM != 2.0 {
+		t.Fatalf("Expected micro-cube fast distance 2.0mm, got %f", sim.Params.FastDistanceMM)
+	}
+
+	if sim.T1NominalPS >= 10.0 {
+		t.Fatalf("Expected micro-cube t1 nominal time < 10.0ps, got %f", sim.T1NominalPS)
+	}
+
+	if params.DwdmBitsPerPulse() != 256 {
+		t.Fatalf("Expected 256 bits per optical pulse (64 ch x 4 bits), got %d", params.DwdmBitsPerPulse())
+	}
+}
+
 func TestNOTGate(t *testing.T) {
 	sim := NewSimulator(DefaultParams())
 	r := rand.New(rand.NewSource(42))

@@ -39,6 +39,31 @@ const (
 	DefaultWindowWidthPS = 75.0
 
 	// ------------------------------------------------------------------------
+	// 1.1 MICRO-CUBE GEOMETRIC DOWNSCALING & HIGH-DENSITY INTEGRATION PARAMETERS
+	// ------------------------------------------------------------------------
+
+	// MicroFastDistanceMM is the scaled-down straight-line path distance d1 (2.0 mm micro-cube).
+	MicroFastDistanceMM = 2.0
+
+	// MicroDelayedDistanceMM is the scaled-down deflected path distance d0 (4.0675 mm micro-cube).
+	MicroDelayedDistanceMM = 4.0675
+
+	// MicroLaserJitterFwhmPS is the ultra-fast integrated laser pulse temporal jitter in ps (FWHM).
+	MicroLaserJitterFwhmPS = 1.0
+
+	// MicroSpadJitterFwhmPS is the integrated SPAD detector jitter in ps (FWHM).
+	MicroSpadJitterFwhmPS = 3.0
+
+	// MicroTdcResolutionPS is the high-resolution TDC LSB resolution in ps.
+	MicroTdcResolutionPS = 1.0
+
+	// MicroRamLoopLatencyPS is the micro-waveguide Photonic RAM recirculating delay loop latency in ps.
+	MicroRamLoopLatencyPS = 9.67
+
+	// DefaultDwdmChannelsCount is the number of dense wavelength division multiplexing (DWDM) channels.
+	DefaultDwdmChannelsCount = 64
+
+	// ------------------------------------------------------------------------
 	// 2. CONTINUOUS WAVE LASER ENGINE (SOLID-STATE CW) & M-ARY DENSE ENCODING
 	// ------------------------------------------------------------------------
 
@@ -164,8 +189,9 @@ type OpticalParams struct {
 	PhotonicSsdThroughputTBps float64 // Photonic Glass SSD parallel read throughput in TB/s (1.2 TB/s)
 	PhotonicSsdCapacityTB     float64 // Photonic Glass SSD volumetric storage capacity per cube (100 TB)
 
-	// Optical GPU & Photonic AI Tensor Engine
+	// Dense Wavelength Division Multiplexing (DWDM Massivo) & Optical GPU
 	GpuWdmChannelsCount int     // WDM spectral channels for Optical GPU (RGB: 3 channels)
+	DwdmChannelsCount   int     // DWDM spectral channels (64 channels)
 	AiTensorDensityTOPS float64 // Photonic AI Tensor Core compute density (11 TOPS/mm^2)
 	AiTensorEfficiency  float64 // Photonic AI Tensor Core energy efficiency (100 TOPS/W)
 
@@ -181,13 +207,18 @@ type OpticalParams struct {
 	MziPhaseErrorRad   float64 // MZI mesh phase drift standard deviation in radians
 
 	// Power Consumption & Comparative Silicon Baselines
-	CwLaserPowerWatts        float64 // Electrical power of CW RGB lasers in Watts (2.5W)
-	EomEnergyFjPerBit        float64 // Energy per EOM modulation bit in fJ/bit (0.8 fJ)
-	SpadEnergyFjPerPhoton    float64 // Energy per SPAD detection in fJ/photon (12 fJ)
-	SilicaCoreTdpWatts       float64 // Total SilicaCore TDP in Watts (18.5W)
-	IntelI9TdpWatts          float64 // Baseline Intel Core i9-14900KS TDP in Watts (253W)
-	NvidiaH100TdpWatts       float64 // Baseline NVIDIA H100 GPU TDP in Watts (700W)
-	AmdEpycTdpWatts          float64 // Baseline AMD EPYC 9654 CPU TDP in Watts (360W)
+	CwLaserPowerWatts     float64 // Electrical power of CW RGB lasers in Watts (2.5W)
+	EomEnergyFjPerBit     float64 // Energy per EOM modulation bit in fJ/bit (0.8 fJ)
+	SpadEnergyFjPerPhoton float64 // Energy per SPAD detection in fJ/photon (12 fJ)
+	SilicaCoreTdpWatts    float64 // Total SilicaCore TDP in Watts (18.5W)
+	IntelI9TdpWatts       float64 // Baseline Intel Core i9-14900KS TDP in Watts (253W)
+	NvidiaH100TdpWatts    float64 // Baseline NVIDIA H100 GPU TDP in Watts (700W)
+	AmdEpycTdpWatts       float64 // Baseline AMD EPYC 9654 CPU TDP in Watts (360W)
+}
+
+// DwdmBitsPerPulse returns the total number of parallel bits transmitted per optical pulse over DWDM channels.
+func (p OpticalParams) DwdmBitsPerPulse() int {
+	return p.DwdmChannelsCount * p.BitsPerSymbol
 }
 
 // DefaultParams returns the nominal configuration for SilicaCore using defined constants.
@@ -210,6 +241,7 @@ func DefaultParams() OpticalParams {
 		PhotonicSsdThroughputTBps: DefaultPhotonicSsdThroughputTBps,
 		PhotonicSsdCapacityTB:     DefaultPhotonicSsdCapacityTB,
 		GpuWdmChannelsCount:       DefaultGpuWdmChannelsCount,
+		DwdmChannelsCount:         DefaultDwdmChannelsCount,
 		AiTensorDensityTOPS:       DefaultAiTensorDensityTOPS,
 		AiTensorEfficiency:        DefaultAiTensorEfficiency,
 		QuantumQubitsCount:        DefaultQuantumQubitsCount,
@@ -227,6 +259,20 @@ func DefaultParams() OpticalParams {
 		NvidiaH100TdpWatts:       DefaultNvidiaH100TdpWatts,
 		AmdEpycTdpWatts:          DefaultAmdEpycTdpWatts,
 	}
+}
+
+// MicroCubeParams returns the ultra-high throughput configuration for a 2.0 mm micro-cube with 64-channel DWDM massivo.
+func MicroCubeParams() OpticalParams {
+	p := DefaultParams()
+	p.FastDistanceMM = MicroFastDistanceMM
+	p.DelayedDistanceMM = MicroDelayedDistanceMM
+	p.LaserJitterFwhmPS = MicroLaserJitterFwhmPS
+	p.SpadJitterFwhmPS = MicroSpadJitterFwhmPS
+	p.TdcResolutionPS = MicroTdcResolutionPS
+	p.RamLoopLatencyPS = MicroRamLoopLatencyPS
+	p.DwdmChannelsCount = DefaultDwdmChannelsCount
+	p.EncodingFormat = "Massive 64-Channel DWDM + M-ary Multi-Level (Hexadecimal 4-bit / 16-QAM)"
+	return p
 }
 
 

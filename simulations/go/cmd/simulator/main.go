@@ -161,8 +161,27 @@ func main() {
 	fmt.Println("Geração Térmica / Fricção    | Altíssima (Efeito Joule)    | Próxima de zero no substrato óptico")
 	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
 
+	fmt.Println("\n--- 9. ESCALONAMENTO DE DESEMPENHO MASSIVO: MICRO-CUBO (2.0mm) + DWDM MASSIVO (64 CANAIS) ---")
+	microParams := optical.MicroCubeParams()
+	microSim := optical.NewSimulator(microParams)
+	microCalibratedWindow := microSim.CalibrateOptimalWindow(CalibrationPulseCount)
+	microMonteCarloRes := microSim.SimulateMonteCarloConcurrent(MonteCarloOperationsCount)
+
+	siliconLatencyPS := 166.67 // 6.0 GHz CPU Cycle Time
+	speedupLatency := siliconLatencyPS / microSim.T1NominalPS
+	dwdmBitsPerPulse := microParams.DwdmBitsPerPulse() // 64 channels * 4 bits = 256 bits/pulse
+	totalThroughputMultiplier := speedupLatency * float64(dwdmBitsPerPulse)
+
+	fmt.Printf("Micro-Cube Dimension (d1):                 %.1f mm (Redução de 10x na escala física)\n", microSim.Params.FastDistanceMM)
+	fmt.Printf("Micro-Cube Direct Nominal Time (t1):       %.2f ps (~%.1fx mais veloz que 6.0 GHz silicon)\n", microSim.T1NominalPS, speedupLatency)
+	fmt.Printf("Micro-Cube Global Avg Data Latency:        %.2f ps\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS)
+	fmt.Printf("Auto-Calibrated Micro Window (%d pulses): %.2f ps (Half-Window: +/-%.2f ps)\n", CalibrationPulseCount, microCalibratedWindow, microCalibratedWindow/2.0)
+	fmt.Printf("Dense DWDM Spectral Grid:                 %d Wavelength Channels\n", microParams.DwdmChannelsCount)
+	fmt.Printf("Parallel Data Density per Optical Pulse:   %d Bits / Pulse (%d channels x %d bits/symbol)\n", dwdmBitsPerPulse, microParams.DwdmChannelsCount, microParams.BitsPerSymbol)
+	fmt.Printf("AGGREGATED COMPUTATIONAL THROUGHPUT GAIN:  %.0fx MAIS VAZÃO BRUTA QUE SILÍCIO CONVENCIONAL DE 6.0 GHz!\n", totalThroughputMultiplier)
+
 	fmt.Println("\nSimulation Conclusion: Solid-State CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
-	fmt.Printf("Optical GPU WDM RGB, and Photonic SSD confirm %.2f ps latency, %dx throughput boost, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS, sim.Params.BitsPerSymbol)
+	fmt.Printf("Optical GPU WDM RGB, 64-Channel DWDM Massivo, and Photonic SSD confirm %.2f ps micro-latency, %dx DWDM bit density, and %.0fx throughput gain.\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS, dwdmBitsPerPulse, totalThroughputMultiplier)
 	fmt.Println("======================================================================")
 }
 
