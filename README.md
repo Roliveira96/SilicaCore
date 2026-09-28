@@ -140,6 +140,8 @@ Documentações completas da arquitetura:
 - [08-processamento-quantico-fotonico-loqc.md](docs/architecture/08-processamento-quantico-fotonico-loqc.md)
 - [09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md](docs/architecture/09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md)
 - [10-consumo-energetico-e-comparativo-silicio.md](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md)
+- [11-roteamento-e-comutacao-optica.md](docs/architecture/11-roteamento-e-comutacao-optica.md) — orçamento físico dos espelhos internos, materiais (Si₃N₄, TFLN, Sb₂Se₃) e BER corrigida
+- [12-memoria-unificada-jogos-e-ia-local.md](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md) — memória unificada óptica, IA local e jogos com base na literatura 2024–2026
 - [whitepaper-v1.md](docs/papers/whitepaper-v1.md)
 
 ---
@@ -192,7 +194,9 @@ go test -v ./...
 │   │   ├── 07-acelerador-tensor-ia-fototectonico.md
 │   │   ├── 08-processamento-quantico-fotonico-loqc.md
 │   │   ├── 09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md
-│   │   └── 10-consumo-energetico-e-comparativo-silicio.md
+│   │   ├── 10-consumo-energetico-e-comparativo-silicio.md
+│   │   ├── 11-roteamento-e-comutacao-optica.md
+│   │   └── 12-memoria-unificada-jogos-e-ia-local.md
 │   ├── papers/
 │   │   └── whitepaper-v1.md                 # Artigo científico completo com citações e agradecimentos
 │   └── assets/diagramas/
@@ -206,6 +210,9 @@ go test -v ./...
 │           └── optical/
 │               ├── core.go                  # Equações, Solid-State CW Engine, M-ary Hex, LOQC, GPU & SSD
 │               ├── tof.go                   # Monte Carlo em Goroutines & Hierarquia de Memória
+│               ├── budget.go                # Orçamento físico: espelhos vs guias, comutadores, BER corrigida
+│               ├── memory.go                # Memória unificada, linha de atraso e dimensionamento de IA local
+│               ├── budget_test.go           # Testes do orçamento físico e de memória
 │               └── tof_test.go              # Suíte de testes em Go
 └── planning/                                # Gestão de Metas e Roadmap
     ├── roadmap.md

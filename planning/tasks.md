@@ -18,6 +18,9 @@
 - [x] 13. Modelagem técnica e simulação de consumo energético (fJ/bit, TOPS/W, TDP Watts) e comparativo com processadores de silício de alta performance (Intel i9, AMD EPYC, NVIDIA H100) [complexidade: alta] [concluída em 28-09-26]
 - [x] 14. Ajuste da codificação M-ária para 16 estados (4 bits/símbolo - Hexadecimal / 16-QAM) e inclusão da tabela comparativa de latência L1/Ciclo no main.go [complexidade: baixa] [concluída em 28-09-26]
 - [x] 15. Redução geométrica do bloco fotônico (d1 = 2.0 mm / latência ~9.67 ps) e expansão DWDM massiva (64 canais espectrais / 256 bits/pulso) no simulador Go [complexidade: alta] [concluída em 28-09-26]
+- [x] 19. Orçamento físico de roteamento (espelhos internos vs Si₃N₄/TFLN), BER corrigida e modelo de memória unificada / IA local com literatura 2024–2026 (`budget.go`, `memory.go`, docs 11 e 12) [complexidade: alta] [concluída em 28-09-26]
+- [ ] 20. Revisar afirmações do README/whitepaper/specs (8.9σ → Q=4.45, 206 GHz → ~5 GHz/canal, >100 TOPS/W no sistema, ray-tracing nativo, quântico sem criogenia) [complexidade: média]
+- [ ] 21. Protótipo em Go de race logic fotônica (menor caminho em grafo por rede de atrasos programáveis) [complexidade: alta]
 - [ ] 16. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
 - [ ] 17. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
 - [ ] 18. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)

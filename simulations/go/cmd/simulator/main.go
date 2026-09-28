@@ -180,8 +180,67 @@ func main() {
 	fmt.Printf("Parallel Data Density per Optical Pulse:   %d Bits / Pulse (%d channels x %d bits/symbol)\n", dwdmBitsPerPulse, microParams.DwdmChannelsCount, microParams.BitsPerSymbol)
 	fmt.Printf("AGGREGATED COMPUTATIONAL THROUGHPUT GAIN:  %.0fx MAIS VAZÃO BRUTA QUE SILÍCIO CONVENCIONAL DE 6.0 GHz!\n", totalThroughputMultiplier)
 
+	printPhysicalBudget(sim)
+	printUnifiedMemoryAndLocalAI(sim)
+
 	fmt.Println("\nSimulation Conclusion: Solid-State CW Laser Engine, M-ary Hexadecimal Encoding, Quantum LOQC Core,")
 	fmt.Printf("Optical GPU WDM RGB, 64-Channel DWDM Massivo, and Photonic SSD confirm %.2f ps micro-latency, %dx DWDM bit density, and %.0fx throughput gain.\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS, dwdmBitsPerPulse, totalThroughputMultiplier)
 	fmt.Println("======================================================================")
 }
 
+
+// printPhysicalBudget reports the routing/mirror link budget, switching limits and the corrected timing budget.
+func printPhysicalBudget(sim *optical.ToFSimulator) {
+	fmt.Println("\n--- 10. PHYSICAL LINK BUDGET: INTERNAL MIRRORS vs GUIDED PLATFORMS (1550 nm) ---")
+	fmt.Printf("Beam radius after delayed line in bulk:    %.0f um (waist %.0f um, no waveguide)\n",
+		optical.GaussianBeamRadiusUM(optical.DefaultBeamWaistUM, optical.DefaultTelecomWavelengthNM, sim.Params.RefractiveIndex, sim.Params.DelayedDistanceMM),
+		optical.DefaultBeamWaistUM)
+	fmt.Printf("Max TIR grazing angle, field-induced dn:   %.4f deg (dn = %.0e, unpoled SiO2 has no Pockels)\n",
+		optical.TirGlancingAngleDeg(sim.Params.RefractiveIndex, optical.FusedSilicaMaxFieldDeltaN), optical.FusedSilicaMaxFieldDeltaN)
+	fmt.Printf("AOM switching floor (100 um beam):         %.1f ns\n", optical.AomAccessTimePS(100)/1000)
+
+	for _, p := range optical.AllRoutingPlatforms() {
+		b := sim.ComputeGateBudget(p)
+		fmt.Printf("\n[%s]\n", b.Platform)
+		fmt.Printf("  Fast switch:                             %s (rise %.1f ps)\n", p.SwitchTechnology, b.SwitchRiseTimePS)
+		fmt.Printf("  Delayed path length:                     %.2f mm\n", b.PathLengthMM)
+		fmt.Printf("  Loss per gate:                           %.2f dB (prop %.2f + turns %.2f + diffraction %.2f + switch %.2f)\n",
+			b.TotalLossPerGateDb, b.PropagationLossDb, b.TurnsLossDb, b.DiffractionLossDb, b.SwitchLossDb)
+		fmt.Printf("  Gates in cascade before regeneration:    %d (power margin %.1f dB)\n", b.MaxCascadedGates, b.PowerMarginDb)
+		fmt.Printf("  Thermal phase drift:                     %.2f rad/K\n", b.PhaseDriftRadPerK)
+		fmt.Printf("  Feasible as ps logic:                    %v\n", b.Feasible)
+	}
+
+	tb := sim.ComputeTimingBudget(optical.DefaultTargetBER)
+	fmt.Println("\n--- 10.1 CORRECTED TIMING BUDGET ---")
+	fmt.Printf("Q factor (delta_t / 2 sigma):              %.2f -> BER %.2e\n", tb.QFactor, tb.TheoreticalBER)
+	fmt.Printf("Q required for BER %.0e:                  %.2f -> max sigma %.2f ps\n", optical.DefaultTargetBER, tb.RequiredQForTarget, tb.RequiredSigmaPS)
+	fmt.Printf("ToF symbol slot (delta_t + window):        %.1f ps -> %.2f GHz per channel\n", tb.SymbolSlotPS, tb.ToFSymbolRateGHz)
+	fmt.Printf("SPAD max rate (dead time):                 %.2f GHz, %.0f photons/bit at BER target\n", tb.SpadMaxRateGHz, tb.SpadPhotonsPerBit)
+	fmt.Printf("UTC photodiode max rate:                   %.0f Gbaud\n", tb.PhotodiodeMaxRateGbaud)
+}
+
+// printUnifiedMemoryAndLocalAI reports the unified hierarchy (transport vs cell time) and on-device LLM sizing.
+func printUnifiedMemoryAndLocalAI(sim *optical.ToFSimulator) {
+	fmt.Println("\n--- 11. UNIFIED MEMORY: LIGHT-SPEED TRANSPORT vs STORAGE-CELL TIME ---")
+	fmt.Printf("%-26s %-12s %-14s %-14s %s\n", "Tier", "Transport", "Cell read", "Total", "Capacity")
+	for _, m := range optical.UnifiedMemoryHierarchy() {
+		fmt.Printf("%-26s %8.1f ps  %11.0f ps  %11.0f ps  %s\n", m.Name, m.TransportPS, m.CellReadPS, m.TotalReadPS, m.Capacity)
+	}
+
+	loopBits := optical.DelayLineCapacityBits(optical.DefaultOpticalLineRateGbps, sim.Params.RamLoopLatencyPS, optical.DefaultDwdmChannelsCount)
+	length16GB := optical.DelayLineLengthForCapacityM(16*8e9, optical.DefaultOpticalLineRateGbps, optical.DefaultDwdmChannelsCount, optical.SiliconNitrideGroupIndex)
+	fmt.Printf("\nDelay-line RAM loop (%.2f ps, %d ch @ %.0f Gbps): %.0f bits held\n",
+		sim.Params.RamLoopLatencyPS, optical.DefaultDwdmChannelsCount, optical.DefaultOpticalLineRateGbps, loopBits)
+	fmt.Printf("Waveguide needed for 16 GB delay-line RAM: %.0f km\n", length16GB/1000)
+
+	fmt.Println("\n--- 11.1 LOCAL AI: ON-CHIP PCM WEIGHTS vs STREAMING FROM UNIFIED RAM ---")
+	for _, m := range []struct {
+		params float64
+		bits   int
+	}{{1, 4}, {8, 4}, {70, 4}} {
+		r := optical.SizeLocalAI(m.params, m.bits)
+		fmt.Printf("%4.0fB params @ %d-bit: %6.1f GB | PCM area %8.1f cm^2 (fits reticle: %v) | decode bound %6.1f tok/s\n",
+			r.ParamsBillions, r.BitsPerWeight, r.ModelGB, r.PcmAreaCM2, r.FitsOnReticle, r.DecodeTokensPerSec)
+	}
+}
