@@ -15,11 +15,11 @@ Assim que a placa do SilicaCore é energizada, o processador inicia o direcionam
 
 ### 1.3 Origem de Engenharia & Agradecimentos Especiais (Empresa Grafis / Valmor Moreira)
 
-> **Nota de Origem do Projeto:** A ideia do processador fotônico volumétrico SilicaCore **não surgiu do nada**. Sua premissa fundamental foi diretamente observada e vivenciada na prática pelo autor (Ricardo Oliveira) em conjunto com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
+> **Nota de Inspiração Conceitual de Engenharia:** A ideia do processador fotônico volumétrico SilicaCore **não utiliza componentes físicos extraídos de máquinas Noritsu**. Trata-se de uma **inspiração conceitual de engenharia de alta precisão**. Sua premissa fundamental de operação com feixes contínuos (*Always-ON*) e varredura por deflexão foi diretamente observada e vivenciada na prática pelo autor (Ricardo Oliveira) em conjunto com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
 > 
 > Na empresa Grafis, operavam-se minilabs fotográficos industriais Noritsu equipados com canhões laser sólidos contínuos (RGB) que incidiam sobre um **prisma rotativo e um conjunto de espelhos ópticos**. Ao percorrer o papel fotográfico sensível à luz com velocidade e precisão micrométrica, esse sistema gerava a revelação física da imagem. 
 > 
-> A observação direta dessa máquina em funcionamento gerou o *insight* técnico que deu origem ao SilicaCore: se os canhões laser permanecem sempre acesos e o prisma/espelhos direcionam o feixe sobre o suporte fotossensível para gravar dados visuais, é perfeitamente viável utilizar canhões laser contínuos direcionados por micro-espelhos e modificadores ópticos dentro de um bloco de sílica fundida para sensibilizar matrizes de fotodetectores SPAD, realizando computação e armazenamento no tempo de propagação da luz.
+> A observação direta dessa máquina em funcionamento gerou o *insight* técnico que deu origem ao SilicaCore: se os canhões laser permanecem sempre acesos e o prisma/espelhos direcionam o feixe sobre o suporte fotossensível para gravar dados visuais, é perfeitamente viável projetar canhões laser sólidos contínuos integrados em micro-escala direcionados por micro-espelhos e modificadores eletro-ópticos dentro de um bloco de sílica fundida para sensibilizar matrizes de fotodetectores SPAD, realizando computação e armazenamento no tempo de propagação da luz.
 
 ```mermaid
 flowchart TD

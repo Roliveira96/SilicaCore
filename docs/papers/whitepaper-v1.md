@@ -11,7 +11,7 @@
 
 A contínua escalabilidade da microeletrônica baseada em silício enfrenta barreiras físicas intransponíveis impostas pela resistência elétrica parasitária ($P = I^2 R$) e pelo gargalo de transferência de dados entre memória e processamento (arquitetura de von Neumann). Este trabalho apresenta o **SilicaCore**, uma nova classe de processador óptico volumétrico monolítico fabricado em sílica fundida ($SiO_2$). 
 
-O **SilicaCore** unifica: (1) **Motor Laser de Onda Contínua (*Continuous Wave - CW Laser Engine*) inspirado nos minilabs fotográficos Noritsu**, cujas premissas de projeto foram desenvolvidas a partir da experiência prática de campo do autor e de **Valmor Moreira** na empresa **Grafis**; (2) **Codificação Densa M-ária**, entregando dados processados diretamente em caracteres Hexadecimais (4-bit) e Bytes completos (8-bit) por canal espacial em vez de bits simples; (3) **Lógica por Tempo de Voo (ToF)**; (4) **Core Quântico Fotônico LOQC** em temperatura ambiente ($298\text{ K}$); (5) **GPU Óptica WDM RGB**; (6) **Photonic AI Tensor Core** ($11\text{ TOPS/mm}^2$); e (7) **Photonic SSD** ($100\text{ TB}$ / $1.2\text{ TB/s}$).
+O **SilicaCore** unifica: (1) **Motor Laser de Onda Contínua (*Continuous Wave - CW Laser Engine*) conceitualmente inspirado no princípio de exposição constante de minilabs fotográficos Noritsu**, cujas premissas de projeto foram desenvolvidas a partir da experiência prática de campo do autor e de **Valmor Moreira** na empresa **Grafis**; (2) **Codificação Densa M-ária**, entregando dados processados diretamente em caracteres Hexadecimais (4-bit) e Bytes completos (8-bit) por canal espacial em vez de bits simples; (3) **Lógica por Tempo de Voo (ToF)**; (4) **Core Quântico Fotônico LOQC** em temperatura ambiente ($298\text{ K}$); (5) **GPU Óptica WDM RGB**; (6) **Photonic AI Tensor Core** ($11\text{ TOPS/mm}^2$); e (7) **Photonic SSD** ($100\text{ TB}$ / $1.2\text{ TB/s}$).
 
 ---
 
@@ -20,8 +20,8 @@ O **SilicaCore** unifica: (1) **Motor Laser de Onda Contínua (*Continuous Wave 
 ### 1.1 O Fim da Escala de Dennard e o Gargalo Térmico
 Em circuitos integrados semicondutores de silício, a redução das dimensões dos transistores MOSFET aumentou a densidade de corrente e a resistência parasitária das linhas de cobre ($P = I^2 R$).
 
-### 1.2 O Motor Laser Contínuo CW Estilo Minilab Noritsu (Origem Prática)
-Inspirado na tecnologia de exposição fotográfica dos minilabs Noritsu observada em operação industrial pelo autor e por **Valmor Moreira** na empresa **Grafis**, os lasers RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam em **modo contínuo (CW - Always ON)**. Em vez de pulsar os diodos eletronicamente, feixes contínuos incidem sobre um prisma e espelhos ópticos direcionadores, gravando informações em alta velocidade e com estabilidade térmica absoluta.
+### 1.2 O Motor Laser Contínuo CW (Inspiração Conceitual dos Minilabs Noritsu)
+Inspirado na estabilidade da tecnologia de exposição fotográfica contínua dos minilabs Noritsu observada em operação industrial pelo autor e por **Valmor Moreira** na empresa **Grafis**, os lasers RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) do SilicaCore operam em **modo contínuo (CW - Always ON)** integrados no substrato óptico. Em vez de pulsar diodos eletronicamente com alta frequência de chaveamento, feixes contínuos incidem sobre moduladores eletro-ópticos (EOM/AOM) e micro-espelhos direcionadores, conduzindo a informação com estabilidade térmica absoluta.
 
 ---
 

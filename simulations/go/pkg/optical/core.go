@@ -36,9 +36,15 @@ type OpticalParams struct {
 	AiTensorEfficiency  float64 // Photonic AI Tensor Core energy efficiency (e.g., 100 TOPS/W) [Shen et al., 2017]
 
 	// Photonic Quantum LOQC Core Parameters
-	QuantumQubitsCount     int     // Number of room-temperature dual-rail photonic qubits (e.g., 16)
+	QuantumQubitsCount      int     // Number of room-temperature dual-rail photonic qubits (e.g., 16)
 	QuantumHomVisibilityPct float64 // Hong-Ou-Mandel (HOM) 2-photon interference visibility in % (e.g., 99.4%) [Crespi et al., 2013]
-	QuantumCnotFidelityPct float64 // Conditional photonic CNOT gate fidelity in % (e.g., 98.7%) [Carolan et al., Science 2015]
+	QuantumCnotFidelityPct  float64 // Conditional photonic CNOT gate fidelity in % (e.g., 98.7%) [Carolan et al., Science 2015]
+
+	// Advanced Physical Noise & Attenuation Parameters
+	LaserRinDbHz       float64 // Laser Relative Intensity Noise (RIN) in dB/Hz (e.g. -155.0 dB/Hz for stabilized CW)
+	PhaseNoiseSigmaRad float64 // Electro-optic phase noise standard deviation in radians (e.g. 0.012 rad)
+	GlassLossDbPerCm   float64 // Propagation attenuation in fused silica (e.g. 0.2 dB/cm)
+	MziPhaseErrorRad   float64 // MZI mesh phase drift standard deviation in radians (e.g. 0.010 rad)
 }
 
 // DefaultParams returns the nominal configuration for ToF CPU, Photonic SSD, Optical GPU, AI Tensor, LOQC, and Noritsu CW.
@@ -66,6 +72,10 @@ func DefaultParams() OpticalParams {
 		QuantumQubitsCount:        16,    // 16 Dual-Rail Photonic Qubits
 		QuantumHomVisibilityPct:   99.4,  // 99.4% HOM Visibility
 		QuantumCnotFidelityPct:    98.7,  // 98.7% CNOT Fidelity
+		LaserRinDbHz:              -155.0,// Stabilized CW laser RIN (-155 dB/Hz)
+		PhaseNoiseSigmaRad:        0.012, // Phase jitter (12 mrad)
+		GlassLossDbPerCm:          0.2,   // Waveguide loss (0.2 dB/cm)
+		MziPhaseErrorRad:          0.010, // MZI Mesh phase error (10 mrad)
 	}
 }
 

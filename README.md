@@ -35,15 +35,15 @@ O **SilicaCore** é uma arquitetura computacional volumétrica em **sílica fund
 
 ## 2. Origem Prática de Engenharia & Agradecimentos (Grafis / Valmor Moreira)
 
-A concepção teórica e prática do SilicaCore **não surgiu do nada**. Sua inspiração foi diretamente extraída da experiência prática de campo acumulada pelo autor (Ricardo Oliveira) em colaboração com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
+A concepção teórica e prática do SilicaCore **não utiliza componentes físicos extraídos de minilabs Noritsu**, tratando-se de uma **inspiração conceitual de engenharia de alta estabilidade**. Essa ideia foi diretamente extraída da experiência prática de campo acumulada pelo autor (Ricardo Oliveira) em colaboração com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
 
-Na empresa Grafis, operava-se equipamento fotográfico industrial da linha Noritsu, cuja exposição de imagem ocorria via canhões laser sólidos contínuos (RGB) direcionados por um **prisma rotativo e espelhos de precisão** sobre papel sensível à luz. A observação dessa varredura física em tempo real originou o *insight* de aplicar feixes de laser acesos e direcionados por micro-espelhos em sílica para sensibilizar matrizes SPAD, realizando computação e armazenamento de alta performance.
+Na empresa Grafis, operavam-se equipamentos fotográficos industriais da linha Noritsu, cuja exposição de imagem ocorria via canhões laser sólidos contínuos (RGB) direcionados por um **prisma rotativo e espelhos de precisão** sobre papel sensível à luz. A observação dessa varredura física em tempo real originou o *insight* de aplicar feixes de laser acesos e direcionados por micro-espelhos em sílica para sensibilizar matrizes SPAD, realizando computação e armazenamento de alta performance.
 
 ---
 
-## 3. Motor Laser Contínuo CW (Estilo Minilab Noritsu)
+## 3. Motor Laser Contínuo CW (Inspiração Conceitual dos Minilabs Noritsu)
 
-Inspirado nos minilabs fotográficos Noritsu:
+Inspirado no princípio de exposição constante dos minilabs fotográficos Noritsu:
 - **Lasers Sempre Acesos (Always-ON CW Engine):** Canhões laser RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam **constantemente ligados em potência estabilizada**, eliminando surtos térmicos e repetição de chaveamento elétrico de diodos.
 - **Roteamento Eletro-Óptico na Inicialização:** Ao alimentar a placa, moduladores EOM/AOM e micro-espelhos 3D gravados no vidro realizam o direcionamento contínuo dos feixes pelas rotas ópticas.
 

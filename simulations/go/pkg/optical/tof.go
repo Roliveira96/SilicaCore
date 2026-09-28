@@ -185,3 +185,118 @@ func (s *ToFSimulator) TestNOTGate(inputBit int, r *rand.Rand) (outputBit int, a
 	ok = false
 	return
 }
+
+// MArySymbolResult stores statistics for M-ary dense Byte/Hex symbol transmission over CW lasers.
+type MArySymbolResult struct {
+	TotalSymbols     int     `json:"total_symbols"`
+	SymbolErrors     int     `json:"symbol_errors"`
+	SymbolErrorRate  float64 `json:"symbol_error_rate"`
+	ThroughputBoostX float64 `json:"throughput_boost_x"`
+}
+
+// QuantumLOQCResult stores quantum photon interference dip and gate fidelity simulation stats.
+type QuantumLOQCResult struct {
+	QubitsTested     int     `json:"qubits_tested"`
+	HomVisibilityPct float64 `json:"hom_visibility_pct"`
+	CnotFidelityPct  float64 `json:"cnot_fidelity_pct"`
+	QuantumBER       float64 `json:"quantum_ber"`
+}
+
+// OpticalTensorResult stores photonic AI tensor matrix multiplication simulation stats.
+type OpticalTensorResult struct {
+	MatrixDimension  int     `json:"matrix_dimension"`
+	EffectiveTOPS    float64 `json:"effective_tops"`
+	EnergyEffTOPSW   float64 `json:"energy_eff_topsw"`
+	MziPhaseErrorRad float64 `json:"mzi_phase_error_rad"`
+	MvmAccuracyPct   float64 `json:"mvm_accuracy_pct"`
+}
+
+// SimulateMAryEncoding tests dense M-ary 8-bit symbol (Byte) transmission under CW laser RIN noise and phase noise.
+func (s *ToFSimulator) SimulateMAryEncoding(numSymbols int) MArySymbolResult {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	errors := 0
+	numStates := s.Params.MultiLevelStatesCount // 256 states for 8-bit Byte
+
+	// Phase state separation angle (2*pi / 256)
+	deltaPhase := (2.0 * math.Pi) / float64(numStates)
+
+	for i := 0; i < numSymbols; i++ {
+		targetByte := i % numStates
+		nominalPhase := float64(targetByte) * deltaPhase
+
+		// Add electro-optic phase noise & RIN fluctuation
+		phaseNoise := r.NormFloat64() * s.Params.PhaseNoiseSigmaRad
+		measuredPhase := nominalPhase + phaseNoise
+
+		// Normalize phase to [0, 2*pi)
+		for measuredPhase < 0 {
+			measuredPhase += 2.0 * math.Pi
+		}
+		measuredPhase = math.Mod(measuredPhase, 2.0*math.Pi)
+
+		// Demodulate to discrete byte symbol
+		demodulatedByte := int(math.Round(measuredPhase/deltaPhase)) % numStates
+
+		if demodulatedByte != targetByte {
+			errors++
+		}
+	}
+
+	ser := float64(errors) / float64(numSymbols)
+	return MArySymbolResult{
+		TotalSymbols:     numSymbols,
+		SymbolErrors:     errors,
+		SymbolErrorRate:  ser,
+		ThroughputBoostX: float64(s.Params.BitsPerSymbol), // 8x for 8-bit Byte
+	}
+}
+
+// SimulateQuantumLOQC computes two-photon Hong-Ou-Mandel (HOM) quantum interference visibility and CNOT fidelity.
+func (s *ToFSimulator) SimulateQuantumLOQC(numQubits int) QuantumLOQCResult {
+	// Attenuation loss along 20mm waveguide: Loss = 0.2 dB/cm * 2 cm = 0.4 dB
+	lossDb := s.Params.GlassLossDbPerCm * (s.Params.FastDistanceMM / 10.0)
+	transmissivity := math.Pow(10.0, -lossDb/10.0) // ~0.912
+
+	// HOM interference dip depth V = V_0 * T (where T is transmissivity)
+	actualHomVis := s.Params.QuantumHomVisibilityPct * transmissivity
+	actualCnotFid := s.Params.QuantumCnotFidelityPct * transmissivity
+
+	quantumBER := (100.0 - actualCnotFid) / 100.0
+
+	return QuantumLOQCResult{
+		QubitsTested:     numQubits,
+		HomVisibilityPct: actualHomVis,
+		CnotFidelityPct:  actualCnotFid,
+		QuantumBER:       quantumBER,
+	}
+}
+
+// SimulateOpticalTensorEngine simulates Matrix-Vector Multiplication (MVM) on a photonic MZI mesh with phase drift.
+func (s *ToFSimulator) SimulateOpticalTensorEngine(matrixDim int) OpticalTensorResult {
+	r := rand.New(rand.NewSource(12345))
+	totalElements := matrixDim * matrixDim
+	errorSum := 0.0
+
+	for i := 0; i < totalElements; i++ {
+		// Ideal MZI transmission T = cos^2(theta/2)
+		thetaIdeal := r.Float64() * math.Pi
+		tIdeal := math.Pow(math.Cos(thetaIdeal/2.0), 2)
+
+		// MZI phase noise error
+		phaseError := r.NormFloat64() * s.Params.MziPhaseErrorRad
+		tMeasured := math.Pow(math.Cos((thetaIdeal+phaseError)/2.0), 2)
+
+		errorSum += math.Abs(tMeasured - tIdeal)
+	}
+
+	avgError := errorSum / float64(totalElements)
+	accuracyPct := (1.0 - avgError) * 100.0
+
+	return OpticalTensorResult{
+		MatrixDimension:  matrixDim,
+		EffectiveTOPS:    s.Params.AiTensorDensityTOPS,
+		EnergyEffTOPSW:   s.Params.AiTensorEfficiency,
+		MziPhaseErrorRad: s.Params.MziPhaseErrorRad,
+		MvmAccuracyPct:   accuracyPct,
+	}
+}

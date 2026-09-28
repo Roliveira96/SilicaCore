@@ -35,6 +35,41 @@ func TestNOTGate(t *testing.T) {
 	}
 }
 
+func TestSimulateMAryEncoding(t *testing.T) {
+	sim := NewSimulator(DefaultParams())
+	res := sim.SimulateMAryEncoding(10000)
+
+	if res.TotalSymbols != 10000 {
+		t.Fatalf("Expected 10000 total symbols, got %d", res.TotalSymbols)
+	}
+
+	if res.ThroughputBoostX != 8.0 {
+		t.Fatalf("Expected 8x throughput boost, got %f", res.ThroughputBoostX)
+	}
+}
+
+func TestSimulateQuantumLOQC(t *testing.T) {
+	sim := NewSimulator(DefaultParams())
+	res := sim.SimulateQuantumLOQC(16)
+
+	if res.QubitsTested != 16 {
+		t.Fatalf("Expected 16 qubits tested, got %d", res.QubitsTested)
+	}
+
+	if res.HomVisibilityPct <= 80.0 || res.CnotFidelityPct <= 80.0 {
+		t.Fatalf("Quantum metrics below threshold: HOM=%.2f%%, CNOT=%.2f%%", res.HomVisibilityPct, res.CnotFidelityPct)
+	}
+}
+
+func TestSimulateOpticalTensorEngine(t *testing.T) {
+	sim := NewSimulator(DefaultParams())
+	res := sim.SimulateOpticalTensorEngine(64)
+
+	if res.MvmAccuracyPct < 95.0 {
+		t.Fatalf("Expected MVM accuracy above 95%%, got %.2f%%", res.MvmAccuracyPct)
+	}
+}
+
 func BenchmarkMonteCarloConcurrent(b *testing.B) {
 	sim := NewSimulator(DefaultParams())
 	b.ResetTimer()

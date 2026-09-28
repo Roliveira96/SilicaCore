@@ -13,6 +13,7 @@
 - [x] 10. Redação completa do Whitepaper v1.0 com 11 referências científicas peer-reviewed (*Nature*, *Science*, *PRL*, *IEEE*) e agradecimentos à empresa Grafis e Valmor Moreira (`docs/papers/whitepaper-v1.md`) [complexidade: altíssima] [concluída em 28-09-26]
 
 ## Próximos Passos (Roadmap de Pesquisa)
-- [ ] 11. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
-- [ ] 12. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
-- [ ] 13. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)
+- [x] 11. Esclarecimento da inspiração conceitual do motor laser CW Noritsu na documentação e aprimoramento físico do simulador Go (RIN noise, interferência quântica HOM, M-ary encoding) [complexidade: alta] [concluída em 28-09-26]
+- [ ] 12. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
+- [ ] 13. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais
+- [ ] 14. Submissão do projeto a edital de iniciação científica (PIBIC/PIBITI UTFPR) e congressos (SBC/SBESC, IEEE Photonics)
