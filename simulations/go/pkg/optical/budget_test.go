@@ -80,3 +80,18 @@ func TestLocalAIDoesNotFitOnChipPCM(t *testing.T) {
 		t.Fatalf("Expected >100 tokens/s when streaming 4 GB over HBM3-class bandwidth, got %.1f", res.DecodeTokensPerSec)
 	}
 }
+
+func TestEnergyPerBitUsesAggregateRate(t *testing.T) {
+	res := NewSimulator(DefaultParams()).SimulatePowerEfficiency(1)
+	// 2.5 W over ~1.3 Tb/s aggregate is ~1.9 pJ/bit; the old 206.75 GHz x 8 denominator gave ~1.5 pJ/bit.
+	if res.EnergyPerBitFj < 1700 || res.EnergyPerBitFj > 2100 {
+		t.Fatalf("Expected ~1.9 pJ/bit from the aggregate bit rate, got %.1f fJ/bit", res.EnergyPerBitFj)
+	}
+}
+
+func TestUnifiedMemoryLatencyIsDramDominated(t *testing.T) {
+	res := NewSimulator(DefaultParams()).SimulateMonteCarloConcurrent(200000)
+	if res.MemStats.GlobalAvgLatencyPS < 300 || res.MemStats.GlobalAvgLatencyPS > 550 {
+		t.Fatalf("Expected ~416 ps average latency (L1 pSRAM + L2 SRAM + HBM), got %.1f ps", res.MemStats.GlobalAvgLatencyPS)
+	}
+}

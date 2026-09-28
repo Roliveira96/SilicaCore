@@ -1,6 +1,6 @@
 # Consumo Energético, Eficiência Computacional e Comparativo com Processadores de Silício (SilicaCore vs. CMOS Silício)
 
-> **Nota de validação (v1.1, 28/09/2026):** a "frequência de 206.75 GHz" era o inverso do tempo de voo, não uma taxa de operação; foi substituída pela taxa real de ~5.1 GHz por canal. O TDP de 18.5 W é premissa, a energia por bit calculada pelo próprio simulador é ~1.5 pJ/bit, e a eficiência > 100 TOPS/W vale só no núcleo óptico (sistema: ~0.84 TOPS/W, Lightmatter *Nature* 2025).
+> **Nota de validação (v1.1, 28/09/2026):** a "frequência de 206.75 GHz" era o inverso do tempo de voo, não uma taxa de operação; foi substituída pela taxa real de ~5.1 GHz por canal. O TDP de 18.5 W é premissa, a energia por bit calculada pelo próprio simulador é ~1.9 pJ/bit, e a eficiência > 100 TOPS/W vale só no núcleo óptico (sistema: ~0.84 TOPS/W, Lightmatter *Nature* 2025).
 
 ## 1. Dissecação da Dissipação Térmica e Gargalo Energético do Silício (CMOS)
 
@@ -56,7 +56,7 @@ A tabela a seguir compara as métricas energéticas e operacionais do **SilicaCo
 | **Meio de Sinal** | **Fótons (Luz CW RGB)** | Elétrons (Cobre) | Elétrons (Cobre) | Elétrons (Cobre) | Elétrons (Cobre) |
 | **Taxa por Canal** | **$\approx 5.1\text{ GHz}$ (slot ToF $\Delta t + W$)** | $6.20\text{ GHz}$ (Boost) | $3.70\text{ GHz}$ (Boost) | $1.98\text{ GHz}$ (Boost) | $4.05\text{ GHz}$ (Boost) |
 | **Consumo Térmico TDP (Watts)** | **$18.5\text{ W}$ (premissa, não derivada)** | $253\text{ W} \text{ (PL2: } 320\text{ W)}$ | $360\text{ W} \text{ (Max: } 400\text{ W)}$ | $700\text{ W}$ | $78\text{ W}$ |
-| **Energia por Bit** | **$\approx 1.5\text{ pJ/bit}$ (calculado pelo simulador)** | $\approx 2.5\text{ pJ/bit } (2500\text{ fJ})$ | $\approx 1.8\text{ pJ/bit } (1800\text{ fJ})$ | $\approx 1.2\text{ pJ/bit } (1200\text{ fJ})$ | $\approx 0.9\text{ pJ/bit } (900\text{ fJ})$ |
+| **Energia por Bit** | **$\approx 1.9\text{ pJ/bit}$ (calculado pelo simulador: laser CW dividido por 1.313 Gb/s agregados)** | $\approx 2.5\text{ pJ/bit } (2500\text{ fJ})$ | $\approx 1.8\text{ pJ/bit } (1800\text{ fJ})$ | $\approx 1.2\text{ pJ/bit } (1200\text{ fJ})$ | $\approx 0.9\text{ pJ/bit } (900\text{ fJ})$ |
 | **Eficiência Computacional (AI/MVM)** | **$> 100\text{ TOPS/W}$ (núcleo) / $\approx 0.84\text{ TOPS/W}$ (sistema, estado da arte)** | $\approx 0.15\text{ TOPS/W}$ | $\approx 0.25\text{ TOPS/W}$ | $\approx 2.8\text{ TOPS/W (FP16)}$ | $\approx 0.8\text{ TOPS/W}$ |
 | **Vazão de Leitura de Memória** | **RAM unificada HBM via I/O óptico ($\sim 3.35\text{ TB/s}$)** | $89.6\text{ GB/s (DDR5)}$ | $460.8\text{ GB/s (12-ch)}$ | $3.35\text{ TB/s (HBM3)}$ | $400\text{ GB/s (Unified)}$ |
 | **Necessidade de Refrigeração** | **A definir** (eletrônica de controle, lasers e estabilização térmica ativa) | Líquida (Watercooling $360\text{mm}$) | Fluxo de Ar Forçado Servidor | Refrigeração Líquida Direct-to-Chip | Ventoinha Ativa Silenciosa |

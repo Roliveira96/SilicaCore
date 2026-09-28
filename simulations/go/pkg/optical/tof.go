@@ -12,8 +12,8 @@ import (
 type MemoryStats struct {
 	CacheL1Hits        int     `json:"cache_l1_hits"`
 	CacheL1Misses      int     `json:"cache_l1_misses"`
-	RamLoopAccesses    int     `json:"ram_loop_accesses"`
-	RomKernelAccesses  int     `json:"rom_kernel_accesses"`
+	CacheL2Hits        int     `json:"cache_l2_hits"`
+	UnifiedRamAccesses int     `json:"unified_ram_accesses"`
 	GlobalAvgLatencyPS float64 `json:"global_avg_latency_ps"`
 }
 
@@ -40,10 +40,16 @@ func (s *ToFSimulator) SimulateMonteCarloConcurrent(numSamples int) MonteCarloRe
 		errors       int
 		hitsL1       int
 		missesL1     int
+		hitsL2       int
 		ramAccesses  int
-		romAccesses  int
 		sumLatencyPS float64
 	}
+
+	// Unified hierarchy latencies: light-speed transport + storage-cell time (see memory.go).
+	tiers := UnifiedMemoryHierarchy()
+	l1LatencyPS := TransportTimePS(tiers[0].DistanceMM, SiliconNitrideGroupIndex) + s.Params.CacheL1LatencyPS
+	l2LatencyPS := tiers[1].TotalReadPS
+	ramLatencyPS := tiers[3].TotalReadPS
 
 	var wg sync.WaitGroup
 	resChan := make(chan workerRes, numWorkers)
@@ -83,23 +89,18 @@ func (s *ToFSimulator) SimulateMonteCarloConcurrent(numSamples int) MonteCarloRe
 					wRes.errors++
 				}
 
-				// Photonic Memory Hierarchy Access Simulation
-				// 70% dynamic data accesses, 30% static OS kernel instruction accesses (ROM)
-				isKernelAccess := r.Float64() < 0.30
-
-				if isKernelAccess {
-					wRes.romAccesses++
-					wRes.sumLatencyPS += s.T1NominalPS // Direct speed-of-light readout in SiO2 (c/n)
+				// Unified memory access: L1 photonic SRAM -> L2/L3 3D SRAM -> unified HBM over optical I/O
+				if r.Float64() < s.Params.CacheL1HitRate {
+					wRes.hitsL1++
+					wRes.sumLatencyPS += l1LatencyPS
 				} else {
-					// Data Access: Attempt L1 Cache (Micro-ring resonators <= 5ps)
-					if r.Float64() < s.Params.CacheL1HitRate {
-						wRes.hitsL1++
-						wRes.sumLatencyPS += s.Params.CacheL1LatencyPS
+					wRes.missesL1++
+					if r.Float64() < s.Params.CacheL2HitRate {
+						wRes.hitsL2++
+						wRes.sumLatencyPS += l2LatencyPS
 					} else {
-						// L1 Cache Miss -> Access Recirculating Photonic RAM Loop (~96.73ps)
-						wRes.missesL1++
 						wRes.ramAccesses++
-						wRes.sumLatencyPS += s.Params.RamLoopLatencyPS
+						wRes.sumLatencyPS += ramLatencyPS
 					}
 				}
 			}
@@ -114,16 +115,16 @@ func (s *ToFSimulator) SimulateMonteCarloConcurrent(numSamples int) MonteCarloRe
 	totalErrors := 0
 	totHitsL1 := 0
 	totMissesL1 := 0
+	totHitsL2 := 0
 	totRAM := 0
-	totROM := 0
 	var sumLatencyTotal float64
 
 	for r := range resChan {
 		totalErrors += r.errors
 		totHitsL1 += r.hitsL1
 		totMissesL1 += r.missesL1
+		totHitsL2 += r.hitsL2
 		totRAM += r.ramAccesses
-		totROM += r.romAccesses
 		sumLatencyTotal += r.sumLatencyPS
 	}
 
@@ -146,8 +147,8 @@ func (s *ToFSimulator) SimulateMonteCarloConcurrent(numSamples int) MonteCarloRe
 		MemStats: MemoryStats{
 			CacheL1Hits:        totHitsL1,
 			CacheL1Misses:      totMissesL1,
-			RamLoopAccesses:    totRAM,
-			RomKernelAccesses:  totROM,
+			CacheL2Hits:        totHitsL2,
+			UnifiedRamAccesses: totRAM,
 			GlobalAvgLatencyPS: globalAvgLatency,
 		},
 	}
@@ -292,6 +293,9 @@ func (s *ToFSimulator) SimulateMAryEncoding(numSymbols int) MArySymbolResult {
 }
 
 // SimulateQuantumLOQC computes two-photon Hong-Ou-Mandel (HOM) quantum interference visibility and CNOT fidelity.
+// MODEL ASSUMPTIONS: published HOM visibility and CNOT fidelity scaled by waveguide transmissivity. In real LOQC,
+// loss mainly lowers the heralded success rate rather than fidelity; source indistinguishability, multi-photon
+// emission and detector efficiency are ignored. Detection requires cryogenic SNSPDs (~1-4 K).
 func (s *ToFSimulator) SimulateQuantumLOQC(numQubits int) QuantumLOQCResult {
 	// Attenuation loss along 20mm waveguide: Loss = 0.2 dB/cm * 2 cm = 0.4 dB
 	lossDb := s.Params.GlassLossDbPerCm * (s.Params.FastDistanceMM / 10.0)
@@ -345,6 +349,7 @@ func (s *ToFSimulator) SimulateOpticalTensorEngine(matrixDim int) OpticalTensorR
 type PowerEfficiencyResult struct {
 	TotalOperations          int     `json:"total_operations"`
 	SilicaCoreTdpWatts       float64 `json:"silica_core_tdp_watts"`
+	AggregateBitRateGbps     float64 `json:"aggregate_bit_rate_gbps"`
 	EnergyPerBitFj           float64 `json:"energy_per_bit_fj"`
 	EnergyEfficiencyTOPSW    float64 `json:"energy_efficiency_topsw"`
 	IntelI9TdpWatts          float64 `json:"intel_i9_tdp_watts"`
@@ -357,8 +362,10 @@ type PowerEfficiencyResult struct {
 
 // SimulatePowerEfficiency calculates energy consumption metrics and compares them against silicon baselines.
 func (s *ToFSimulator) SimulatePowerEfficiency(numOps int) PowerEfficiencyResult {
-	// Energy per bit: E_EOM + E_SPAD + static CW laser power per bit
-	staticLaserFjPerBit := (s.Params.CwLaserPowerWatts * 1e15) / (206.75e9 * 8.0) // ~1.51 fJ/bit
+	// Energy per bit: E_EOM + E_SPAD + static CW laser power shared over the real aggregate bit rate
+	// (ToF symbol rate per channel x bits per symbol x DWDM channels), not over the inverse flight time.
+	aggregateGbps := s.ComputeTimingBudget(DefaultTargetBER).ToFSymbolRateGHz * float64(s.Params.BitsPerSymbol) * float64(s.Params.DwdmChannelsCount)
+	staticLaserFjPerBit := (s.Params.CwLaserPowerWatts * 1e15) / (aggregateGbps * 1e9)
 	totalEnergyFjPerBit := s.Params.EomEnergyFjPerBit + s.Params.SpadEnergyFjPerPhoton + staticLaserFjPerBit
 
 	// Efficiency multipliers vs Silicon CPUs and GPUs
@@ -369,6 +376,7 @@ func (s *ToFSimulator) SimulatePowerEfficiency(numOps int) PowerEfficiencyResult
 	return PowerEfficiencyResult{
 		TotalOperations:          numOps,
 		SilicaCoreTdpWatts:       s.Params.SilicaCoreTdpWatts,
+		AggregateBitRateGbps:     aggregateGbps,
 		EnergyPerBitFj:           totalEnergyFjPerBit,
 		EnergyEfficiencyTOPSW:    s.Params.AiTensorEfficiency,
 		IntelI9TdpWatts:          s.Params.IntelI9TdpWatts,
