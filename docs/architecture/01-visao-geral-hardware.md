@@ -10,14 +10,15 @@ O núcleo do processador consiste em um bloco cúbico de **sílica fundida de ul
 
 ---
 
-## 2. Faces Ativas e Revestimento Optoeletrônico
-1. **Face Frontal (Emissão):** Matriz 2D de lasers emissores de superfície com cavidade vertical (VCSEL) operando em $850\text{ nm}$ com duração de pulso em femtossegundos.
-2. **Face Posterior (Recepção):** Matriz 2D de Fotodiodos de Avalanche de Fóton Único (SPAD) integrados em tecnologia CMOS 3D com conversores Tempo-Digital (TDC).
-3. **Faces Laterais e Inferior:** Revestidas com espelhos dielétricos multincamadas (Bragg) de titânia/sílica ($TiO_2/SiO_2$) apresentando refletividade $> 99.95\%$.
+## 2. Motor Laser Contínuo CW (Estilo Minilab Noritsu)
+1. **Emissão Contínua (Always-ON CW Lasers):** Diodos/DPSS laser RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) operam **permanentemente acesos em potência estabilizada**, eliminando surtos térmicos e repetição de chaveamento elétrico (*Noritsu Laser Tech Report*).
+2. **Deflexão e Roteamento Eletro-Óptico:** Ao energizar a placa, moduladores AOM/EOM e micro-espelhos 3D gravados no vidro iniciam o espelhamento e o direcionamento contínuo dos feixes pelas rotas lógicas.
+3. **Face de Recepção (Detectores M-ários):** Matriz 2D de Fotodiodos SPAD/CMOS operando amostragem síncrona TDC para leitura de estados em Hexadecimal (4 bits) e Bytes (8 bits por símbolo).
+4. **Revestimento Reflexivo:** Faces externas revestidas com espelhos dielétricos multincamadas (Bragg) de titânia/sílica ($TiO_2/SiO_2$) apresentando refletividade $> 99.95\%$.
 
 ---
 
-## 3. Disposição Geométrica dos Caminhos Lógicos
+## 3. Disposição Geométrica e Codificação Densa
 - **Linha Rápida ($d_1$):** Trajetória direta de $20.0\text{ mm}$ ($\Delta t_1 \approx 96.73\text{ ps}$).
 - **Linha Atrasada ($d_0$):** Trajetória com reflexão estendida de $40.675\text{ mm}$ ($\Delta t_0 \approx 196.73\text{ ps}$).
-- **Diferencial Temporal ($\Delta t$):** $100.0\text{ ps}$.
+- **Codificação M-ária Densa:** Saída direta em formato Hexadecimal (`0x0` a `0xF`) e Bytes completos (0 a 255) por canal espectral WDM.

@@ -7,7 +7,7 @@ import (
 // SpeedOfLightVacuo is the speed of light in vacuum in meters per second (m/s).
 const SpeedOfLightVacuo = 299792458.0
 
-// OpticalParams encapsulates physical, geometric, hardware, memory, GPU, AI, and Quantum parameters.
+// OpticalParams encapsulates physical, geometric, hardware, memory, GPU, AI, Quantum, and Noritsu CW parameters.
 type OpticalParams struct {
 	RefractiveIndex   float64 // Effective refractive index of substrate (e.g., 1.4500 for SiO2)
 	FastDistanceMM    float64 // d1: Straight-line path distance (mm)
@@ -16,6 +16,12 @@ type OpticalParams struct {
 	SpadJitterFwhmPS  float64 // Detector SPAD jitter in ps (FWHM)
 	TdcResolutionPS   float64 // Time-to-Digital Converter LSB resolution in ps
 	WindowWidthPS     float64 // Sampling time-gating window width in ps
+
+	// Noritsu-Style Continuous Wave (CW) Laser Engine & M-ary Multi-Level Encoding Parameters
+	LaserEngineMode       string  // Laser Mode: "Continuous Wave (Noritsu CW Style - Always-ON)"
+	EncodingFormat        string  // Data Encoding: "M-ary Multi-Level WDM (Hexadecimal 4-bit / Byte 8-bit)"
+	BitsPerSymbol         int     // Bits per optical symbol (8 bits = 1 Byte / symbol)
+	MultiLevelStatesCount int     // Number of discrete spectral/phase states (256 states for 8-bit Byte)
 
 	// Photonic Memory & Photonic SSD Parameters
 	CacheL1LatencyPS          float64 // L1 Photonic Cache latency (Micro-ring resonators): <= 5ps (Alexoudi et al., 2020)
@@ -35,7 +41,7 @@ type OpticalParams struct {
 	QuantumCnotFidelityPct float64 // Conditional photonic CNOT gate fidelity in % (e.g., 98.7%) [Carolan et al., Science 2015]
 }
 
-// DefaultParams returns the nominal configuration for ToF CPU, Photonic SSD, Optical GPU, AI Tensor Core, and Quantum LOQC Core.
+// DefaultParams returns the nominal configuration for ToF CPU, Photonic SSD, Optical GPU, AI Tensor, LOQC, and Noritsu CW.
 func DefaultParams() OpticalParams {
 	return OpticalParams{
 		RefractiveIndex:           1.4500,
@@ -45,6 +51,10 @@ func DefaultParams() OpticalParams {
 		SpadJitterFwhmPS:          25.0,
 		TdcResolutionPS:           5.0,
 		WindowWidthPS:             35.0,
+		LaserEngineMode:           "Continuous Wave (Noritsu CW Style - Always-ON)",
+		EncodingFormat:            "M-ary Multi-Level WDM (Hexadecimal 4-bit / Byte 8-bit)",
+		BitsPerSymbol:             8,
+		MultiLevelStatesCount:     256,
 		CacheL1LatencyPS:          5.0,
 		RamLoopLatencyPS:          96.73,
 		CacheL1HitRate:            0.92,

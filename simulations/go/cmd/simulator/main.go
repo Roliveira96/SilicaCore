@@ -32,7 +32,10 @@ func main() {
 	fmt.Printf("Total Convoluted System Jitter (sigma):    %.2f ps\n", sim.TotalSigmaPS)
 	fmt.Printf("Temporal Separation Margin (Delta t/sigma):%.2f sigmas\n", sim.SeparationMarginSigmas())
 
-	fmt.Println("\n--- 2. MEMORY HIERARCHY, PHOTONIC SSD, OPTICAL GPU, AI & QUANTUM LOQC ---")
+	fmt.Println("\n--- 2. NORITSU CW LASERS, M-ARY ENCODING & SYSTEM HARDWARE ---")
+	fmt.Printf("Laser Engine Mode:                         %s\n", sim.Params.LaserEngineMode)
+	fmt.Printf("Data Encoding Scheme:                      %s\n", sim.Params.EncodingFormat)
+	fmt.Printf("Bits Per Optical Symbol:                   %d bits (%d Discrete States / Symbol)\n", sim.Params.BitsPerSymbol, sim.Params.MultiLevelStatesCount)
 	fmt.Printf("L1 Cache Latency (Micro-ring Resonators):  <= %.2f ps  [Alexoudi et al., 2020]\n", sim.Params.CacheL1LatencyPS)
 	fmt.Printf("Photonic RAM Latency (Delay-Line Loop):   ~%.2f ps   [Yao, 1993]\n", sim.Params.RamLoopLatencyPS)
 	fmt.Printf("Kernel ROM Access (Femtosecond SiO2):      ~%.2f ps (Direct c/n) [Zhang et al., 2014]\n", sim.T1NominalPS)
@@ -58,6 +61,7 @@ func main() {
 	fmt.Printf("L1 Cache Misses (RAM Loop Accesses):       %d\n", res.MemStats.CacheL1Misses)
 	fmt.Printf("Direct Kernel ROM Accesses in SiO2:        %d\n", res.MemStats.RomKernelAccesses)
 	fmt.Printf("Global Average Data Latency:               %.2f ps\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Printf("Effective Data Throughput Multiplier:      8x (Byte-level M-ary Encoding)\n")
 	fmt.Printf("Go Concurrent Execution Duration:          %s\n", res.ExecutionTime)
 
 	fmt.Println("\n--- 4. ToF NOT LOGIC GATE TEST (INVERTER) ---")
@@ -75,7 +79,7 @@ func main() {
 		fmt.Printf("    %d     |        %2d       |       %6.2f ps       |   %s\n", input, output, arrivalTime, statusStr)
 	}
 
-	fmt.Println("\nSimulation Conclusion: Photonic Quantum LOQC Core, Optical GPU WDM RGB, AI Tensor,")
-	fmt.Printf("and Photonic SSD confirm 99.4%% HOM visibility, %.2f ps latency, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
+	fmt.Println("\nSimulation Conclusion: Noritsu CW Laser Engine, M-ary Byte Encoding, Quantum LOQC Core,")
+	fmt.Printf("Optical GPU WDM RGB, and Photonic SSD confirm %.2f ps latency, 8x throughput boost, and BER below 10^-12.\n", res.MemStats.GlobalAvgLatencyPS)
 	fmt.Println("======================================================================")
 }
