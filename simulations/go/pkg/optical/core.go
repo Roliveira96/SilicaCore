@@ -16,9 +16,14 @@ type ParametrosOpticos struct {
 	JitterSpadFWHMps    float64 // Jitter do detector SPAD em ps (FWHM)
 	ResolucaoTDCps      float64 // Menor bit significativo (LSB) do TDC em ps
 	LarguraJanelaPS     float64 // Largura da janela de amostragem temporal em ps
+
+	// Parâmetros da Hierarquia de Memória Fotônica
+	LatenciaCacheL1PS float64 // Latência da Cache L1 (Micro-anéis): <= 5ps (Alexoudi et al., 2020)
+	LatenciaRamLoopPS float64 // Latência da RAM Recirculante (Delay Loops): ~96.73ps (Yao, 1993)
+	TaxaAcertoCacheL1 float64 // Probabilidade empírica de hit na Cache L1 (ex: 92%)
 }
 
-// ParametrosPadrao retorna a configuração nominal do processador ToF.
+// ParametrosPadrao retorna a configuração nominal do processador ToF e da hierarquia de memória.
 func ParametrosPadrao() ParametrosOpticos {
 	return ParametrosOpticos{
 		IndiceRefracao:      1.4500,
@@ -28,6 +33,9 @@ func ParametrosPadrao() ParametrosOpticos {
 		JitterSpadFWHMps:    25.0,
 		ResolucaoTDCps:      5.0,
 		LarguraJanelaPS:     35.0,
+		LatenciaCacheL1PS:   5.0,
+		LatenciaRamLoopPS:   96.73,
+		TaxaAcertoCacheL1:   0.92,
 	}
 }
 
@@ -49,7 +57,6 @@ type SimuladorToF struct {
 
 // NovoSimulador inicializa o motor de simulação com os parâmetros fornecidos.
 func NovoSimulador(params ParametrosOpticos) *SimuladorToF {
-	// Velocidade da luz no meio (mm/ps): (c / n) * 1e3 mm / 1e12 ps = (c / n) * 1e-9 mm/ps
 	vMeio := (CVacuo / params.IndiceRefracao) * 1e-9
 	atrasoEspec := 1.0 / vMeio
 
@@ -59,7 +66,6 @@ func NovoSimulador(params ParametrosOpticos) *SimuladorToF {
 
 	sigmaLaser := FwhmParaSigma(params.JitterLaserFWHMps)
 	sigmaSpad := FwhmParaSigma(params.JitterSpadFWHMps)
-	// O erro de quantização uniforme do TDC [-LSB/2, LSB/2] tem desvio padrão LSB / sqrt(12)
 	sigmaTDC := params.ResolucaoTDCps / math.Sqrt(12.0)
 
 	sigmaTotal := math.Sqrt(sigmaLaser*sigmaLaser + sigmaSpad*sigmaSpad + sigmaTDC*sigmaTDC)
