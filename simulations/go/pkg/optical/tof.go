@@ -186,6 +186,46 @@ func (s *ToFSimulator) TestNOTGate(inputBit int, r *rand.Rand) (outputBit int, a
 	return
 }
 
+// CalibrateOptimalWindow performs a startup calibration pass over N pulses,
+// measuring empirical jitter and setting the optimal time-gating window width W_gate.
+func (s *ToFSimulator) CalibrateOptimalWindow(numSamples int) float64 {
+	r := rand.New(rand.NewSource(999))
+	maxDeviation := 0.0
+
+	for i := 0; i < numSamples; i++ {
+		noise := r.NormFloat64() * s.TotalSigmaPS
+		dev := math.Abs(noise)
+		if dev > maxDeviation {
+			maxDeviation = dev
+		}
+	}
+
+	// Optimal half-window: max observed deviation + 3.0ps margin, safely bounded by deltaT / 2
+	halfWindow := maxDeviation + 3.0
+	maxHalfWindow := (s.DeltaTNominalPS / 2.0) - 1.0
+	if halfWindow > maxHalfWindow {
+		halfWindow = maxHalfWindow
+	}
+
+	s.Params.WindowWidthPS = halfWindow * 2.0
+	return s.Params.WindowWidthPS
+}
+
+// TestNOTGateBatch executes N NOT gate inverter tests, returning success/failure counts and overall accuracy.
+func (s *ToFSimulator) TestNOTGateBatch(numRuns int, r *rand.Rand) (successes int, failures int, accuracyPct float64) {
+	for i := 0; i < numRuns; i++ {
+		input := i % 2
+		_, _, ok := s.TestNOTGate(input, r)
+		if ok {
+			successes++
+		} else {
+			failures++
+		}
+	}
+	accuracyPct = (float64(successes) / float64(numRuns)) * 100.0
+	return
+}
+
 // MArySymbolResult stores statistics for M-ary dense Byte/Hex symbol transmission over CW lasers.
 type MArySymbolResult struct {
 	TotalSymbols     int     `json:"total_symbols"`
