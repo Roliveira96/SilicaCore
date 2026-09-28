@@ -277,6 +277,7 @@ func printRaceLogicBenchmark() {
 	fmt.Printf("Same with one shared modulator per node:   %.2f dB (closes: %v; fan-out split on the data pulse)\n",
 		hwShared.WorstEdgeLossDb, hwShared.LinkBudgetOK)
 
+	fmt.Printf("\nQuick sweep (%d queries, 1 chip; run `go run ./cmd/racestats` for the 1e5-query multi-chip campaign):\n", RaceTrials)
 	fmt.Printf("\n%-10s %-9s %-7s %-12s %-12s %-12s %-12s\n", "Unit(ps)", "MaxHops", "Q", "NodeErr", "QueryErr", "Race(ns)", "Dijkstra(ns)")
 	for _, unit := range []float64{25, 35, 50, 100} {
 		pu := p

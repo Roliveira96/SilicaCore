@@ -89,34 +89,47 @@ Os atrasos são **programados por chaves Sb₂Se₃** uma vez por problema, e a 
 ### 5.1 Protótipo Simulado (`pkg/optical/racelogic.go`, simulador seção 12)
 
 **Mapeamento físico:**
-- **Aresta** = linha de atraso programável: 4 estágios binários de espiral Si₃N₄ selecionados por chaves Sb₂Se₃ (pesos 1–15). Unidade de peso = 50 ps.
+- **Aresta** = linha de atraso programável: 4 estágios binários de espiral Si₃N₄ selecionados por chaves Sb₂Se₃ (pesos 1–15). Unidade de peso = **100 ps** (escolhida pela campanha estatística abaixo).
 - **Nó** = detecta a primeira chegada e re-emite. Um fotodiodo por aresta de entrada, com OR eletrônico (sem combinador passivo com perda), mais um modulador TFLN por aresta de saída.
 - A latência de regeneração do nó (20 ps) é **descontada do atraso de cada aresta**. Sem isso, caminhos com mais saltos seriam penalizados e a corrida daria a resposta errada.
 - **Ruído:** jitter de 1.5 ps rms por nó e erro estático de 0.5 ps rms por aresta, acumulando a cada salto.
 
-**Correção frente ao Dijkstra clássico** (mapa de jogo 16×16, 200 origens aleatórias, todas as distâncias comparadas):
+**Campanha estatística** (`go run ./cmd/racestats`): mapa 16×16, **10 chips fabricados independentemente** (erro estático de aresta sorteado por chip) × **10⁴ consultas de origem aleatória** = 10⁵ consultas e 2,55×10⁷ distâncias decodificadas por unidade de atraso. Limite superior com 95% de confiança: regra de 3/N sem erros, intervalo de Wilson com erros.
 
-| Unidade (ps) | Q no pior caminho (32 saltos) | Erro por nó | Consultas com algum erro |
-| :---: | :---: | :---: | :---: |
-| 25 | 1.40 | 2.2×10⁻² | 63% |
-| 35 | 1.96 | 2.4×10⁻³ | 13% |
-| **50** | 2.80 | **0** | **0%** |
-| 100 | 5.59 | 0 | 0% |
+| Unidade (ps) | Q no pior caminho (32 saltos) | Distâncias erradas | Taxa por distância (limite 95%) | Previsto (gaussiano) | Consultas com algum erro |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 35 | 1.96 | 101.390 | 3.98×10⁻³ (4.00×10⁻³) | 3.68×10⁻³ | 17.6% |
+| 50 | 2.80 | 3.136 | 1.23×10⁻⁴ (1.27×10⁻⁴) | 1.08×10⁻⁴ | 0.83% |
+| 75 | 4.19 | 3 | 1.2×10⁻⁷ (3.5×10⁻⁷) | 9.3×10⁻⁸ | 0.002% |
+| **100** | **5.59** | **0** | **0 (< 1.2×10⁻⁷)** | 2.0×10⁻¹¹ | **0 (< 3×10⁻⁵)** |
 
-**Tempo por consulta** (origem única, todas as distâncias):
+**Validação do modelo de ruído por número de saltos** (unidade 50 ps; CSV completo em `simulations/results/race_logic_hops_16x16.csv`):
+
+| Saltos | Distâncias | Erro medido | Erro previsto por $\sigma\sqrt{h}$ |
+| :---: | ---: | :---: | :---: |
+| 12 | 1.530.455 | 7.2×10⁻⁶ | 5.0×10⁻⁶ |
+| 16 | 1.272.043 | 9.4×10⁻⁵ | 7.7×10⁻⁵ |
+| 20 | 627.896 | 4.8×10⁻⁴ | 4.1×10⁻⁴ |
+| 24 | 182.707 | 1.31×10⁻³ | 1.25×10⁻³ |
+| 28 | 31.964 | 2.60×10⁻³ | 2.81×10⁻³ |
+| 32 | 1.558 | 5.1×10⁻³ | 5.2×10⁻³ |
+
+O erro medido segue a previsão gaussiana de ruído acumulado por salto. O excesso de ~14% no total vem da própria corrida: quando dois caminhos têm comprimento quase igual, o nó dispara pelo mais adiantado dos dois ruídos, o que desloca a média para cedo. A amostra piloto de 200 consultas mostrava "0 erros" com 50 ps; com 10⁵ consultas, 0.83% delas têm algum erro. **Resultado reportável:** com unidade de 100 ps, **0 erros em 2,55×10⁷ distâncias** (taxa < 1.2×10⁻⁷ com 95% de confiança).
+
+**Tempo por consulta com unidade de 100 ps** (origem única, todas as distâncias):
 
 | Mapa | Corrida da luz | Leitura TDC (12 bits a 100 Gb/s) | Total | Dijkstra (Go, i3-3217U 2012) | Área das espirais |
 | :--- | ---: | ---: | ---: | ---: | :--- |
-| 8×8 | 3.0 ns | 7.7 ns | 10.7 ns | ~11 µs | 76 mm² |
-| 16×16 | 5.7 ns | 30.7 ns | 36.5 ns | ~50–60 µs | 324 mm² |
-| 32×32 | 10.0 ns | 122.9 ns | 132.9 ns | ~0.2–0.4 ms | 1.338 mm² (não cabe num retículo) |
-| 64×64 | 21.0 ns | 491.5 ns | 512.5 ns | ~2 ms | 5.439 mm² (não cabe) |
+| 8×8 | 6.0 ns | 7.7 ns | 13.7 ns | ~20 µs | 151 mm² |
+| 16×16 | 11.5 ns | 30.7 ns | 42.2 ns | ~50–100 µs | 648 mm² |
+| 32×32 | 20.0 ns | 122.9 ns | 142.9 ns | ~0.3 ms | 2.677 mm² (não cabe num retículo) |
+| 64×64 | 41.9 ns | 491.5 ns | 533.5 ns | ~2 ms | 10.879 mm² (não cabe) |
 
 **Leitura honesta dos resultados:**
-1. **Não é O(1).** A corrida cresce com a maior distância do grafo ($D \times 50$ ps), e a leitura cresce com o número de nós ($N \times 12$ bits). A partir de 8×8, **a leitura eletrônica domina o tempo**, não a luz.
+1. **Não é O(1).** A corrida cresce com a maior distância do grafo ($D \times 100$ ps), e a leitura cresce com o número de nós ($N \times 12$ bits). A partir de 8×8, **a leitura eletrônica domina o tempo**, não a luz.
 2. **Speedup medido de ~1.000–4.000×** contra Dijkstra em Go numa CPU de 2012. Numa CPU desktop atual (5–8× mais rápida) o ganho cai para a ordem de **~150–800×**. O A* com heurística, usado em jogos, visita menos nós e reduz ainda mais a diferença.
-3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~109 mm). **Até 16×16 cabe num retículo**; mapas maiores exigem particionamento em blocos ou atrasos compartilhados.
-4. **Hardware pesado:** o 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs. Com um modulador compartilhado por nó, a divisão de fan-out (6 dB) estoura a margem: 10.11 dB contra 10 dB.
+3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~222 mm com unidade de 100 ps). **Até 16×16 cabe num retículo** (648 de 858 mm²); mapas maiores exigem particionamento em blocos ou atrasos compartilhados.
+4. **Hardware pesado:** o 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs. Com um modulador compartilhado por nó, a divisão de fan-out (6 dB) estoura a margem: 11.24 dB contra 10 dB (com modulador por aresta: 5.22 dB).
 5. **Programação amortizada:** gravar os atrasos (~1 µs, premissa) se paga já na primeira consulta, e trocar a origem não exige reprogramar.
 
 **Nicho validado:** consultas repetidas de menor caminho em mapas de até ~16×16 blocos, por exemplo pathfinding hierárquico de NPCs em que cada bloco do mapa é resolvido na corrida óptica.

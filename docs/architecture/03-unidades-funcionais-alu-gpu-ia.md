@@ -37,7 +37,7 @@ flowchart TD
 ### 1.4 Camada 4 (Topo da Pilha): Aceleração Neural Gráfica, AI Tensor Core, Race Logic & Interface Quântica
 - **GPU Óptica por WDM:** acelera as **redes neurais** do pipeline gráfico (upscaling, geração de quadros, denoise de ray tracing) e a interconexão de alta banda. Shading, rasterização e ray tracing de cenas virtuais continuam em FP32 na eletrônica: a luz no vidro não traça uma cena virtual (*Weng et al., IEEE JSTQE 2020; Hamerly et al., PRX 2019*; doc 12).
 - **Photonic AI Tensor Core (MVM):** Multiplicação Matriz-Vetor via malhas Mach-Zehnder (MZI) e pesos em PCM **Sb₂Se₃** (o GST absorve em 1550 nm). Até **11 TOPS/mm²** e **> 100 TOPS/W no núcleo óptico**; no sistema completo o estado da arte é **~0.84 TOPS/W** (Lightmatter, *Nature* 2025). Pesos de LLMs grandes ficam em RAM unificada, não no chip (*Shen et al., 2017; Feldmann et al., 2021; Xu et al., 2021*).
-- **Race Logic Fotônica:** menor caminho em grafos por corrida de pulsos em atrasos programáveis; 0 erros num mapa 16×16 com unidade de 50 ps (doc 11, seção 5.1).
+- **Race Logic Fotônica:** menor caminho em grafos por corrida de pulsos em atrasos programáveis; 0 erros em 2,55×10⁷ distâncias num mapa 16×16 com unidade de 100 ps (doc 11, seção 5.1).
 - **Processador Quântico Fotônico Híbrido (LOQC):** Qubits fotônicos dual-rail (circuito em temperatura ambiente; fontes de fóton único e detectores SNSPD criogênicos a ~1–4 K) operando interferência Hong-Ou-Mandel (HOM) e portas lógicas quânticas (Hadamard, Phase, CNOT) para algoritmos híbridos VQE e amostragem de bosons (*Kok et al., Rev. Mod. Phys. 2007; Carolan et al., Science 2015; Crespi et al., Nature Photonics 2013; Arrazola et al., Nature 2021*).
 
 ---

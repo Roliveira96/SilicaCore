@@ -67,7 +67,7 @@ func TestDefaultRaceLogicIsAccurate(t *testing.T) {
 	}
 
 	if res.NodeErrorRate > 1e-3 {
-		t.Fatalf("Expected node error rate < 1e-3 at 50 ps unit delay, got %.2e", res.NodeErrorRate)
+		t.Fatalf("Expected node error rate < 1e-3 at the default unit delay, got %.2e", res.NodeErrorRate)
 	}
 }
 

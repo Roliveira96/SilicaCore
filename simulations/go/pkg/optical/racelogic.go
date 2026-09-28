@@ -16,8 +16,9 @@ import (
 // ============================================================================
 
 const (
-	// DefaultRaceUnitDelayPS is the delay that represents one unit of edge weight.
-	DefaultRaceUnitDelayPS = 50.0
+	// DefaultRaceUnitDelayPS is the delay that represents one unit of edge weight. 100 ps gives 0 errors in
+	// 2.55e7 decoded distances (16x16, 10 chips x 1e4 queries); 50 ps gives ~1.2e-4 per distance.
+	DefaultRaceUnitDelayPS = 100.0
 
 	// DefaultRaceWeightBits is the number of binary-weighted delay stages per edge (weights 1..2^bits-1).
 	DefaultRaceWeightBits = 4
@@ -487,5 +488,156 @@ func SimulateRaceLogic(g Graph, p RaceLogicParams, trials int, seed int64) RaceL
 		Tdcs:                hw.Tdcs,
 		Modulators:          hw.Modulators,
 		PcmSwitches:         hw.PcmSwitches,
+	}
+}
+
+// HopErrorBin compares measured and predicted decoding error for nodes at a given shortest-path hop count.
+type HopErrorBin struct {
+	Hops          int     `json:"hops"`
+	Samples       int     `json:"samples"`
+	Errors        int     `json:"errors"`
+	MeasuredRate  float64 `json:"measured_rate"`
+	PredictedRate float64 `json:"predicted_rate"`
+}
+
+// RaceStatisticsResult aggregates a large multi-chip Monte Carlo campaign of race-logic queries.
+type RaceStatisticsResult struct {
+	UnitDelayPS       float64       `json:"unit_delay_ps"`
+	Chips             int           `json:"chips"`
+	Queries           int           `json:"queries"`
+	NodeSamples       int           `json:"node_samples"`
+	NodeErrors        int           `json:"node_errors"`
+	QueryErrors       int           `json:"query_errors"`
+	NodeErrorRate     float64       `json:"node_error_rate"`
+	NodeErrorUpper95  float64       `json:"node_error_upper95"`
+	QueryErrorRate    float64       `json:"query_error_rate"`
+	QueryErrorUpper95 float64       `json:"query_error_upper95"`
+	WorstPathQ        float64       `json:"worst_path_q"`
+	PredictedNodeRate float64       `json:"predicted_node_rate"`
+	ByHops            []HopErrorBin `json:"by_hops"`
+}
+
+// upper95 returns a 95% upper confidence bound on a binomial rate (rule of three when there are no errors,
+// Wilson score interval otherwise).
+func upper95(errors, n int) float64 {
+	if n == 0 {
+		return 1
+	}
+	if errors == 0 {
+		return 3.0 / float64(n)
+	}
+	z := 1.959964
+	p := float64(errors) / float64(n)
+	nf := float64(n)
+	den := 1 + z*z/nf
+	centre := p + z*z/(2*nf)
+	margin := z * math.Sqrt(p*(1-p)/nf+z*z/(4*nf*nf))
+	return (centre + margin) / den
+}
+
+// predictedNodeError is the single-path Gaussian prediction: the decoded distance is wrong when the
+// accumulated timing noise over h hops exceeds half a unit delay.
+func predictedNodeError(p RaceLogicParams, hops int) float64 {
+	if hops == 0 {
+		return 0
+	}
+	sigma := math.Sqrt(float64(hops)) * math.Hypot(p.NodeJitterPS, p.EdgeDelayErrorPS)
+	return math.Erfc((p.UnitDelayPS / 2) / (sigma * math.Sqrt2))
+}
+
+// RaceLogicStatistics runs queriesPerChip random-source races on each of `chips` independently fabricated
+// chips (fresh static edge errors per chip) in parallel, and bins errors by shortest-path hop count.
+func RaceLogicStatistics(g Graph, p RaceLogicParams, chips, queriesPerChip int, seed int64) RaceStatisticsResult {
+	type chipRes struct {
+		nodeSamples, nodeErrors, queryErrors int
+		binSamples, binErrors                map[int]int
+	}
+	results := make(chan chipRes, chips)
+	n := len(g.Adj)
+
+	for c := 0; c < chips; c++ {
+		go func(chip int) {
+			hw := BuildRaceHardware(g, p, seed+int64(chip)*7919)
+			r := rand.New(rand.NewSource(seed + int64(chip)*104729 + 1))
+			res := chipRes{binSamples: map[int]int{}, binErrors: map[int]int{}}
+			for q := 0; q < queriesPerChip; q++ {
+				src := r.Intn(n)
+				dist := Dijkstra(g, src)
+				hops := hopCounts(g, dist, src)
+				fire := hw.Race(src, r)
+				wrong := false
+				for v := 0; v < n; v++ {
+					if dist[v] < 0 || v == src {
+						continue
+					}
+					res.nodeSamples++
+					res.binSamples[hops[v]]++
+					if int(math.Round(fire[v]/p.UnitDelayPS)) != dist[v] {
+						res.nodeErrors++
+						res.binErrors[hops[v]]++
+						wrong = true
+					}
+				}
+				if wrong {
+					res.queryErrors++
+				}
+			}
+			results <- res
+		}(c)
+	}
+
+	total := chipRes{binSamples: map[int]int{}, binErrors: map[int]int{}}
+	for c := 0; c < chips; c++ {
+		res := <-results
+		total.nodeSamples += res.nodeSamples
+		total.nodeErrors += res.nodeErrors
+		total.queryErrors += res.queryErrors
+		for h, v := range res.binSamples {
+			total.binSamples[h] += v
+		}
+		for h, v := range res.binErrors {
+			total.binErrors[h] += v
+		}
+	}
+
+	maxHops := 0
+	predictedSum := 0.0
+	for h, cnt := range total.binSamples {
+		if h > maxHops {
+			maxHops = h
+		}
+		predictedSum += predictedNodeError(p, h) * float64(cnt)
+	}
+	bins := make([]HopErrorBin, 0, maxHops)
+	for h := 1; h <= maxHops; h++ {
+		s := total.binSamples[h]
+		if s == 0 {
+			continue
+		}
+		bins = append(bins, HopErrorBin{
+			Hops:          h,
+			Samples:       s,
+			Errors:        total.binErrors[h],
+			MeasuredRate:  float64(total.binErrors[h]) / float64(s),
+			PredictedRate: predictedNodeError(p, h),
+		})
+	}
+
+	queries := chips * queriesPerChip
+	sigmaWorst := math.Sqrt(float64(maxHops)) * math.Hypot(p.NodeJitterPS, p.EdgeDelayErrorPS)
+	return RaceStatisticsResult{
+		UnitDelayPS:       p.UnitDelayPS,
+		Chips:             chips,
+		Queries:           queries,
+		NodeSamples:       total.nodeSamples,
+		NodeErrors:        total.nodeErrors,
+		QueryErrors:       total.queryErrors,
+		NodeErrorRate:     float64(total.nodeErrors) / float64(total.nodeSamples),
+		NodeErrorUpper95:  upper95(total.nodeErrors, total.nodeSamples),
+		QueryErrorRate:    float64(total.queryErrors) / float64(queries),
+		QueryErrorUpper95: upper95(total.queryErrors, queries),
+		WorstPathQ:        p.UnitDelayPS / (2 * sigmaWorst),
+		PredictedNodeRate: predictedSum / float64(total.nodeSamples),
+		ByHops:            bins,
 	}
 }

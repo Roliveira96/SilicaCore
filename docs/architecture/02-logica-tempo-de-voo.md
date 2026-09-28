@@ -49,4 +49,4 @@ O fotodetector SPAD opera acoplado a um circuito TDC de amostragem síncrona com
 
 1. **Imunidade à Atenuação de Amplitude:** Variações moderadas de intensidade por espalhamento no vidro não corrompem o dado, pois a leitura baseia-se exclusivamente na posição da borda de subida do pulso no tempo.
 2. **Exequibilidade com Detectores Existentes:** circuitos TDC (*Time-to-Digital Converters*) oferecem resoluções de picossegundos (LSB $\le 5\text{ ps}$). Para dados, fotodiodos UTC/InGaAs (> 100 GHz); SPADs têm tempo morto $\ge 2$ ns ($\le 0.5$ GHz).
-3. **Base para Race Logic:** a mesma codificação temporal permite resolver menor caminho por corrida de pulsos; o protótipo simulado acerta 100% das distâncias num mapa 16×16 com unidade de 50 ps ([doc 11, seção 5.1](11-roteamento-e-comutacao-optica.md)).
+3. **Base para Race Logic:** a mesma codificação temporal permite resolver menor caminho por corrida de pulsos; com unidade de 100 ps, o protótipo simulado teve 0 erros em 2,55×10⁷ distâncias num mapa 16×16 (taxa < 1.2×10⁻⁷ com 95% de confiança; com 50 ps, 1.2×10⁻⁴) ([doc 11, seção 5.1](11-roteamento-e-comutacao-optica.md)).
