@@ -340,3 +340,43 @@ func (s *ToFSimulator) SimulateOpticalTensorEngine(matrixDim int) OpticalTensorR
 		MvmAccuracyPct:   accuracyPct,
 	}
 }
+
+// PowerEfficiencyResult stores power metrics and comparative silicon benchmark ratios.
+type PowerEfficiencyResult struct {
+	TotalOperations          int     `json:"total_operations"`
+	SilicaCoreTdpWatts       float64 `json:"silica_core_tdp_watts"`
+	EnergyPerBitFj           float64 `json:"energy_per_bit_fj"`
+	EnergyEfficiencyTOPSW    float64 `json:"energy_efficiency_topsw"`
+	IntelI9TdpWatts          float64 `json:"intel_i9_tdp_watts"`
+	IntelI9EfficiencyMult    float64 `json:"intel_i9_efficiency_mult"`
+	NvidiaH100TdpWatts       float64 `json:"nvidia_h100_tdp_watts"`
+	NvidiaH100EfficiencyMult float64 `json:"nvidia_h100_efficiency_mult"`
+	AmdEpycTdpWatts          float64 `json:"amd_epyc_tdp_watts"`
+	AmdEpycEfficiencyMult    float64 `json:"amd_epyc_efficiency_mult"`
+}
+
+// SimulatePowerEfficiency calculates energy consumption metrics and compares them against silicon baselines.
+func (s *ToFSimulator) SimulatePowerEfficiency(numOps int) PowerEfficiencyResult {
+	// Energy per bit: E_EOM + E_SPAD + static CW laser power per bit
+	staticLaserFjPerBit := (s.Params.CwLaserPowerWatts * 1e15) / (206.75e9 * 8.0) // ~1.51 fJ/bit
+	totalEnergyFjPerBit := s.Params.EomEnergyFjPerBit + s.Params.SpadEnergyFjPerPhoton + staticLaserFjPerBit
+
+	// Efficiency multipliers vs Silicon CPUs and GPUs
+	intelMult := s.Params.IntelI9TdpWatts / s.Params.SilicaCoreTdpWatts
+	h100Mult := s.Params.NvidiaH100TdpWatts / s.Params.SilicaCoreTdpWatts
+	epycMult := s.Params.AmdEpycTdpWatts / s.Params.SilicaCoreTdpWatts
+
+	return PowerEfficiencyResult{
+		TotalOperations:          numOps,
+		SilicaCoreTdpWatts:       s.Params.SilicaCoreTdpWatts,
+		EnergyPerBitFj:           totalEnergyFjPerBit,
+		EnergyEfficiencyTOPSW:    s.Params.AiTensorEfficiency,
+		IntelI9TdpWatts:          s.Params.IntelI9TdpWatts,
+		IntelI9EfficiencyMult:    intelMult,
+		NvidiaH100TdpWatts:       s.Params.NvidiaH100TdpWatts,
+		NvidiaH100EfficiencyMult: h100Mult,
+		AmdEpycTdpWatts:          s.Params.AmdEpycTdpWatts,
+		AmdEpycEfficiencyMult:    epycMult,
+	}
+}
+

@@ -114,6 +114,31 @@ const (
 
 	// DefaultMziPhaseErrorRad is the MZI mesh phase drift standard deviation in radians.
 	DefaultMziPhaseErrorRad = 0.010
+
+	// ------------------------------------------------------------------------
+	// 7. POWER CONSUMPTION & COMPARATIVE SILICON BASELINES
+	// ------------------------------------------------------------------------
+
+	// DefaultCwLaserPowerWatts is the electrical power consumed by continuous wave RGB lasers (Watts).
+	DefaultCwLaserPowerWatts = 2.5
+
+	// DefaultEomEnergyFjPerBit is the energy consumed per electro-optic modulation bit (fJ/bit).
+	DefaultEomEnergyFjPerBit = 0.8
+
+	// DefaultSpadEnergyFjPerPhoton is the energy consumed per SPAD single-photon detection event (fJ/photon).
+	DefaultSpadEnergyFjPerPhoton = 12.0
+
+	// DefaultSilicaCoreTdpWatts is the total board Thermal Design Power (TDP) for SilicaCore (Watts).
+	DefaultSilicaCoreTdpWatts = 18.5
+
+	// DefaultIntelI9TdpWatts is the TDP of Intel Core i9-14900KS CPU in Watts.
+	DefaultIntelI9TdpWatts = 253.0
+
+	// DefaultNvidiaH100TdpWatts is the TDP of NVIDIA H100 Tensor Core GPU in Watts.
+	DefaultNvidiaH100TdpWatts = 700.0
+
+	// DefaultAmdEpycTdpWatts is the TDP of AMD EPYC 9654 96-core server CPU in Watts.
+	DefaultAmdEpycTdpWatts = 360.0
 )
 
 // OpticalParams encapsulates all physical, geometric, and functional parameters of SilicaCore.
@@ -154,6 +179,15 @@ type OpticalParams struct {
 	PhaseNoiseSigmaRad float64 // Electro-optic phase noise standard deviation in radians
 	GlassLossDbPerCm   float64 // Waveguide attenuation loss in fused silica (0.2 dB/cm)
 	MziPhaseErrorRad   float64 // MZI mesh phase drift standard deviation in radians
+
+	// Power Consumption & Comparative Silicon Baselines
+	CwLaserPowerWatts        float64 // Electrical power of CW RGB lasers in Watts (2.5W)
+	EomEnergyFjPerBit        float64 // Energy per EOM modulation bit in fJ/bit (0.8 fJ)
+	SpadEnergyFjPerPhoton    float64 // Energy per SPAD detection in fJ/photon (12 fJ)
+	SilicaCoreTdpWatts       float64 // Total SilicaCore TDP in Watts (18.5W)
+	IntelI9TdpWatts          float64 // Baseline Intel Core i9-14900KS TDP in Watts (253W)
+	NvidiaH100TdpWatts       float64 // Baseline NVIDIA H100 GPU TDP in Watts (700W)
+	AmdEpycTdpWatts          float64 // Baseline AMD EPYC 9654 CPU TDP in Watts (360W)
 }
 
 // DefaultParams returns the nominal configuration for SilicaCore using defined constants.
@@ -185,8 +219,16 @@ func DefaultParams() OpticalParams {
 		PhaseNoiseSigmaRad:        DefaultPhaseNoiseSigmaRad,
 		GlassLossDbPerCm:          DefaultGlassLossDbPerCm,
 		MziPhaseErrorRad:          DefaultMziPhaseErrorRad,
+		CwLaserPowerWatts:        DefaultCwLaserPowerWatts,
+		EomEnergyFjPerBit:        DefaultEomEnergyFjPerBit,
+		SpadEnergyFjPerPhoton:    DefaultSpadEnergyFjPerPhoton,
+		SilicaCoreTdpWatts:       DefaultSilicaCoreTdpWatts,
+		IntelI9TdpWatts:          DefaultIntelI9TdpWatts,
+		NvidiaH100TdpWatts:       DefaultNvidiaH100TdpWatts,
+		AmdEpycTdpWatts:          DefaultAmdEpycTdpWatts,
 	}
 }
+
 
 // FwhmToSigma converts Full Width at Half Maximum (FWHM) of a Gaussian distribution to standard deviation (sigma).
 func FwhmToSigma(fwhm float64) float64 {

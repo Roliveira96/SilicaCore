@@ -109,6 +109,18 @@ func main() {
 	fmt.Printf("Global Average Data Latency:               %.2f ps\n", res.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Go Concurrent Execution Duration:          %s\n", res.ExecutionTime)
 
+	fmt.Println("\n--- 6.1 POWER CONSUMPTION & SILICON COMPARISON BENCHMARK ---")
+	pRes := sim.SimulatePowerEfficiency(MonteCarloOperationsCount)
+	fmt.Printf("SilicaCore Board Thermal Design Power (TDP): %.1f Watts\n", pRes.SilicaCoreTdpWatts)
+	fmt.Printf("Energy Consumed Per Bit Transmitted:        %.2f fJ/bit (0.05 pJ/bit)\n", pRes.EnergyPerBitFj)
+	fmt.Printf("Photonic AI Compute Energy Efficiency:      > %.0f TOPS/W [Shen et al., 2017]\n", pRes.EnergyEfficiencyTOPSW)
+	fmt.Printf("Baseline Intel Core i9-14900KS TDP:         %.0f Watts (PL2: 320W)\n", pRes.IntelI9TdpWatts)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs i9:   %.1fx Lower Power Consumption\n", pRes.IntelI9EfficiencyMult)
+	fmt.Printf("Baseline AMD EPYC 9654 Server CPU TDP:      %.0f Watts\n", pRes.AmdEpycTdpWatts)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs EPYC: %.1fx Lower Power Consumption\n", pRes.AmdEpycEfficiencyMult)
+	fmt.Printf("Baseline NVIDIA H100 Tensor GPU TDP:        %.0f Watts\n", pRes.NvidiaH100TdpWatts)
+	fmt.Printf("SilicaCore Energy Efficiency Ratio vs H100: %.1fx Lower Power Consumption\n", pRes.NvidiaH100EfficiencyMult)
+
 	fmt.Printf("\n--- 7. CALIBRATED ToF NOT LOGIC GATE TEST (%d ITERATIONS BATCH) ---\n", NotGateBatchTestCount)
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))

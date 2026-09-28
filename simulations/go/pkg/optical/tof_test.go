@@ -70,6 +70,19 @@ func TestSimulateOpticalTensorEngine(t *testing.T) {
 	}
 }
 
+func TestSimulatePowerEfficiency(t *testing.T) {
+	sim := NewSimulator(DefaultParams())
+	res := sim.SimulatePowerEfficiency(1000000)
+
+	if res.SilicaCoreTdpWatts != 18.5 {
+		t.Fatalf("Expected SilicaCore TDP of 18.5W, got %.2fW", res.SilicaCoreTdpWatts)
+	}
+
+	if res.NvidiaH100EfficiencyMult <= 10.0 {
+		t.Fatalf("Expected NVIDIA H100 efficiency ratio > 10x, got %.2fx", res.NvidiaH100EfficiencyMult)
+	}
+}
+
 func BenchmarkMonteCarloConcurrent(b *testing.B) {
 	sim := NewSimulator(DefaultParams())
 	b.ResetTimer()
@@ -77,3 +90,4 @@ func BenchmarkMonteCarloConcurrent(b *testing.B) {
 		_ = sim.SimulateMonteCarloConcurrent(100000)
 	}
 }
+

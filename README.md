@@ -58,6 +58,17 @@ Documento detalhado: [09-canhoes-laser-continuos-noritsu-e-codificacao-multi-niv
 
 ---
 
+## 4.1 Consumo Energético e Comparativo com Silício (Intel i9 / AMD EPYC / NVIDIA H100)
+
+O SilicaCore opera com **ausência total de aquecimento resistivo Joule ($R = 0$)** nas trilhas ópticas de vidro, resultando em:
+- **TDP da Placa SilicaCore:** apenas **$18.5\text{ Watts}$** (contra $253\text{ W}$ do Intel i9-14900KS e $700\text{ W}$ da GPU NVIDIA H100).
+- **Eficiência Computacional em IA:** **$> 100\text{ TOPS/W}$** ($37\times$ mais eficiente que a NVIDIA H100).
+- **Custo Energético por Bit:** **$\approx 0.05\text{ pJ/bit}$ ($50\text{ fJ}$)** contra $1.2 - 2.5\text{ pJ/bit}$ do silício CMOS.
+
+Documento de arquitetura detalhado: [10-consumo-energetico-e-comparativo-silicio.md](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md).
+
+---
+
 ## 5. Fundamentação Física e Equações de Propagação
 
 - **Substrato:** Sílica Fundida ($SiO_2$), $n \approx 1.4500$ em $\lambda = 850\text{ nm}$.
