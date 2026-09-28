@@ -1,0 +1,26 @@
+# Caches do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ambientes Virtuais
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs e Saídas Temporárias de Simulação
+*.log
+*.tmp
+simulations/output/
