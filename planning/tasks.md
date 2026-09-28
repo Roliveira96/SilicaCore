@@ -20,7 +20,7 @@
 - [x] 15. Redução geométrica do bloco fotônico (d1 = 2.0 mm / latência ~9.67 ps) e expansão DWDM massiva (64 canais espectrais / 256 bits/pulso) no simulador Go [complexidade: alta] [concluída em 28-09-26]
 - [x] 19. Orçamento físico de roteamento (espelhos internos vs Si₃N₄/TFLN), BER corrigida e modelo de memória unificada / IA local com literatura 2024–2026 (`budget.go`, `memory.go`, docs 11 e 12) [complexidade: alta] [concluída em 28-09-26]
 - [x] 20. Revisar afirmações do README/whitepaper/specs (8.9σ → Q=4.45, 206 GHz → ~5 GHz/canal, >100 TOPS/W no sistema, ray-tracing nativo, quântico sem criogenia) [complexidade: média] [concluída em 28-09-26]
-- [ ] 22. Alinhar docs de arquitetura 01–10 com a simulação (EOM/TIR em SiO₂, espelhos internos, ray-tracing, 298 K, 18.5 W, 0.05 pJ/bit, L1 ≤5 ps) [complexidade: média]
+- [x] 22. Alinhar docs de arquitetura 01–10 com a simulação (EOM/TIR em SiO₂, espelhos internos, ray-tracing, 298 K, 18.5 W, 0.05 pJ/bit, L1 ≤5 ps) e geometria agnóstica do substrato (cubo → substrato fotônico integrado) [complexidade: média] [concluída em 28-09-26]
 - [x] 21. Protótipo em Go de race logic fotônica (menor caminho em grafo por rede de atrasos programáveis) [complexidade: alta] [concluída em 28-09-26]
 - [ ] 16. Simulações eletromagnéticas de propagação de ondas em FDTD (Meep / Lumerical)
 - [ ] 17. Validação de protótipo de bancada em macro-escala com divisores de feixe cúbicos e detectores SPAD comerciais

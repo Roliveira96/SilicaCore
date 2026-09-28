@@ -1,16 +1,18 @@
 # Acelerador Tensor de IA Fotônico (Photonic AI Tensor Core & MVM)
 
+> **Nota de validação (v1.1, 28/09/2026):** a eficiência > 100 TOPS/W vale só no núcleo óptico; o sistema completo publicado mais avançado entrega ~0.84 TOPS/W. O GST foi substituído por Sb₂Se₃ e o limite de capacidade de pesos no chip foi registrado (doc [12](12-memoria-unificada-jogos-e-ia-local.md)).
+
 ## 1. Visão Geral do Photonic Tensor Core
 
-O **SilicaCore** incorpora um motor dedicado de Inteligência Artificial denominado **Photonic AI Tensor Engine**, localizado no **Andar 4 (Z = 20 a 25mm)**. O acelerador é projetado para resolver a operação matemática computacionalmente mais exigente da Inteligência Artificial moderna (Transformers, LLMs, Visão Computacional e CNNs): a **Multiplicação Matriz-Vetor (MVM - *Matrix-Vector Multiplication*)**.
+O **SilicaCore** incorpora um motor dedicado de Inteligência Artificial denominado **Photonic AI Tensor Engine**, localizado na **Camada 4 da pilha fotônica**. O acelerador é projetado para resolver a operação matemática computacionalmente mais exigente da Inteligência Artificial moderna (Transformers, LLMs, Visão Computacional e CNNs): a **Multiplicação Matriz-Vetor (MVM - *Matrix-Vector Multiplication*)**.
 
 ```mermaid
 flowchart TD
-    subgraph PhotonicTensorCore["Acelerador Tensor de IA Fotônico (Andar 4)"]
+    subgraph PhotonicTensorCore["Acelerador Tensor de IA Fotônico (Camada 4)"]
         direction TB
         VetorEntrada["Vetor de Entrada Óptico X (Amplitude / Fase dos Pulsos)"]
         MZIMesh["Malha de Interferômetros Mach-Zehnder (MZI Mesh - Rotações Unitárias)"]
-        PesosPCM["Matriz de Pesos Não-Volátil (Filmes PCM - GST / Sb2Se3)"]
+        PesosPCM["Matriz de Pesos Não-Volátil (PCM Sb2Se3)"]
         DetecaoSaida["Vetor de Saída Y = W * X (Fotodetecção SPAD Integrada)"]
         
         VetorEntrada --> MZIMesh
@@ -31,7 +33,8 @@ $$Y = U \cdot \Sigma \cdot V^\dagger \cdot X$$
 A decomposição em valores singulares (SVD) permite que qualquer matriz de pesos arbitrária $W$ de um modelo de Inteligência Artificial seja executada no domínio óptico em uma **única passagem contínua da luz (*single-pass*)** com latência $< 10\text{ ps}$.
 
 ### 2.2 Pesos Não-Voláteis em Materiais de Mudança de Fase (PCM $GST$)
-- **Armazenamento de Pesos em PCM:** Filmes finos de $Ge_2Sb_2Te_5$ (GST) depositados sobre a malha de guias de onda armazenam os pesos de sinapses artificiais por estados de cristalização graduados multi-nível (*Feldmann et al., Nature 2019*).
+- **Armazenamento de Pesos em PCM:** filmes de mudança de fase sobre os guias armazenam pesos por estados de cristalização multinível (*Feldmann et al., Nature 2019*). **Sb₂Se₃** substitui o GST (transparente em 1550 nm, > 6 bits por célula, > 1.4×10⁸ ciclos; Yu et al., 2026).
+- **Limite de capacidade:** um LLM de 8B parâmetros em 4 bits exigiria ~2.000 cm² de células PCM, contra 8.6 cm² de um retículo. Pesos de LLMs ficam em RAM unificada de alta banda e chegam por I/O óptico; a PCM no chip guarda adaptadores e modelos pequenos (doc 12).
 - **Zero Consumo Específico:** Os pesos do modelo de IA permanecem gravados sem consumo elétrico contínuo, eliminando a busca repetitiva na memória RAM ou Flash.
 
 ---
@@ -42,9 +45,11 @@ A decomposição em valores singulares (SVD) permite que qualquer matriz de peso
 | :--- | :--- | :--- |
 | **Operação Primária** | Multiplicação digital por portas lógica CMOS | Produtos escalares por interferência e atenuação PCM |
 | **Densidade de Processamento** | $\sim 0.5 \text{ TOPS/mm}^2$ | **Up to 11 TOPS/mm²** (*Xu et al., Nature 2021*) |
-| **Eficiência Energética** | $\sim 0.5 \text{ a } 2.0 \text{ TOPS/W}$ | **$> 100 \text{ TOPS/W}$** (Eficiência na escala femtojoule) |
+| **Eficiência Energética (núcleo)** | $\sim 0.5 \text{ a } 2.0 \text{ TOPS/W}$ | **$> 100 \text{ TOPS/W}$** só no núcleo óptico |
+| **Eficiência Energética (sistema)** | $\sim 0.5 \text{ a } 2.0 \text{ TOPS/W}$ | **$\approx 0.84 \text{ TOPS/W}$** no estado da arte (Lightmatter, *Nature* 2025: 65.5 TOPS com 78 W + 1.6 W ópticos); Taichi: 160 TOPS/W no chiplet, sem periféricos |
 | **Latência por Multiplicação MVM** | $10\text{ ns}$ a $100\text{ ns}$ (Ciclos de clock de GPU) | **$< 10\text{ ps}$** (Tempo de voo na malha MZI) |
-| **Transferência de Memória** | Gargalo na VRAM HBM3 | **Computação In-Memory nativa** no substrato de sílica |
+| **Transferência de Memória** | Gargalo na VRAM HBM3 | In-memory para pesos pequenos; LLMs grandes continuam limitados pela banda da RAM (8B em 4 bits: ~840 tok/s com 3.35 TB/s) |
+| **Precisão** | FP32/FP16/INT8 | Precisão efetiva comparável a FP32 em ResNet/BERT com ABFP16 (Lightmatter, 2025) |
 
 ---
 

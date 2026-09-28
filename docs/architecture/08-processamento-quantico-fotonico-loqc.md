@@ -1,10 +1,15 @@
 # Processamento Quântico Fotônico Híbrido (Linear Optical Quantum Computing - LOQC)
 
+> **Nota de validação (v1.1, 28/09/2026):** o circuito fotônico opera em temperatura ambiente, mas fontes de fóton único de alta qualidade e detectores SNSPD exigem criogenia (~1–4 K). A afirmação de "qubits sem criogenia a 298 K" foi corrigida; o simulador também mostra que a fidelidade CNOT efetiva cai para ~90% com a perda de guia (QBER ~10%).
+
 ## 1. Visão Geral da Computação Quântica Fotônica
 
 O **SilicaCore** expande suas capacidades lógicas clássicas e de Inteligência Artificial ao integrar um **Core de Computação Quântica Fotônica de Óptica Linear (LOQC - *Linear Optical Quantum Computing*)** diretamente no bloco monolítico de sílica fundida ($SiO_2$). 
 
-Diferente de arquiteturas quânticas baseadas em qubits supercondutores (que exigem refrigeradores de diluição complexos operando próximos ao zero absoluto, em milikelvins), os **qubits fotônicos** no SilicaCore operam em **temperatura ambiente ($298\text{ K}$)**, pois os fótons não sofrem decoerência térmica apreciável ao propagar no vidro.
+Diferente de qubits supercondutores (que exigem refrigeradores de diluição em milikelvins), os **fótons propagam no circuito óptico em temperatura ambiente** sem decoerência térmica apreciável. Isso **não torna o sistema inteiro livre de criogenia**:
+- **Detectores:** os SNSPDs de NbN com eficiência e jitter adequados (2.7 ps em 1550 nm; Korzh et al., *Nat. Photon.* 2020) operam a **~1–4 K**, com criostato de centenas de watts.
+- **Fontes:** fontes SPDC em temperatura ambiente são probabilísticas (emissão heraldada com baixa taxa); fontes determinísticas de pontos quânticos também exigem criogenia.
+- **Consequência para o SilicaCore:** o núcleo quântico é um **subsistema criogênico separado**, fora do orçamento de baixo consumo do processador para jogos e IA.
 
 ```mermaid
 flowchart TD
@@ -13,7 +18,7 @@ flowchart TD
         FonteFotons["Fontes de Fótons Únicos Indistinguíveis (SPDC / Nanocristais em SiO2)"]
         QubitEncoding["Codificação Dual-Rail de Qubits: |0> = |1,0>  e  |1> = |0,1>"]
         MalhaLOQC["Malha de Interferômetros MZI (Portas Quânticas Hadamard, Phase & CNOT)"]
-        MedicaoSPAD["Matriz SPAD/SNSPD com TDC (Contagem de Coincidência Temporal de Fótons)"]
+        MedicaoSPAD["Matriz SNSPD criogênica (~1-4 K) com TDC (Contagem de Coincidência)"]
         
         FonteFotons --> QubitEncoding
         QubitEncoding --> MalhaLOQC

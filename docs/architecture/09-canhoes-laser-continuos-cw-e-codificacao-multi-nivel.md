@@ -1,5 +1,7 @@
 # Emissão Laser Contínua (CW Laser Engine) e Codificação M-ária (Hexadecimal / Byte)
 
+> **Nota de validação (v1.1, 28/09/2026):** o princípio do laser sempre aceso (inspiração Grafis) foi mantido. Duas atualizações: a lógica ToF exige **pulsos**, então o motor CW alimenta um pente de frequências ou laser mode-locked em 1550 nm (que também gera os 64+ canais DWDM); e o roteamento por AOM/EOM e micro-espelhos foi substituído por guias Si₃N₄ e chaves TFLN (doc [11](11-roteamento-e-comutacao-optica.md)).
+
 ## 1. Visão Geral do Motor Laser Contínuo (Solid-State CW Engine)
 
 Inspirado nos sistemas industriais de exposição fotográfica a laser de ultra-alta precisão, o **SilicaCore** substitui a modulação por pulsação liga/desliga de diodo laser por um **Motor Laser de Onda Contínua (*Continuous Wave - CW Laser Engine*)**.
@@ -10,8 +12,8 @@ Inspirado nos sistemas industriais de exposição fotográfica a laser de ultra-
 
 ### 1.2 Roteamento e Espelhamento Dinâmico na Inicialização
 Assim que a placa do SilicaCore é energizada, o processador inicia o direcionamento dos feixes contínuos através de:
-- **Moduladores Acusto-Ópticos / Eletro-Ópticos (AOM/EOM):** Deflexão angular ultra-rápida sem partes mecânicas.
-- **Matriz de Micro-Espelhos 3D Gravados em Sílica:** Condução e combinação dos feixes pelas trajetórias do substrato até a matriz de fotodetectores.
+- **Chaves Eletro-Ópticas TFLN:** chaveamento em picossegundos sem partes mecânicas. AOMs (~16.8 ns) e EOM em sílica pura (sem efeito Pockels) foram descartados na validação física (doc 11).
+- **Guias de Onda Si₃N₄:** condução e combinação dos feixes até os fotodetectores, com curvas de 50 µm no lugar de micro-espelhos (espelhos com feixe livre perdem ~46.6 dB por porta por difração).
 
 ### 1.3 Origem de Engenharia & Agradecimentos Especiais (Empresa Grafis / Valmor Moreira)
 
@@ -31,10 +33,10 @@ flowchart TD
         LaserR --- LaserG --- LaserB
     end
 
-    subgraph CuboSilica["Substrato de Sílica Fundida (Roteamento & Espelhamento Dinâmico)"]
+    subgraph SubstratoFotonico["Substrato Fotônico Integrado (Roteamento & Comutação)"]
         direction TB
-        Moduladores["Moduladores Eletro-Ópticos (EOM/AOM): Ativados ao ligar a placa"]
-        Espelhos3D["Matriz de Micro-Espelhos 3D: Deflexão e Combinação de Feixes Espectrais"]
+        Moduladores["Chaves Eletro-Ópticas TFLN: Ativadas ao ligar a placa"]
+        Espelhos3D["Guias Si3N4 Multicamada: Roteamento e Combinação de Canais WDM"]
         Moduladores --> Espelhos3D
     end
 
@@ -43,8 +45,8 @@ flowchart TD
         SensorHex["Leitura Espectral WDM -> Saída em Hexadecimal (4-bit) / Byte (8-bit) Direct"]
     end
 
-    SolidStateCWEngine -- "Feixes RGB Contínuos de Alta Estabilidade (Inspirado na Grafis)" --> CuboSilica
-    CuboSilica -- "Combinação de Cores e Rotas Defletidas" --> DetectoresMArio
+    SolidStateCWEngine -- "Feixes RGB Contínuos de Alta Estabilidade (Inspirado na Grafis)" --> SubstratoFotonico
+    SubstratoFotonico -- "Combinação de Cores e Rotas Defletidas" --> DetectoresMArio
 ```
 
 ---
@@ -58,8 +60,8 @@ Em vez de limitar a transmissão a um sinal binário simples (`0` ou `1`, $1\tex
 - **Saída:** Cada canal espacial entrega diretamente um caractere hexadecimal (`0x0` a `0xF`).
 
 ### 2.2 Codificação em Byte Completo (8 Bits por Símbolo - 256 Estados)
-- **Modulação:** 256 combinações espectrais discretas codificadas na interferência WDM.
-- **Saída:** Cada medição do detector lê diretamente um **Byte de dados (0 a 255)** já processado pelo bloco óptico.
+- **Modulação:** 256 estados discretos de fase por símbolo.
+- **Status: não suportado com o ruído de fase atual.** Com $\sigma = 0.012$ rad, os estados ficam a $\approx 1\sigma$ de distância e a taxa de erro de símbolo chega a ~30%. Seria preciso reduzir o ruído de fase em ~7× para o modo Byte funcionar. O modo padrão é o Hexadecimal.
 
 ---
 
