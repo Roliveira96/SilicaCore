@@ -183,6 +183,7 @@ bash run_sweeps.sh transition     # transição Si3N4 -> TFLN
 - [x] Simulação eletromagnética FDTD 2D de curvas e transições ([doc 11, seção 2.1](docs/architecture/11-roteamento-e-comutacao-optica.md))
 - [x] Portal web interativo e simulador 3D em produção ([silicacore.rmo.dev.br](https://silicacore.rmo.dev.br/))
 - [ ] FDTD 3D das mesmas estruturas
+- [x] Plano de fabricação e roteiro de protótipos G0–G4 ([doc 14](docs/architecture/14-fabricacao-e-prototipagem.md))
 - [ ] Montagem da bancada: porta ToF, nó de race logic e grafo 3×3
 - [ ] Submissão (WSCAD/SBESC) e editais de iniciação científica
 
@@ -209,7 +210,7 @@ Porque um projeto sério diz onde não funciona:
 | **Hardware e lógica** | [Visão geral](docs/architecture/01-visao-geral-hardware.md) · [Lógica por tempo de voo](docs/architecture/02-logica-tempo-de-voo.md) · [Camadas funcionais](docs/architecture/03-unidades-funcionais-alu-gpu-ia.md) · [Lasers e codificação](docs/architecture/09-canhoes-laser-continuos-cw-e-codificacao-multi-nivel.md) |
 | **Memória e IA** | [Hierarquia de memória](docs/architecture/04-hierarquia-de-memoria-optica.md) · [Armazenamento em vidro](docs/architecture/05-armazenamento-em-vidro-disco-optico-ssd.md) · [Memória unificada, jogos e IA local](docs/architecture/12-memoria-unificada-jogos-e-ia-local.md) · [Acelerador tensorial](docs/architecture/07-acelerador-tensor-ia-fototectonico.md) |
 | **Outros núcleos** | [GPU óptica](docs/architecture/06-processamento-de-video-gpu-optica.md) · [Quântico LOQC](docs/architecture/08-processamento-quantico-fotonico-loqc.md) · [Energia](docs/architecture/10-consumo-energetico-e-comparativo-silicio.md) |
-| **Experimento** | [Bancada em fibra 1550 nm](docs/architecture/13-bancada-experimental-em-fibra.md) |
+| **Experimento e fabricação** | [Bancada em fibra 1550 nm](docs/architecture/13-bancada-experimental-em-fibra.md) · [Fabricação e prototipagem](docs/architecture/14-fabricacao-e-prototipagem.md) |
 | **Histórico** | [Whitepaper v1.1](docs/papers/whitepaper-v1.md) · [Especificações](planning/specs.md) |
 
 <details>
