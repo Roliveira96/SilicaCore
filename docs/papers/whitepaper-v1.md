@@ -12,7 +12,7 @@
 
 A contínua escalabilidade da microeletrônica baseada em silício enfrenta barreiras físicas intransponíveis impostas pela resistência elétrica parasitária ($P = I^2 R$) e pelo gargalo de transferência de dados entre memória e processamento (arquitetura de von Neumann). Este trabalho apresenta o **SilicaCore**, uma nova classe de processador óptico volumétrico monolítico fabricado em sílica fundida ($SiO_2$). 
 
-O **SilicaCore** unifica: (1) **Motor Laser de Onda Contínua (*Continuous Wave - CW Laser Engine*) inspirado no princípio de exposição constante de sistemas fotográficos industriais**, cujas premissas de projeto foram desenvolvidas a partir da experiência prática de campo do autor e de **Valmor Moreira** na empresa **Grafis**; (2) **Codificação Densa M-ária**, entregando dados processados diretamente em caracteres Hexadecimais (4-bit) e Bytes completos (8-bit) por canal espacial em vez de bits simples; (3) **Lógica por Tempo de Voo (ToF)**; (4) **Core Quântico Fotônico LOQC** em temperatura ambiente ($298\text{ K}$); (5) **GPU Óptica WDM RGB**; (6) **Photonic AI Tensor Core** ($11\text{ TOPS/mm}^2$); e (7) **Photonic SSD** ($100\text{ TB}$ / $1.2\text{ TB/s}$).
+O **SilicaCore** unifica: (1) **Motor Laser de Onda Contínua (*Continuous Wave - CW Laser Engine*) inspirado no princípio de exposição constante de sistemas fotográficos industriais**, a partir da experiência do autor com revelação fotográfica a laser na empresa **Grafis**; (2) **Codificação Densa M-ária**, entregando dados processados diretamente em caracteres Hexadecimais (4-bit) e Bytes completos (8-bit) por canal espacial em vez de bits simples; (3) **Lógica por Tempo de Voo (ToF)**; (4) **Core Quântico Fotônico LOQC** em temperatura ambiente ($298\text{ K}$); (5) **GPU Óptica WDM RGB**; (6) **Photonic AI Tensor Core** ($11\text{ TOPS/mm}^2$); e (7) **Photonic SSD** ($100\text{ TB}$ / $1.2\text{ TB/s}$).
 
 ---
 
@@ -22,7 +22,7 @@ O **SilicaCore** unifica: (1) **Motor Laser de Onda Contínua (*Continuous Wave 
 Em circuitos integrados semicondutores de silício, a redução das dimensões dos transistores MOSFET aumentou a densidade de corrente e a resistência parasitária das linhas de cobre ($P = I^2 R$).
 
 ### 1.2 O Motor Laser Contínuo CW em Estado Sólido (Always-ON)
-Inspirado na estabilidade da tecnologia de exposição fotográfica contínua a laser observada em operação industrial pelo autor e por **Valmor Moreira** na empresa **Grafis**, os lasers RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) do SilicaCore operam em **modo contínuo (CW - Always ON)** integrados no substrato óptico. Em vez de pulsar diodos eletronicamente com alta frequência de chaveamento, feixes contínuos incidem sobre moduladores eletro-ópticos (EOM/AOM) e micro-espelhos direcionadores, conduzindo a informação com estabilidade térmica absoluta.
+Inspirado na estabilidade da tecnologia de exposição fotográfica contínua a laser observada em operação industrial pelo autor na empresa **Grafis**, os lasers RGB ($\lambda_R = 635\text{ nm}$, $\lambda_G = 532\text{ nm}$, $\lambda_B = 450\text{ nm}$) do SilicaCore operam em **modo contínuo (CW - Always ON)** integrados no substrato óptico. Em vez de pulsar diodos eletronicamente com alta frequência de chaveamento, feixes contínuos incidem sobre moduladores eletro-ópticos (EOM/AOM) e micro-espelhos direcionadores, conduzindo a informação com estabilidade térmica absoluta.
 
 ---
 
@@ -85,13 +85,13 @@ Densidade de $6.4\text{ TB/cm}^3$ ($100\text{ TB}$ em $15.6\text{ cm}^3$), vazã
 
 ## 7. Agradecimentos Especiais & Origem do Projeto (*Acknowledgments*)
 
-> O autor dedica este trabalho de arquitetura e aos conceitos de emissão óptica contínua e varredura por prisma ao seu colega de trabalho **Valmor Moreira**, pela colaboração prática e aprendizado conjunto durante as operações técnicas na empresa **Grafis**. A observação empírica dos sistemas industriais de exposição fotográfica a laser na Grafis serviu como pilar fundamental de inspiração para a concepção do processador fotônico SilicaCore.
+> A ideia e a concepção do SilicaCore são do autor, inspiradas no seu trabalho com sistemas industriais de exposição fotográfica a laser na empresa **Grafis**. O autor agradece ao colega de trabalho **Valmor Moreira**, que lhe explicou o funcionamento dessas máquinas durante os reparos que faziam juntos.
 
 ---
 
 ## Referências Bibliográficas Científicas
 
-1. **Grafis & Registro de Campo:** Experiência prática em sistemas industriais de exposição a laser contínuo por Ricardo Oliveira e Valmor Moreira (Empresa Grafis).
+1. **Grafis & Registro de Campo:** Experiência prática do autor em sistemas industriais de exposição a laser contínuo (Empresa Grafis).
 2. **Miller, D. A. B. (2017).** "Attojoule optoelectronics for low-energy information processing and communications." *Nature Photonics*, 11(1), 39–43.
 3. **Kok, P., et al. (2007).** "Linear optical quantum computing with photonic qubits." *Reviews of Modern Physics*, 79(1), 135–174.
 4. **Carolan, J., et al. (2015).** "Universal linear optics." *Science*, 349(6249), 711–716.
