@@ -21,11 +21,14 @@ p.add_argument("--t", type=float, default=0.8, help="Si3N4 core thickness (um)")
 p.add_argument("--w", type=float, default=1.2, help="waveguide width (um)")
 p.add_argument("--R", type=float, default=20.0, help="bend radius (um)")
 p.add_argument("--res", type=int, default=20, help="pixels per um")
+p.add_argument("--pol", choices=["ez", "inplane"], default="ez",
+               help="ez: E out of the chip plane (original runs); inplane: E in the plane, the quasi-TE mode consistent with the EIM")
 p.add_argument("--until", type=float, default=0, help="fixed run time after the source (0 = automatic: 2.5x the transit time)")
 p.add_argument("--csv", default=os.path.join(os.path.dirname(__file__), "..", "results", "fdtd_bends.csv"))
 a = p.parse_args()
 
 n_slab, n_eff = channel_neff(a.t, a.w)
+PARITY = mp.ODD_Z if a.pol == "ez" else mp.EVEN_Z
 core, clad = mp.Medium(index=n_slab), mp.Medium(index=N_SIO2)
 R, w, L = a.R, a.w, 4.0
 dpml, margin = 1.5, 2.0
@@ -55,7 +58,7 @@ df = 0.2 * fcen
 src_x = -L - dpml + 1.0
 sources = [mp.EigenModeSource(mp.GaussianSource(fcen, fwidth=df),
                               center=mp.Vector3(src_x, -R) - center, size=mp.Vector3(0, 3 * w),
-                              eig_band=1, eig_parity=mp.ODD_Z, direction=mp.X)]
+                              eig_band=1, eig_parity=PARITY, direction=mp.X)]
 sim = mp.Simulation(cell_size=cell, geometry_center=mp.Vector3(), boundary_layers=[mp.PML(dpml)],
                     geometry=geometry, default_material=clad, sources=sources, resolution=a.res)
 
@@ -70,8 +73,8 @@ start = time.time()
 # 0.23 dB); with a fixed time, 150 and 400 time units give the same T (converged).
 transit = (math.pi * R / 2 + 2 * L) * n_eff
 sim.run(until_after_sources=a.until if a.until > 0 else 2.5 * transit + 50)
-c_in = sim.get_eigenmode_coefficients(mon_in, [1], eig_parity=mp.ODD_Z, direction=mp.X).alpha[0, 0, 0]
-c_out = sim.get_eigenmode_coefficients(mon_out, [1], eig_parity=mp.ODD_Z, direction=mp.Y).alpha[0, 0, 0]
+c_in = sim.get_eigenmode_coefficients(mon_in, [1], eig_parity=PARITY, direction=mp.X).alpha[0, 0, 0]
+c_out = sim.get_eigenmode_coefficients(mon_out, [1], eig_parity=PARITY, direction=mp.Y).alpha[0, 0, 0]
 T = abs(c_out) ** 2 / abs(c_in) ** 2
 loss_db = -10 * math.log10(T)
 elapsed = time.time() - start

@@ -14,7 +14,7 @@ O **transporte** pode ser óptico em todos os níveis. Dentro de um pacote de 20
 
 | Nível | Tecnologia | Transporte | Célula | Capacidade |
 | :--- | :--- | ---: | ---: | :--- |
-| L1 / registradores | SRAM fotônica (micro-anéis acoplados, 40 GHz) | 7 ps | 25 ps | KB |
+| L1 / registradores | SRAM fotônica (micro-anéis acoplados, 40 GHz, projeto simulado) | 7 ps | 25 ps | ~1 KB por retículo inteiro |
 | L2 / L3 | SRAM eletrônica empilhada sob o die fotônico | 13 ps | 2 ns | 64–256 MB |
 | Pesos de IA | PCM Sb₂Se₃ em guia Si₃N₄ (>6 bits/célula) | 33 ps | ~100 ps | limitada por área |
 | RAM unificada | HBM/LPDDR via I/O óptico co-empacotado | 133 ps | ~30 ns | 64–192 GB |
@@ -36,7 +36,7 @@ A linha de atraso serve como **registrador/buffer** (como na CPU óptica da Akhe
 
 ### 2.2 SRAM fotônica (L1)
 
-A pSRAM com micro-anéis acoplados em cruz, validada no processo GlobalFoundries 45 nm de fotônica de silício, lê e escreve a **40 GHz** com **0.6 pJ/bit** de energia de chaveamento (arXiv:2503.19544, IEDM 2025). É o candidato realista para registradores e L1 ópticos, com capacidade de KB por limite de área.
+A pSRAM com micro-anéis acoplados em cruz foi **projetada** no PDK GlobalFoundries 45SPCLO e, em simulação, lê e escreve a **40 GHz** com **0.6 pJ/bit** de energia de chaveamento (arXiv:2503.19544). Cada bit ocupa 330 × 290 µm², então um retículo inteiro guardaria ~9 kbit (~1 KB). É candidata a poucos registradores ópticos, não a uma cache L1.
 
 ---
 
@@ -89,7 +89,7 @@ flowchart TB
         Fabric["Barramento óptico unificado (~100 ps em 20 mm)"]
         CPU["CPU / lógica de controle (CMOS)"]
         GPU["GPU shading (CMOS)"]
-        PTC["Núcleo tensorial fotônico (MZI + PCM Sb2Se3)"]
+        PTC["Núcleo tensorial fotônico (anéis + Sb2Se3, doc 15)"]
         Race["Acelerador race logic (atrasos programáveis)"]
         L1["L1 pSRAM fotônica"]
         L3["L2/L3 SRAM 3D"]

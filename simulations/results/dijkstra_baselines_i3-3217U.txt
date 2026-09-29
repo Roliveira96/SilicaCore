@@ -1,0 +1,17 @@
+CPU:        Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz
+Platform:   linux/amd64, Go go1.26.0, single thread
+Map:        16x16 (256 nodes, 960 directed edges), weights 1..15
+
+Baseline (one source, all distances)                 time   race speedup
+Dijkstra, binary heap                            65.53 us          1553x
+Dial, bucket queue                               25.38 us           601x
+All-pairs table, copy one row (static map)       0.113 us           2.7x
+  table build: 6.46 ms once, 256 KB
+
+Map changes between queries (chip reprograms in 1000 ns, ASSUMPTION):
+queries per map change             chip     CPU (best)   chip speedup
+1                               1.04 us       25.38 us          24.4x
+10                              1.42 us      253.82 us         178.5x
+100                             5.22 us     2538.20 us         486.2x
+1000                           43.20 us     6569.49 us         152.1x
+100000                       4221.00 us    17715.88 us           4.2x

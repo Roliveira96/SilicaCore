@@ -20,7 +20,7 @@
 > ### 🌐 Site Oficial & Demonstração Interativa ao Vivo
 > Acesse a experiência completa e simulação interativa em:  
 > 👉 **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)**  
-> Teste o chip fotônico em 3D, simule a corrida óptica em tempo real contra o Apple M5 Max, e inspecione os benchmarks de aceleração de IA (LLMs) e dissipação térmica.
+> Veja o chip fotônico em 3D, a corrida óptica num mapa 4×4, o mecanismo de decisão do bit e a comparação com processadores atuais, com a origem de cada número.
 
 ---
 
@@ -55,11 +55,12 @@ O SilicaCore possui um portal web completo e interativo em produção para valid
 
 👉 **Acesse online:** **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)**
 
-### Recursos da plataforma online:
-- **Simulador Físico de Corrida Óptica (Time-of-Flight):** Animação em tempo real de pulsos de luz propagando-se por guia de ondas $\text{Si}_3\text{N}_4$ vs Apple M5 Max (TSMC 2nm GAAFET) executando Dijkstra em 84.000 ciclos.
-- **Visualizador 3D do Die Fotônico & Laser Injection:** Modelo tridimensional com iluminação de estúdio, inspeção de camadas ($\text{Sb}_2\text{Se}_3$, TFLN, $\text{Si}_3\text{N}_4$, $\text{SiO}_2$) e slider de visão explodida (0–100%).
-- **Benchmarks para Modelos de IA e LLMs:** Comparativos de inferência em Tree-of-Thought / MCTS (estilo DeepSeek-R1), Graph RAG e despacho de tokens MoE.
-- **Gráficos Comparativos (3 Eixos):** Análise interativa de Latência (ns), Potência TDP (W) e Temperatura de Operação (°C) confrontando o SilicaCore (#1) contra Apple M5 Max, NVIDIA Blackwell B200, AMD Ryzen 9 9950X e Intel Core Ultra 9 285K.
+### O que o site mostra
+- **Chip em 3D em escala física:** die de 25,5 mm com as 960 espirais, camadas ($\text{Sb}_2\text{Se}_3$, TFLN, $\text{Si}_3\text{N}_4$, $\text{SiO}_2$) em vista explodida e a corrida 16×16 simulada em falsa cor.
+- **Corrida 4×4 no navegador:** a corrida óptica ao lado de um Dijkstra executado pelo próprio navegador.
+- **Mecanismo de decisão em 3D:** como um bit vira 0 ou 1 pelo tempo de chegada (janelas e limiar), e o qubit dual-rail como conceito.
+- **Comparação com processadores atuais:** uma tabela com abas de desempenho, potência, temperatura e IA (Apple M5 Max, Intel Core Ultra 9 285K, AMD Ryzen 9 9950X3D, EPYC 9965, Xeon 6980P, RTX 5090, B300, Rubin), cada número marcado como simulado, estimado ou do fabricante.
+- **Física dos guias e energia:** resultados FDTD 2D e o orçamento de energia do chip.
 
 Para rodar o portal web localmente:
 ```bash
@@ -77,9 +78,9 @@ Resultados do simulador em Go (física de perdas, jitter, leitura e área), com 
 | | Resultado | Como foi obtido |
 | :--- | :--- | :--- |
 | **Correção** | **0 erros em 25,5 milhões de distâncias** (< 1,2×10⁻⁷ com 95% de confiança) | Mapa 16×16, 10 chips simulados × 10⁴ consultas, unidade de atraso de 100 ps |
-| **Velocidade** | **42 ns por consulta** (11,5 ns de corrida + 30,7 ns de leitura) | Contra ~50–100 µs de Dijkstra; ~2.000× medido numa CPU de 2012, **~150–800× estimado** contra CPUs atuais |
-| **Área** | **648 mm²** para o bloco 16×16 | Cabe num retículo de litografia (858 mm²) |
-| **Escala** | **64×64 em 16 chips, 0 erros, 31 ns** origem→destino | Exige unidade de 150 ps e acoplamento entre chips ≤ 1,5 dB por face; com 150 ps, cada bloco precisa cair para ~12×12 para caber no retículo |
+| **Velocidade** | **42 ns por consulta** (11,5 ns de corrida + 30,7 ns de leitura) | Contra o melhor algoritmo para pesos inteiros (Dial): 25,4 µs numa CPU de 2012 (~600×) e **~42× estimado** contra uma CPU atual. Num mapa fixo, uma tabela pré-calculada é mais rápida que o chip |
+| **Área** | **~864 mm²** para o bloco 16×16 | Espirais com passo de 4 µm, exigido pela diafonia entre voltas (com 3 µm eram 648 mm², mas o pulso se embaralha). Passa um pouco do retículo (858 mm²): pede duas camadas de guias (~432 mm²) |
+| **Escala** | **64×64 em 16 chips, 0 erros, 31 ns** origem→destino | Exige unidade de 150 ps e acoplamento entre chips ≤ 1,5 dB por face; com 150 ps e passo de 3 µm, cada bloco precisa cair para ~12×12 para caber no retículo (menos ainda com o passo de 4 µm) |
 | **Roteamento** | **1,3 dB por porta** em Si₃N₄ + TFLN | Contra 46,6 dB dos espelhos internos do conceito original |
 | **Física dos guias** | Curva de 50 µm: **0,003 dB**; transição para o niobato: **< 0,003 dB** | Simulação eletromagnética FDTD 2D (Meep), confirmando que as premissas do modelo são conservadoras |
 
@@ -111,10 +112,13 @@ Este projeto trata cada afirmação como hipótese. Quando o modelo desmentiu um
 | :--- | :--- | :--- |
 | Cubo maciço de sílica com espelhos internos | Feixe livre abre para ~2,8 mm e perde **46,6 dB por porta** | Substrato fotônico planar multicamada, compatível com wafers industriais |
 | Espelho eletro-óptico na própria sílica | Sílica não tem efeito Pockels; reflexão exigiria incidência de 0,002° | Chaves de **niobato de lítio em filme fino (TFLN)**, acima de 67 GHz |
-| "206 GHz" de clock pelo tempo de voo | Tempo de voo é latência, não período de clock | **~5,1 GHz por canal**, limitado pela janela de decisão |
-| Margem de 8,9σ e erro < 10⁻¹² | O critério correto é Q = Δt/2σ = 4,45 | Erro de ~4×10⁻⁶ na porta, corrigido no simulador |
+| "206 GHz" de clock pelo tempo de voo | Tempo de voo é latência, não período de clock | Taxa limitada pela janela de decisão: ~5,1 GHz com o SPAD original, até ~17 GHz de limite temporal com fotodiodo em Si₃N₄ |
+| Margem de 8,9σ e erro < 10⁻¹² | O critério correto é Q = Δt/2σ = 4,45 (com o SPAD de 25 ps) | Detector trocado por fotodiodo InGaAs: σ = 2,1 ps e Q = 23,5 na plataforma Si₃N₄ (`cmd/tofplatform`) |
 | Gigabytes de RAM em linhas de atraso | 16 GB exigiriam **~3.000 km** de guia de onda | Memória unificada: pSRAM fotônica (~25 ps) + HBM via I/O óptico |
-| 0,05 pJ/bit e >100 TOPS/W | Lasers, conversores e controle dominam o consumo | ~1,9 pJ/bit no modelo; 0,84 TOPS/W é o teto medido em sistemas publicados |
+| 0,05 pJ/bit e >100 TOPS/W | Lasers, conversores e controle dominam o consumo | ~7,6 pJ/bit com codificação binária; ~9,2 W para o chip 16×16; 0,84 TOPS/W é o melhor sistema fotônico medido |
+| Comparar com Dijkstra comum | Pesos inteiros permitem fila de baldes (Dial), 2,6× mais rápida; mapa fixo admite tabela pré-calculada | Ganho reportado contra o melhor algoritmo (~42×) e nicho restrito a mapas que mudam |
+| Espirais com passo de 3 µm | Voltas vizinhas acoplam com L_c ≈ 27 mm; o pulso se embaralha ao longo de 222 mm (conferido em FDTD) | Passo de 4 µm: eco adiantado de ~−30 dB, área ×4/3 |
+| Race logic óptica contra CPU | Uma race logic síncrona em CMOS atinge a mesma latência com área e energia ordens de grandeza menores | O chip passa a ser tratado como veículo de validação da temporização óptica |
 | Race logic "sem erros" com 50 ps | Com 10⁵ consultas aparecem 1,2×10⁻⁴ erros por distância | Unidade de 100 ps, validada estatisticamente |
 
 O resultado é uma proposta menor que o sonho inicial, e por isso mesmo **defensável e publicável**.
@@ -155,6 +159,9 @@ go test ./...                     # suíte de testes
 go run ./cmd/simulator            # relatório completo: física, memória, energia e race logic
 go run ./cmd/racestats            # campanha de 10⁵ consultas com intervalo de confiança
 go run ./cmd/racemultichip        # composição em vários chips: modo exato vs hierárquico
+go run ./cmd/dijkstrabench         # baselines da CPU: heap, Dial e tabela pré-calculada
+go run ./cmd/tofplatform          # porta ToF: conceito original (sílica + SPAD) vs Si3N4 + fotodiodo
+go run ./cmd/cmosrace             # a mesma corrida em CMOS síncrono
 ```
 
 <details>
@@ -198,6 +205,9 @@ Detalhes em [roadmap](planning/roadmap.md) e [tarefas](planning/tasks.md).
 Porque um projeto sério diz onde não funciona:
 
 - **Não substitui a CPU.** É um acelerador para problemas específicos (grafos, multiplicação de matrizes).
+- **A vantagem depende do mapa mudar.** Num mapa fixo, uma tabela de todas as distâncias responde em nanossegundos numa CPU atual. O chip ganha quando o mapa muda entre lotes de consultas (~34× com 100 consultas por mudança, se a reprogramação levar 1 µs).
+- **Uma race logic em CMOS faz o mesmo.** Um circuito síncrono a 3 GHz (um ciclo por unidade) resolve o 16×16 em ~40 ns, sem erros, com ~0,007 mm² e ~0,8 nJ por consulta (estimativa), contra 42 ns, ~864 mm² e 386 nJ do RL-16 (`go run ./cmd/cmosrace`). A corrida óptica só é ~3× mais rápida na fase da corrida. Para superar a eletrônica, a unidade de atraso precisaria cair bem abaixo de um ciclo de relógio.
+- **O RL-16 é um veículo de pesquisa.** Ele serve para validar a física da temporização óptica (jitter, diafonia, perdas) com estatística, não para vencer um circuito digital dedicado.
 - **Várias premissas ainda não foram medidas**, como a latência e o jitter do nó e a perda dos enlaces entre chips. Todas estão marcadas como `ASSUMPTION` no código, e a [bancada](docs/architecture/13-bancada-experimental-em-fibra.md) foi desenhada para medi-las.
 - **Área limita a escala:** o bloco 16×16 ocupa quase um retículo inteiro.
 - **O núcleo quântico é conceitual**, e seus detectores exigiriam criogenia (1–4 K).
@@ -221,10 +231,11 @@ Porque um projeto sério diz onde não funciona:
 ```text
 .
 ├── docs/
-│   ├── architecture/        # 13 documentos de arquitetura, validados contra o simulador
+│   ├── architecture/        # 15 documentos de arquitetura (01, 05, 06 e 09 marcados como conceito superado)
 │   └── papers/              # artigo preliminar, whitepaper e figuras
 ├── simulations/
-│   ├── go/                  # simulador (pkg/optical) e comandos (cmd/simulator, racestats, racemultichip)
+│   ├── go/                  # simulador (pkg/optical) e comandos (simulator, racestats, racemultichip, dijkstrabench, tofplatform)
+│   ├── ptu/                 # orçamento da unidade tensorial fotônica (doc 15)
 │   ├── fdtd/                # simulações eletromagnéticas 2D com Meep
 │   └── results/             # CSVs de resultados e gerador da Figura 1
 ├── web/                     # Portal web e simulador 3D (React + Three.js) -> https://silicacore.rmo.dev.br/

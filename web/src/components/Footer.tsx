@@ -51,17 +51,13 @@ export const Footer: React.FC = () => {
               className="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5"
             >
               <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-              <span>13 Architecture Monographs</span>
+              <span>15 Architecture Monographs</span>
             </a>
           </div>
         </div>
 
         {/* Bottom Credits */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
-          <p>
-            Idea and research by <strong className="text-slate-300 font-medium">Ricardo Oliveira</strong>. Thanks to Valmor Moreira
-            (Grafis), who explained how the laser photo-processing machines worked. Code under Apache 2.0, documentation under CC BY 4.0.
-          </p>
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-end text-[11px] text-slate-500 gap-4">
           <p className="font-mono text-[10px]">
             16×16 results from the open Go simulator; Dijkstra baseline in Go; waveguide physics from 2D Meep FDTD.
           </p>

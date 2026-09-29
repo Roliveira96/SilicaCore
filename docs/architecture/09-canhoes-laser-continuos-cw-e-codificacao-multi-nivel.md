@@ -2,6 +2,8 @@
 
 > **Nota de validação (v1.1, 28/09/2026):** o princípio do laser sempre aceso (inspiração Grafis) foi mantido. Duas atualizações: a lógica ToF exige **pulsos**, então o motor CW alimenta um pente de frequências ou laser mode-locked em 1550 nm (que também gera os 64+ canais DWDM); e o roteamento por AOM/EOM e micro-espelhos foi substituído por guias Si₃N₄ e chaves TFLN (doc [11](11-roteamento-e-comutacao-optica.md)).
 
+> **Conceito superado (v1.2, 29/09/2026):** os lasers RGB e a codificação hexadecimal/byte descritos abaixo **não fazem parte da arquitetura proposta**. A plataforma opera em 1550 nm, com fotodiodos InGaAs que não detectam luz visível, e codifica bits pelo tempo de chegada (doc 02). A seção 1.3 continua válida como origem da ideia; o resto fica como registro histórico.
+
 ## 1. Visão Geral do Motor Laser Contínuo (Solid-State CW Engine)
 
 Inspirado nos sistemas industriais de exposição fotográfica a laser de ultra-alta precisão, o **SilicaCore** substitui a modulação por pulsação liga/desliga de diodo laser por um **Motor Laser de Onda Contínua (*Continuous Wave - CW Laser Engine*)**.
@@ -55,6 +57,8 @@ flowchart TD
 
 Em vez de limitar a transmissão a um sinal binário simples (`0` ou `1`, $1\text{ bit}$ por feixe), o SilicaCore explora a **combinação de cores RGB e níveis de fase/amplitude** para transmitir valores densos por canal espacial:
 
+> **Por que não funciona:** a fase relativa entre feixes de cores diferentes não é estável (ela gira na frequência da diferença entre as cores, centenas de THz), então "16 combinações de amplitude e fase entre os 3 feixes RGB" não definem estados legíveis. Codificação multinível real usa um único comprimento de onda por canal (PAM4, QAM coerente), e o doc 15 usa níveis de intensidade por cor, não fase entre cores.
+
 ### 2.1 Codificação Hexadecimal (4 Bits por Símbolo - 16 Estados)
 - **Modulação:** 16 combinações discretas de amplitude e fase entre os 3 feixes RGB.
 - **Saída:** Cada canal espacial entrega diretamente um caractere hexadecimal (`0x0` a `0xF`).
@@ -68,4 +72,4 @@ Em vez de limitar a transmissão a um sinal binário simples (`0` ou `1`, $1\tex
 ## 3. Referências Bibliográficas Científicas & Históricas
 
 1. **Grafis & Registro Prático:** Experiência do autor com equipamentos fotográficos de exposição a laser contínuo com varredura por prisma (Empresa Grafis); funcionamento das máquinas explicado pelo colega Valmor Moreira.
-2. **Weng, L., et al. (2020).** "Wavelength-division multiplexed photonic computing for high-throughput matrix processing." *IEEE JSTQE*, 26(5), 1–12.
+

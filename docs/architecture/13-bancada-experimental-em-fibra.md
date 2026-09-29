@@ -15,7 +15,7 @@ A bancada **não** demonstra a integração em Si₃N₄/TFLN, a área nem a ene
 
 | Grandeza | Chip (modelo) | Bancada |
 | :--- | :--- | :--- |
-| Atraso de 100 ps | 22 mm de espiral Si₃N₄ | **20,4 mm de fibra SMF-28** ($n_g = 1{,}4682$) |
+| Atraso de 100 ps | ~15 mm de espiral Si₃N₄ ($n_g = 2{,}0$) | **20,4 mm de fibra SMF-28** ($n_g = 1{,}4682$) |
 | Latência do nó (detectar + reemitir) | 20 ps (premissa) | **~1–3 ns** (fotodiodo, comparador, driver e cabos discretos) |
 | Unidade de atraso $\tau$ | 100 ps | **~5 ns ≈ 1,02 m de fibra** (precisa ser maior que a latência do nó) |
 | Tolerância de corte da fibra | — | ±1 mm ≈ ±4,9 ps (pode ser calibrada) |

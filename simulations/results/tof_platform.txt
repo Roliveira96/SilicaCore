@@ -1,0 +1,24 @@
+Time-of-flight gate: legacy concept vs adopted platform
+
+Legacy: fused silica (n = 1.45), SPAD 25 ps FWHM
+  paths:                     d1 = 20.00 mm, d0 = 40.67 mm (t1 = 96.73 ps, t0 = 196.73 ps)
+  sigma total:               11.24 ps
+  Q = dt / 2 sigma:          4.45
+  BER, midpoint threshold:   4.33e-06
+  BER, window +/- 49.00 ps:   1.30e-05 (both tails)
+  Monte Carlo (window):      17 errors in 1000000 pulses (1.70e-05)
+  slot dt + W:               198.0 ps -> 5.05 GHz per channel
+  dt for BER 1e-12:          158.1 ps (32.69 mm of extra path), slot 314.2 ps -> 3.2 GHz
+  (timing-only limits; modulator, detector and TDC bandwidth are not included)
+
+Platform: Si3N4 (n_g = 2.0), InGaAs photodiode 1.5 ps rms
+  paths:                     d1 = 14.50 mm, d0 = 29.49 mm (t1 = 96.73 ps, t0 = 196.73 ps)
+  sigma total:               2.12 ps
+  Q = dt / 2 sigma:          23.53
+  BER, midpoint threshold:   9.13e-123
+  BER, window +/- 15.15 ps:   1.00e-12 (both tails)
+  Monte Carlo (window):      0 errors in 1000000 pulses (0.00e+00)
+  slot dt + W:               130.3 ps -> 7.67 GHz per channel
+  dt for BER 1e-12:          29.9 ps (4.48 mm of extra path), slot 57.8 ps -> 17.3 GHz
+  (timing-only limits; modulator, detector and TDC bandwidth are not included)
+

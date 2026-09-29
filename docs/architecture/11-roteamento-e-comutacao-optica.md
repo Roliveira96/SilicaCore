@@ -54,14 +54,16 @@ As perdas de curva e de transição usadas no modelo eram premissas da literatur
 
 > Estes números são uma **indicação de consistência em aproximação planar**, não uma comprovação: efeitos 3D, rugosidade de litografia e conversão entre polarizações ficam de fora. Por isso o modelo mantém margens conservadoras.
 
+> **Correção de polarização (29/09/2026):** as primeiras rodadas usaram a polarização trocada (curvas com o campo fora do plano; transição com o campo vertical). As tabelas abaixo trazem as rodadas com o modo quase-TE correto (`--pol inplane` nas curvas, `--pol ez` na transição; CSVs `fdtd_bends_inplane.csv` e `fdtd_transition_ez.csv`), com os valores antigos entre parênteses. As regras de projeto não mudam.
+
 **Curvas de 90° em Si₃N₄ grosso (800 nm), perda por curva:**
 
 | Raio | Guia monomodo (0,7 µm) | Guia multimodo (1,2 µm) |
 | :---: | :---: | :---: |
-| 10 µm | 0,138 dB | — |
-| 20 µm | **0,029 dB** (0,031 dB com 30 px/µm) | 0,103 dB (0,109 dB com 30 px/µm) |
-| 30 µm | **0,012 dB** | — |
-| 50 µm | **0,0026 dB** | — |
+| 10 µm | 0,213 dB (antes 0,138) | — |
+| 20 µm | **0,035 dB** (antes 0,029) | 0,103 dB (rodada antiga) |
+| 30 µm | **0,012 dB** (0,0127 dB com 30 px/µm) | — |
+| 50 µm | **0,0030 dB** (antes 0,0026) | — |
 
 **Curvas em Si₃N₄ fino (200 nm × 1,2 µm), perda por curva:** 3,77 dB (20 µm), 1,35 dB (30 µm), 0,22 dB (50 µm), 0,060 dB (80 µm) e 0,039 dB (100 µm).
 
@@ -69,15 +71,15 @@ As perdas de curva e de transição usadas no modelo eram premissas da literatur
 
 | Comprimento do taper | Perda |
 | :---: | :---: |
-| 5 µm | 1,05 dB |
-| 10 µm | 0,14 dB |
-| 25 µm | **0,0017 dB** (0,0016 dB com 70 px/µm; 0,0027 dB partindo do guia monomodo de 0,7 µm) |
-| 50 µm | 0,0013 dB |
-| 100 µm | 0,0005 dB |
+| 5 µm | 0,53 dB (antes 1,05) |
+| 10 µm | 0,058 dB (antes 0,14) |
+| 25 µm | **0,0024 dB** (0,0022 dB com 70 px/µm; antes 0,0017) |
+| 50 µm | 0,0018 dB (antes 0,0013) |
+| 100 µm | 0,0005 dB (só rodada antiga) |
 
 **O que os dados mostram:**
 1. **A largura do guia importa mais que o raio.** O guia de 1,2 µm suporta um segundo modo lateral (corte em ~0,65 µm no modelo 2D), e a curva transfere potência para ele: 0,10 dB em 20 µm contra 0,029 dB do guia monomodo. **Guia recomendado: 800 nm × 0,7 µm** (índice de grupo ~2,06, próximo do 2,0 usado no modelo).
-2. **A premissa de 0,01 dB por curva do modelo vale para raios a partir de ~31 µm** no guia monomodo, e fica conservadora acima disso (0,0026 dB em 50 µm). **Regra de projeto: espirais de atraso com raio ≥ 30 µm.**
+2. **A premissa de 0,01 dB por curva do modelo vale para raios a partir de ~32 µm** no guia monomodo, e fica conservadora acima disso (0,0026 dB em 50 µm). **Regra de projeto: espirais de atraso com raio ≥ 30 µm.**
 3. **A transição satura a partir de ~25 µm** de taper. O modelo mantém **0,1 dB por transição**, valor próximo do medido em chips reais (< 0,1 dB; Churaev et al., 2023), para absorver os efeitos 3D e de fabricação que a simulação 2D não captura.
 4. **Nesta geometria, o Si₃N₄ fino exige raios muito maiores** (0,06 dB só com 80 µm), por isso as espirais compactas usam o nitreto grosso. A plataforma multicamada de Shang et al. (2015) reporta curvas de 50 µm com outra seção transversal; a comparação direta exige simular aquela geometria.
 
@@ -103,7 +105,8 @@ A deriva de fase térmica (1.8–3.7 rad/K) é irrelevante para ToF (que lê tem
 
 A documentação anterior afirmava margem de 8.9σ e BER $< 10^{-12}$. O critério correto para decisão entre duas janelas é $Q = \Delta t / 2\sigma$:
 
-- Geometria atual: $Q = 100 / (2 \times 11.24) = 4.45$ → **BER ≈ 4.3×10⁻⁶** (Monte Carlo mede ~2×10⁻⁵).
+- Conceito original (sílica + SPAD): $Q = 100 / (2 \times 11.24) = 4.45$ → **BER ≈ 4.3×10⁻⁶** com limiar no meio; o Monte Carlo com janela mede ~2×10⁻⁵ porque conta as duas caudas.
+- Plataforma adotada (Si₃N₄ + fotodiodo InGaAs, σ ≈ 2,12 ps): $Q \approx 23.5$ com o mesmo $\Delta t$ (`go run ./cmd/tofplatform`, doc 02).
 - Para BER $10^{-12}$: $Q = 7.03$ → **σ total ≤ 7.1 ps** com $\Delta t = 100$ ps.
 - **Taxa real por canal:** o slot de símbolo precisa conter as duas janelas: $\Delta t + W \approx 195$ ps → **~5 GHz por canal**, não 206 GHz.
 - **Detector:** SPADs têm tempo morto de ~1–2 ns no melhor caso (≤0.5 GHz). Para dados, usar **fotodiodos UTC** (>100 GHz). SPAD fica restrito ao núcleo quântico.
@@ -164,12 +167,13 @@ O erro medido segue a previsão gaussiana de ruído acumulado por salto. O exces
 
 **Leitura honesta dos resultados:**
 1. **Não é O(1).** A corrida cresce com a maior distância do grafo ($D \times 100$ ps), e a leitura cresce com o número de nós ($N \times 12$ bits). A partir de 8×8, **a leitura eletrônica domina o tempo**, não a luz.
-2. **Speedup medido de ~1.000–4.000×** contra Dijkstra em Go numa CPU de 2012. Numa CPU desktop atual (5–8× mais rápida) o ganho cai para a ordem de **~150–800×**. O A* com heurística, usado em jogos, visita menos nós e reduz ainda mais a diferença.
-3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~222 mm com unidade de 100 ps). **Até 16×16 cabe num retículo** (648 de 858 mm²); mapas maiores exigem particionamento em blocos ou atrasos compartilhados.
+2. **Ganho contra o melhor algoritmo.** Com pesos inteiros de 1 a 15, o Dijkstra com fila de baldes (Dial) leva 25,4 µs no i3-3217U (~600× mais lento que a corrida) e ~1,8 µs estimados numa CPU atual (**~42×**). Num mapa fixo, uma tabela pré-calculada devolve as 256 distâncias em ~0,1 µs no i3 (poucos ns numa CPU atual) e vence o chip (`go run ./cmd/dijkstrabench`; artigo, seção 5.4.1).
+3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~222 mm com unidade de 100 ps). Com passo de 3 µm eram 648 mm², mas voltas vizinhas acoplam (L_c ≈ 27 mm, `simulations/fdtd/spiral_crosstalk.py`); com o passo de 4 µm necessário, o 16×16 ocupa ~864 mm², pouco acima do retículo, e pede duas camadas de guias (doc 14, seção 7).
+6. **Comparação com CMOS:** uma race logic síncrona a 3 GHz resolve o mesmo mapa em ~40 ns, sem erros, com ~0,007 mm² e ~0,8 nJ por consulta (`go run ./cmd/cmosrace`). A corrida óptica só é ~3× mais rápida na fase da corrida e perde por ordens de grandeza em área e energia.
 4. **Hardware pesado:** o 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs. Com um modulador compartilhado por nó, a divisão de fan-out (6 dB) estoura a margem: 11.24 dB contra 10 dB (com modulador por aresta: 5.22 dB).
-5. **Programação amortizada:** gravar os atrasos (~1 µs, premissa) se paga já na primeira consulta, e trocar a origem não exige reprogramar.
+5. **Programação:** gravar os atrasos leva ~1 µs (premissa otimista: 7680 chaves Sb₂Se₃ em paralelo; a cristalização costuma exigir pulsos mais longos e o pico de potência dos aquecedores não foi modelado). Trocar a origem não exige reprogramar.
 
-**Nicho validado:** consultas repetidas de menor caminho em mapas de até ~16×16 blocos, por exemplo pathfinding hierárquico de NPCs em que cada bloco do mapa é resolvido na corrida óptica.
+**Nicho:** mapas que mudam entre lotes de consultas (custos de terreno ou de tráfego atualizados com frequência), em blocos de até ~16×16. Com 100 consultas por mudança, o ganho estimado contra uma CPU atual é de ~34×; com mapa fixo, a tabela pré-calculada é melhor. **Riscos ainda não modelados:** diafonia entre voltas vizinhas das espirais (passo de 3 µm ao longo de até 222 mm) e latência real do nó (20 ps é otimista; o resultado vale enquanto ela for menor que a unidade de 100 ps).
 
 ### 5.2 Composição Multi-chip (`cmd/racemultichip`)
 

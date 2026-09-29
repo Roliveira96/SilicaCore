@@ -272,15 +272,16 @@ export const InteractiveChipSection: React.FC = () => {
                 <div className="space-y-2 font-mono text-xs">
                   <Row label="4×4 map, per query" value={cpu ? fmtUs(cpu.small) : 'press Run'} />
                   <Row label="16×16 map, per query" value={cpu ? fmtUs(cpu.large) : 'press Run'} />
-                  <Row label="Paper baseline, 16×16 (Go, i3-3217U, 2012)" value="~50–100 µs" />
+                  <Row label="Best native baseline, 16×16 (Dial, Go, i3-3217U, 2012)" value="25.4 µs" />
                   <Row label="Photonic model, 16×16 (race + readout)" value="42.2 ns" />
                 </div>
 
                 <div className="mt-6 flex items-start gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs leading-relaxed text-slate-300">
                   <Timer className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-300" />
                   <span>
-                    Your browser runs JavaScript, so its times are slower than native code. Against native Dijkstra the model is
-                    ~1650× faster than a measured 2012 laptop CPU and ~116× faster than an Apple M5 Max (estimated). The
+                    Your browser runs JavaScript, so its times are slower than native code. Against the best native algorithm the model is
+                    ~600× faster than a measured 2012 laptop CPU and ~42× faster than an Apple M5 Max (estimated), when the
+                    map changes between queries; on a fixed map a precomputed table is faster. The
                     photonic numbers come from simulation: no chip has been fabricated yet.
                   </span>
                 </div>

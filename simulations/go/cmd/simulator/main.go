@@ -44,6 +44,13 @@ func main() {
 	fmt.Println("   Author: Ricardo Oliveira | Thanks: Valmor Moreira (Grafis laser machines)")
 	fmt.Printf("   Parallel Execution on %d CPU Cores (Goroutines)\n", runtime.NumCPU())
 	fmt.Println("======================================================================")
+	fmt.Println("NOTE: sections 1-9 and 10.1 model the ORIGINAL concept (fused silica, 25 ps SPAD,")
+	fmt.Println("4-bit hexadecimal symbols, RGB lasers). These choices were superseded; see the")
+	fmt.Println("README. The adopted platform is covered by sections 10, 11-13 and by:")
+	fmt.Println("  go run ./cmd/tofplatform   (ToF gate on Si3N4 with photodiode: Q ~ 23.5)")
+	fmt.Println("  go run ./cmd/dijkstrabench (CPU baselines: heap, Dial, precomputed table)")
+	fmt.Println("  go run ./cmd/cmosrace      (same race in synchronous CMOS)")
+	fmt.Println("Energy per bit in section 6.1 assumes 4 bits/symbol; binary coding gives ~7.6 pJ/bit.")
 
 	params := optical.DefaultParams()
 	sim := optical.NewSimulator(params)
