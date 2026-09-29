@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
+import { SectionDecision } from './components/SectionDecision';
 import { InteractiveChipSection } from './components/InteractiveChipSection';
 import { SectionComparison } from './components/SectionComparison';
 import { Section3MaxwellLab } from './components/Section3MaxwellLab';
@@ -16,6 +17,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const sectionIds = [
       'section-how-it-works',
+      'section-decision',
       'section-chip',
       'section-compare',
       'section-maxwell',
@@ -62,6 +64,9 @@ export const App: React.FC = () => {
 
         {/* 2. How one query works, plus the long-term photonic qubit concept */}
         <HowItWorksSection />
+
+        {/* 2b. How a bit is decided: time-of-flight windows and the dual-rail qubit, in 3D */}
+        <SectionDecision />
 
         {/* 3. Physically scaled 3D chip with the simulated race, and race vs. measured Dijkstra */}
         <InteractiveChipSection />

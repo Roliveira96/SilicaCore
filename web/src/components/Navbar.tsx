@@ -18,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
 
   const navLinks = [
     { id: 'section-how-it-works', label: 'How It Works' },
+    { id: 'section-decision', label: 'Decision' },
     { id: 'section-chip', label: 'The Chip' },
     { id: 'section-compare', label: 'Comparisons' },
     { id: 'section-maxwell', label: 'Waveguide Physics' },
