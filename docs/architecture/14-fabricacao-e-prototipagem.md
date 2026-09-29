@@ -90,6 +90,7 @@ O RL-16 ocupa 648 mm², quase um retículo inteiro (858 mm²): não cabe numa ro
 | :--- | :--- | :--- | :--- |
 | **G0 · Bancada em fibra** | Porta ToF, um nó e grafo 3×3 com peças comerciais | Laboratório ([doc 13](13-bancada-experimental-em-fibra.md)) | Jitter, Q, latência do nó e curva de erro por salto |
 | **G1 · Chip passivo** | Espirais com R = 20–50 µm, curvas, cruzamentos, acopladores de borda, linhas de atraso de comprimentos conhecidos | MPW AN800 | Perda por curva e por cm, índice de grupo, precisão dos atrasos (valida o FDTD 2D e a premissa de 0,5 ps) |
+| **G1b · Duas camadas** | Espirais divididas entre duas camadas de Si₃N₄ com acopladores verticais | Pesquisa em sala limpa / foundry com multicamada | Perda por transição vertical, precisão dos atrasos, área real (decide o RL-32) |
 | **G2 · Chip ativo** | Chaves TFLN, transição Si₃N₄→LN e fotodetectores InGaAs; uma porta ToF no chip | MPW-LN + fotodetectores | Perda real da chave e da transição (premissa de 1,0 dB), resposta dos detectores, Q da porta |
 | **G2b · Pesos programáveis** | Sb₂Se₃ + ITO depositados sobre dies de G1/G2 | Sala limpa parceira | Perda por chave (premissa de 0,25 dB), ciclos, tempo de programação (premissa de 1 µs) |
 | **G3 · Primeiro nó real** | Grafo 2×2 ou 3×3 fotônico + chip CMOS de receptores, drivers e TDCs colado face a face | MPW-LN + MPW CMOS + empacotamento | Latência (premissa de 20 ps) e jitter (1,5 ps) do nó integrado; primeira corrida no chip |
@@ -111,15 +112,41 @@ Um grafo 4×4 (48 arestas) ocuparia cerca de 32 mm² de espirais com unidade de 
 | Potência de receptores e TDCs | 5 mW e 4,1 mW por canal | G3 |
 | Acoplamento chip-chip (multi-chip) | ≤ 1,5 dB por face | G4 |
 
-## 7. Riscos de fabricação
+## 7. Subindo em vez de espalhar: empilhamento em camadas
 
-- **Área:** 960 espirais com todos os estágios binários ocupam 648 mm². Atrasos compartilhados entre arestas reduziriam a área e são o principal ponto de pesquisa de layout.
+A área é o principal limite de escala (648 mm² para o 16×16). A resposta natural é a que motivou o cubo original: **crescer para cima**. A forma de subir, porém, precisa respeitar a física dos guias:
+
+| Forma de empilhar | Viável? | Motivo |
+| :--- | :--- | :--- |
+| Cubo maciço de vidro com guias gravados por laser de femtossegundo | Não para as espirais | Contraste de índice baixo (Δn ~ 5×10⁻³) exige curvas de ~15–30 mm; uma espiral de atraso ocuparia centímetros |
+| **Si₃N₄ multicamada** (planos de guias separados por óxido) | Sim | Curvas de dezenas de µm em cada plano; acopladores verticais entre camadas com ~0,01 dB (Shang et al., 2015) |
+| **Chips fotônicos empilhados** (3D, como memória HBM) | Sim, mais caro | Cada chip é um andar; acoplamento vertical ou por fibra entre andares |
+
+**Ganho de área com N camadas** (unidade de 100 ps, Si₃N₄ grosso, espaçamento de 3 µm entre espirais):
+
+| Mapa | 1 camada | 2 camadas | 4 camadas | 8 camadas |
+| :--- | ---: | ---: | ---: | ---: |
+| 16×16 | 648 mm² | 324 mm² | 162 mm² | 81 mm² |
+| 32×32 | 2677 mm² | 1339 mm² | **669 mm² (cabe no retículo)** | 335 mm² |
+
+Dividir os estágios de atraso de cada aresta entre camadas custa só os acopladores verticais (~0,02 dB por ida e volta), desprezível frente à margem de 10 dB. O calor não limita: o chip inteiro dissipa ~9 W.
+
+**Ressalvas:**
+- O Si₃N₄ multicamada demonstrado usa filmes finos (200 nm), porque camadas grossas de 800 nm acumulam tensão e racham ao empilhar. No FDTD deste projeto, o guia fino perde 0,22 dB por curva com R = 50 µm e só cai para 0,06 dB com 80 µm, e seu índice de grupo menor (~1,75) alonga cada espiral em ~18%. Parte do ganho de área se perde.
+- Empilhar Si₃N₄ grosso é possível em pesquisa (processo damasceno, que evita as rachaduras), mas não está no catálogo das foundries em 2026.
+- Cada camada acrescenta etapas de deposição, planarização e alinhamento, e reduz o rendimento.
+
+**Protótipo proposto (G1b):** duas camadas de Si₃N₄ com espirais divididas entre elas e acopladores verticais, medindo perda por transição, precisão dos atrasos e área real ocupada. É o teste que decide se o RL-32 (32×32) pode existir num único chip.
+
+## 8. Riscos de fabricação
+
+- **Área:** 960 espirais com todos os estágios binários ocupam 648 mm². Empilhar camadas (seção 7) e compartilhar atrasos entre arestas são os dois caminhos para reduzi-la.
 - **Integração de três tecnologias** (Si₃N₄/TFLN, Sb₂Se₃ e CMOS): cada interface acrescenta perda e rendimento menor. G2b e G3 existem para medir isso antes do chip completo.
 - **Rendimento:** com 7680 chaves e 960 detectores, defeitos individuais precisam ser tolerados; a programação pode contornar arestas defeituosas marcando-as como caminhos proibidos.
 - **Calibração:** o erro de fabricação dos atrasos só atinge 0,5 ps rms com medição e correção por chip; o teste precisa ser automatizado.
 - **Dependência de fornecedores externos:** foundries estrangeiras e wafers de TFLN importados. Desenvolver no Brasil a cadeia do cristal ao wafer TFLN (doc 11, seção 6) reduziria essa dependência.
 
-## 8. Referências
+## 9. Referências
 
 1. LIGENTEC — MPW (AN150, AN350, AN800, LN; ~15 rodadas por ano). [ligentec.com/offering/mpw](https://www.ligentec.com/offering/mpw/)
 2. LIGENTEC — Moduladores TFLN sobre Si₃N₄. [ligentec.com/thin-film-lithium-niobate-modulators](https://www.ligentec.com/thin-film-lithium-niobate-modulators/)
@@ -128,3 +155,4 @@ Um grafo 4×4 (48 arestas) ocuparia cerca de 32 mm² de espirais com unidade de 
 5. Churaev, M., et al. (2023). A heterogeneously integrated lithium niobate-on-silicon nitride photonic platform. *Nature Communications*, 14, 3499.
 6. Yu, X., et al. (2026). High-endurance, low-loss Sb₂Se₃ optical switches on silicon nitride using transparent conductive heaters. [arXiv:2604.11649](https://arxiv.org/abs/2604.11649)
 7. LNNano/CNPEM — Salas limpas e instalações abertas. [lnnano.cnpem.br](https://lnnano.cnpem.br/instalacoes-divisoes/)
+8. Shang, K., et al. (2015). Low-loss compact multilayer silicon nitride platform for 3D photonic integrated circuits. *Optics Express*, 23(16), 21334.
