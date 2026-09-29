@@ -6,15 +6,21 @@
 
 *Um acelerador fotônico de pesquisa aberta que resolve menor caminho em grafos deixando pulsos de luz apostarem corrida, com cada número checado contra a física.*
 
-[![Licença: Apache 2.0](https://img.shields.io/badge/c%C3%B3digo-Apache%202.0-blue.svg)](LICENSE) [![Docs: CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8.svg)](https://go.dev/) [![FDTD: Meep](https://img.shields.io/badge/FDTD-Meep-7a3ea1.svg)](https://meep.readthedocs.io/) [![Site: silicacore.rmo.dev.br](https://img.shields.io/badge/site-silicacore.rmo.dev.br-00f2fe.svg)](https://silicacore.rmo.dev.br/) [![Status](https://img.shields.io/badge/status-pesquisa%20aberta-orange.svg)](planning/roadmap.md)
+[![Site Oficial](https://img.shields.io/badge/🌐%20Site%20Oficial-silicacore.rmo.dev.br-00f2fe?style=for-the-badge)](https://silicacore.rmo.dev.br/)
 
-**[🌐 Site Interativo (Demo Live)](https://silicacore.rmo.dev.br/)** · **[A ideia](#a-ideia-em-30-segundos)** · **[Resultados](#o-que-os-números-dizem)** · **[O que a física mudou](#o-que-a-física-nos-obrigou-a-mudar)** · **[Rodar agora](#experimente-em-um-minuto)** · **[Artigo](docs/papers/artigo-preliminar.md)**
+[![Licença: Apache 2.0](https://img.shields.io/badge/c%C3%B3digo-Apache%202.0-blue.svg)](LICENSE) [![Docs: CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8.svg)](https://go.dev/) [![FDTD: Meep](https://img.shields.io/badge/FDTD-Meep-7a3ea1.svg)](https://meep.readthedocs.io/) [![Status](https://img.shields.io/badge/status-pesquisa%20aberta-orange.svg)](planning/roadmap.md)
+
+### 🔗 **Site Oficial do Projeto:** [https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)
+
+**[🌐 Acessar Demonstração Online](https://silicacore.rmo.dev.br/)** · **[A ideia](#a-ideia-em-30-segundos)** · **[Demonstração Online](#-site-oficial--demonstração-interativa-live)** · **[Resultados](#o-que-os-números-dizem)** · **[O que a física mudou](#o-que-a-física-nos-obrigou-a-mudar)** · **[Rodar agora](#experimente-em-um-minuto)** · **[Artigo](docs/papers/artigo-preliminar.md)**
 
 </div>
 
-> [!TIP]
-> **🌐 Demonstração Interativa 3D e Simulador em Tempo Real:**  
-> Acesse a experiência completa em **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)** para testar o chip fotônico em 3D, simular a corrida óptica em tempo real contra o Apple M5 Max, e inspecionar os benchmarks de aceleração de IA (LLMs) e dissipação térmica.
+> [!IMPORTANT]
+> ### 🌐 Site Oficial & Demonstração Interativa ao Vivo
+> Acesse a experiência completa e simulação interativa em:  
+> 👉 **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)**  
+> Teste o chip fotônico em 3D, simule a corrida óptica em tempo real contra o Apple M5 Max, e inspecione os benchmarks de aceleração de IA (LLMs) e dissipação térmica.
 
 ---
 
@@ -40,6 +46,27 @@ flowchart LR
 ```
 
 *O pulso chega a B em 300 ps pelo desvio S→A→B, antes dos 500 ps do caminho direto: a distância de B é 3. No destino, o primeiro pulso chega em 600 ps: distância 6.*
+
+---
+
+## 🌐 Site Oficial & Demonstração Interativa (Live)
+
+O SilicaCore possui um portal web completo e interativo em produção para validação científica e demonstração visual:
+
+👉 **Acesse online:** **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)**
+
+### Recursos da plataforma online:
+- **Simulador Físico de Corrida Óptica (Time-of-Flight):** Animação em tempo real de pulsos de luz propagando-se por guia de ondas $\text{Si}_3\text{N}_4$ vs Apple M5 Max (TSMC 2nm GAAFET) executando Dijkstra em 84.000 ciclos.
+- **Visualizador 3D do Die Fotônico & Laser Injection:** Modelo tridimensional com iluminação de estúdio, inspeção de camadas ($\text{Sb}_2\text{Se}_3$, TFLN, $\text{Si}_3\text{N}_4$, $\text{SiO}_2$) e slider de visão explodida (0–100%).
+- **Benchmarks para Modelos de IA e LLMs:** Comparativos de inferência em Tree-of-Thought / MCTS (estilo DeepSeek-R1), Graph RAG e despacho de tokens MoE.
+- **Gráficos Comparativos (3 Eixos):** Análise interativa de Latência (ns), Potência TDP (W) e Temperatura de Operação (°C) confrontando o SilicaCore (#1) contra Apple M5 Max, NVIDIA Blackwell B200, AMD Ryzen 9 9950X e Intel Core Ultra 9 285K.
+
+Para rodar o portal web localmente:
+```bash
+cd web
+npm install
+npm run dev
+```
 
 ---
 
@@ -154,6 +181,7 @@ bash run_sweeps.sh transition     # transição Si3N4 -> TFLN
 - [x] Artigo preliminar com Figura 1 ([rascunho](docs/papers/artigo-preliminar.md))
 - [x] Bancada experimental em fibra desenhada ([doc 13](docs/architecture/13-bancada-experimental-em-fibra.md))
 - [x] Simulação eletromagnética FDTD 2D de curvas e transições ([doc 11, seção 2.1](docs/architecture/11-roteamento-e-comutacao-optica.md))
+- [x] Portal web interativo e simulador 3D em produção ([silicacore.rmo.dev.br](https://silicacore.rmo.dev.br/))
 - [ ] FDTD 3D das mesmas estruturas
 - [ ] Montagem da bancada: porta ToF, nó de race logic e grafo 3×3
 - [ ] Submissão (WSCAD/SBESC) e editais de iniciação científica
@@ -196,6 +224,7 @@ Porque um projeto sério diz onde não funciona:
 │   ├── go/                  # simulador (pkg/optical) e comandos (cmd/simulator, racestats, racemultichip)
 │   ├── fdtd/                # simulações eletromagnéticas 2D com Meep
 │   └── results/             # CSVs de resultados e gerador da Figura 1
+├── web/                     # Portal web e simulador 3D (React + Three.js) -> https://silicacore.rmo.dev.br/
 └── planning/                # roadmap, tarefas e especificações
 ```
 </details>
