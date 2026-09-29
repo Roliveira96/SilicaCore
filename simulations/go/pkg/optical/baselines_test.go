@@ -30,3 +30,22 @@ func TestAllPairsTableMatchesDijkstra(t *testing.T) {
 		}
 	}
 }
+
+func TestCMOSRaceCyclesFollowDistances(t *testing.T) {
+	g := NewGridGraph(6, 6, 15, 3)
+	r := EstimateCMOSRace(g, 15, 2, 100)
+	maxEcc := 0
+	for s := range g.Adj {
+		for _, d := range Dijkstra(g, s) {
+			if d > maxEcc {
+				maxEcc = d
+			}
+		}
+	}
+	if r.MaxCycles != maxEcc+2 {
+		t.Fatalf("MaxCycles %d, want %d", r.MaxCycles, maxEcc+2)
+	}
+	if r.RaceNS <= 0 || r.FlipFlops <= g.NumEdges() {
+		t.Fatalf("implausible estimate: %+v", r)
+	}
+}
