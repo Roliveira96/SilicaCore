@@ -146,7 +146,7 @@ func main() {
 				expectedNominal = sim.T0NominalPS
 			}
 			deviation := arrivalTime - expectedNominal
-			fmt.Printf("[DEBUG FALHA] Iteração #%03d | Entrada: %d | Saída: %2d | Chegada: %6.2f ps | Esperado: %6.2f ps | Desvio: %+6.2f ps | Janela Máx Permitida: +/-%.2f ps\n",
+			fmt.Printf("[DEBUG FAILURE] Iteration #%03d | Input: %d | Output: %2d | Arrival: %6.2f ps | Expected: %6.2f ps | Deviation: %+6.2f ps | Max Allowed Window: +/-%.2f ps\n",
 				i+1, input, output, arrivalTime, expectedNominal, deviation, halfWindow)
 		}
 	}
@@ -160,18 +160,18 @@ func main() {
 	fmt.Printf("Failed NOT Inverter Operations:             %d / %d\n", failuresCount, NotGateBatchTestCount)
 	fmt.Printf("Calibrated NOT Gate Logic Accuracy:         %.2f%%\n", accuracyPct)
 
-	fmt.Println("\n--- 8. COMPARATIVO DE PERFORMANCE: SILICA CORE VS SILÍCIO CONVENCIONAL ---")
-	fmt.Println("Métrica                      | Silício Comercial (6.0 GHz) | SilicaCore (Óptico Fused SiO2)")
+	fmt.Println("\n--- 8. PERFORMANCE COMPARISON: SILICA CORE VS CONVENTIONAL SILICON ---")
+	fmt.Println("Metric                       | Commercial Silicon (6.0 GHz)| SilicaCore (Optical, Si3N4/TFLN)")
 	fmt.Println("-----------------------------------------------------------------------------------------")
-	fmt.Printf("Latência Célula L1           | ~666.00 ps (4 ciclos)       | %.2f ps pSRAM (~%.0fx; capacidade KB)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
-	fmt.Printf("Latência Média de Memória    | dominada pela DRAM (~ns)    | %.2f ps (L1 %.0f%%, L2 %.0f%%, HBM; também dominada pela DRAM)\n", res.MemStats.GlobalAvgLatencyPS, sim.Params.CacheL1HitRate*100, sim.Params.CacheL2HitRate*100)
+	fmt.Printf("L1 Cell Latency              | ~666.00 ps (4 cycles)       | %.2f ps pSRAM (~%.0fx; KB capacity)\n", sim.Params.CacheL1LatencyPS, 666.00/sim.Params.CacheL1LatencyPS)
+	fmt.Printf("Average Memory Latency       | DRAM-dominated (~ns)        | %.2f ps (L1 %.0f%%, L2 %.0f%%, HBM; also DRAM-dominated)\n", res.MemStats.GlobalAvgLatencyPS, sim.Params.CacheL1HitRate*100, sim.Params.CacheL2HitRate*100)
 	timing := sim.ComputeTimingBudget(optical.DefaultTargetBER)
-	fmt.Printf("Taxa por Canal               | SerDes 112 Gb/s (PAM4)      | %.2f GHz x %d bits = %.1f Gb/s (slot Delta t + W)\n", timing.ToFSymbolRateGHz, sim.Params.BitsPerSymbol, timing.ToFSymbolRateGHz*float64(sim.Params.BitsPerSymbol))
-	fmt.Printf("BER da Decisão ToF           | < 1e-15                     | %.2e (Q = %.2f; 1e-12 exige Q = %.2f)\n", timing.TheoreticalBER, timing.QFactor, timing.RequiredQForTarget)
-	fmt.Println("Geração Térmica              | Alta (Efeito Joule)         | Sem Joule nos guias; lasers, drivers, TDCs e controle consomem")
-	fmt.Println("Estrutura de Interconexão    | Barramento elétrico de cobre| Guias de onda 3D na velocidade c/n")
+	fmt.Printf("Per-Channel Rate             | SerDes 112 Gb/s (PAM4)      | %.2f GHz x %d bits = %.1f Gb/s (slot Delta t + W)\n", timing.ToFSymbolRateGHz, sim.Params.BitsPerSymbol, timing.ToFSymbolRateGHz*float64(sim.Params.BitsPerSymbol))
+	fmt.Printf("ToF Decision BER             | < 1e-15                     | %.2e (Q = %.2f; 1e-12 requires Q = %.2f)\n", timing.TheoreticalBER, timing.QFactor, timing.RequiredQForTarget)
+	fmt.Println("Heat Generation              | High (Joule heating)        | No Joule heating in waveguides; lasers, drivers, TDCs and control consume power")
+	fmt.Println("Interconnect                 | Copper electrical bus       | 3D waveguides at c/n")
 
-	fmt.Println("\n--- 9. ESCALONAMENTO DE DESEMPENHO MASSIVO: MICRO-CUBO (2.0mm) + DWDM MASSIVO (64 CANAIS) ---")
+	fmt.Println("\n--- 9. PERFORMANCE SCALING: MICRO CONFIGURATION (d1 = 2.0 mm) + DENSE DWDM (64 CHANNELS) ---")
 	microParams := optical.MicroCubeParams()
 	microSim := optical.NewSimulator(microParams)
 	microCalibratedWindow := microSim.CalibrateOptimalWindow(CalibrationPulseCount)
@@ -181,7 +181,7 @@ func main() {
 	microTiming := microSim.ComputeTimingBudget(optical.DefaultTargetBER)
 	aggregateTbps := microTiming.ToFSymbolRateGHz * float64(dwdmBitsPerPulse) / 1000.0
 
-	fmt.Printf("Micro-Cube Dimension (d1):                 %.1f mm (Redução de 10x na escala física)\n", microSim.Params.FastDistanceMM)
+	fmt.Printf("Micro-Cube Dimension (d1):                 %.1f mm (10x physical downscaling)\n", microSim.Params.FastDistanceMM)
 	fmt.Printf("Micro-Cube Direct Nominal Time (t1):       %.2f ps (flight time, not a clock period)\n", microSim.T1NominalPS)
 	fmt.Printf("Micro-Cube Global Avg Data Latency:        %.2f ps\n", microMonteCarloRes.MemStats.GlobalAvgLatencyPS)
 	fmt.Printf("Auto-Calibrated Micro Window (%d pulses): %.2f ps (Half-Window: +/-%.2f ps)\n", CalibrationPulseCount, microCalibratedWindow, microCalibratedWindow/2.0)

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Gera a figura de erro medido vs previsto por número de saltos (race logic, mapa 16x16).
+"""Builds the measured-vs-predicted decoding error per hop count figure (race logic, 16x16 map).
 
-Sem dependências externas: lê race_logic_hops_16x16.csv (saída de `go run ./cmd/racestats -csv`)
-e escreve um SVG estático para o artigo.
+No external dependencies: reads race_logic_hops_16x16.csv (output of `go run ./cmd/racestats -csv`)
+and writes a static SVG for the paper. Figure text is in Portuguese on purpose: it is content of the
+Portuguese paper, not code.
 
-Uso: python3 plot_race_logic_hops.py [csv] [svg]
+Usage: python3 plot_race_logic_hops.py [csv] [svg]
 """
 import csv
 import math
@@ -16,7 +17,7 @@ CSV = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "race_logic_hops_
 SVG = sys.argv[2] if len(sys.argv) > 2 else os.path.join(
     HERE, "..", "..", "docs", "papers", "figuras", "race_logic_erro_por_salto.svg")
 
-# Paleta de referência (dataviz): slots categóricos 1-3, validados par a par no modo claro.
+# Reference palette (dataviz): categorical slots 1-3, validated all-pairs in light mode.
 SERIES = [(35, "#2a78d6"), (50, "#eb6834"), (75, "#1baf7a")]
 SURFACE, INK, INK2, MUTED, GRID, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
 FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif'
@@ -24,7 +25,7 @@ FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif'
 W, H = 760, 470
 LEFT, RIGHT, TOP, BOTTOM = 84, 96, 92, 62
 X_MIN, X_MAX = 0, 33
-Y_MIN, Y_MAX = -8, -1  # log10 da taxa de erro
+Y_MIN, Y_MAX = -8, -1  # log10 of the error rate
 
 
 def x_px(h):
@@ -58,7 +59,7 @@ def main():
         'Com 100 ps não houve erros em 2,55e7 distâncias.</desc>')
     add(f'<rect width="{W}" height="{H}" fill="{SURFACE}"/>')
 
-    # Título e legenda (linha única acima do gráfico)
+    # Title and legend (single row above the plot)
     add(f'<text x="{LEFT}" y="30" font-size="16" font-weight="600" fill="{INK}">'
         'Erro de decodificação por número de saltos</text>')
     add(f'<text x="{LEFT}" y="50" font-size="12" fill="{INK2}">'
@@ -75,7 +76,7 @@ def main():
     add(f'<circle cx="{lx + 6}" cy="70" r="4" fill="{MUTED}" stroke="{SURFACE}" stroke-width="2"/>')
     add(f'<text x="{lx + 16}" y="74" font-size="12" fill="{INK2}">medido</text>')
 
-    # Grade e eixos (hairline sólida, recessiva)
+    # Grid and axes (solid, recessive hairlines)
     for e in range(Y_MIN, Y_MAX + 1):
         y = y_px(10 ** e)
         add(f'<line x1="{LEFT}" y1="{y:.1f}" x2="{W - RIGHT}" y2="{y:.1f}" stroke="{GRID}" stroke-width="1"/>')
@@ -92,7 +93,7 @@ def main():
     add(f'<text transform="translate(22 {(TOP + base) / 2:.1f}) rotate(-90)" font-size="12" fill="{INK2}" '
         'text-anchor="middle">Taxa de erro por distância</text>')
 
-    # Séries: linha prevista (2 px) + pontos medidos (r=4 com anel de superfície de 2 px)
+    # Series: predicted line (2 px) + measured dots (r=4 with a 2 px surface ring)
     for unit, color in SERIES:
         rows = sorted(data.get(unit, []))
         pts = [(x_px(h), y_px(p)) for h, _, _, _, p in rows if p >= 10 ** Y_MIN]
@@ -106,7 +107,7 @@ def main():
                     f'stroke="{SURFACE}" stroke-width="2"><title>{unit} ps, {h} saltos: {errors} erros em '
                     f'{samples} distâncias ({measured:.2e}); previsto {predicted:.2e}'
                     '</title></circle>')
-        # Rótulo direto no fim da linha prevista (texto em tinta secundária, marca colorida ao lado)
+        # Direct label at the end of the predicted line (secondary-ink text, colored mark beside it)
         if pts:
             ex, ey = pts[-1]
             add(f'<line x1="{ex + 6:.1f}" y1="{ey:.1f}" x2="{ex + 16:.1f}" y2="{ey:.1f}" stroke="{color}" '
@@ -120,7 +121,7 @@ def main():
     os.makedirs(os.path.dirname(SVG), exist_ok=True)
     with open(SVG, "w") as f:
         f.write("\n".join(out) + "\n")
-    print(f"figura escrita em {os.path.relpath(SVG)}")
+    print(f"figure written to {os.path.relpath(SVG)}")
 
 
 if __name__ == "__main__":
