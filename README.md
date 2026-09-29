@@ -50,6 +50,7 @@ Resultados do simulador em Go (física de perdas, jitter, leitura e área), com 
 | **Área** | **648 mm²** para o bloco 16×16 | Cabe num retículo de litografia (858 mm²) |
 | **Escala** | **64×64 em 16 chips, 0 erros, 31 ns** origem→destino | Exige unidade de 150 ps e acoplamento entre chips ≤ 1,5 dB por face; com 150 ps, cada bloco precisa cair para ~12×12 para caber no retículo |
 | **Roteamento** | **1,3 dB por porta** em Si₃N₄ + TFLN | Contra 46,6 dB dos espelhos internos do conceito original |
+| **Física dos guias** | Curva de 50 µm: **0,003 dB**; transição para o niobato: **< 0,003 dB** | Simulação eletromagnética FDTD 2D (Meep), confirmando que as premissas do modelo são conservadoras |
 
 <p align="center">
   <img src="docs/papers/figuras/race_logic_erro_por_salto.svg" alt="Erro medido contra previsto por número de saltos" width="720">
@@ -148,7 +149,8 @@ bash run_sweeps.sh transition     # transição Si3N4 -> TFLN
 - [x] Race logic fotônica com validação estatística e composição multi-chip
 - [x] Artigo preliminar com Figura 1 ([rascunho](docs/papers/artigo-preliminar.md))
 - [x] Bancada experimental em fibra desenhada ([doc 13](docs/architecture/13-bancada-experimental-em-fibra.md))
-- [ ] Simulação eletromagnética FDTD de curvas e transições (em andamento)
+- [x] Simulação eletromagnética FDTD 2D de curvas e transições ([doc 11, seção 2.1](docs/architecture/11-roteamento-e-comutacao-optica.md))
+- [ ] FDTD 3D das mesmas estruturas
 - [ ] Montagem da bancada: porta ToF, nó de race logic e grafo 3×3
 - [ ] Submissão (WSCAD/SBESC) e editais de iniciação científica
 
