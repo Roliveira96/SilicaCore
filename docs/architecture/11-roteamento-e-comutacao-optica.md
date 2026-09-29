@@ -46,6 +46,43 @@ flowchart LR
 
 ---
 
+### 2.1 Validação Eletromagnética (FDTD 2D com Meep)
+
+As perdas de curva e de transição usadas no modelo eram premissas da literatura. Elas foram verificadas com simulação eletromagnética FDTD (Meep 1.34, `simulations/fdtd/`, dados em `simulations/results/fdtd_*.csv`).
+
+**Método.** As estruturas reais são 3D, mas a máquina disponível (4 núcleos, 7 GB) só comporta 2D. O **método do índice efetivo** reduz cada seção transversal a um perfil 2D: a curva é simulada no plano do chip e a transição num corte vertical (propagação × altura), com a largura do taper convertida em índice de camada. A transmissão é medida por decomposição em modos (modo fundamental na entrada e na saída). Todas as geometrias usam objetos com suavização subpixel e tempo de simulação fixo de 2,5× o trânsito do pulso. Cada resultado foi repetido com resolução maior (20→30 px/µm nas curvas, 50→70 px/µm na transição).
+
+> Estes números são uma **indicação de consistência em aproximação planar**, não uma comprovação: efeitos 3D, rugosidade de litografia e conversão entre polarizações ficam de fora. Por isso o modelo mantém margens conservadoras.
+
+**Curvas de 90° em Si₃N₄ grosso (800 nm), perda por curva:**
+
+| Raio | Guia monomodo (0,7 µm) | Guia multimodo (1,2 µm) |
+| :---: | :---: | :---: |
+| 10 µm | 0,138 dB | — |
+| 20 µm | **0,029 dB** (0,031 dB com 30 px/µm) | 0,103 dB (0,109 dB com 30 px/µm) |
+| 30 µm | **0,012 dB** | — |
+| 50 µm | **0,0026 dB** | — |
+
+**Curvas em Si₃N₄ fino (200 nm × 1,2 µm), perda por curva:** 3,77 dB (20 µm), 1,35 dB (30 µm), 0,22 dB (50 µm), 0,060 dB (80 µm) e 0,039 dB (100 µm).
+
+**Transição adiabática Si₃N₄ → filme de LN (300 nm, gap de 100 nm):**
+
+| Comprimento do taper | Perda |
+| :---: | :---: |
+| 5 µm | 1,05 dB |
+| 10 µm | 0,14 dB |
+| 25 µm | **0,0017 dB** (0,0016 dB com 70 px/µm; 0,0027 dB partindo do guia monomodo de 0,7 µm) |
+| 50 µm | 0,0013 dB |
+| 100 µm | 0,0005 dB |
+
+**O que os dados mostram:**
+1. **A largura do guia importa mais que o raio.** O guia de 1,2 µm suporta um segundo modo lateral (corte em ~0,65 µm no modelo 2D), e a curva transfere potência para ele: 0,10 dB em 20 µm contra 0,029 dB do guia monomodo. **Guia recomendado: 800 nm × 0,7 µm** (índice de grupo ~2,06, próximo do 2,0 usado no modelo).
+2. **A premissa de 0,01 dB por curva do modelo vale para raios a partir de ~31 µm** no guia monomodo, e fica conservadora acima disso (0,0026 dB em 50 µm). **Regra de projeto: espirais de atraso com raio ≥ 30 µm.**
+3. **A transição satura a partir de ~25 µm** de taper. O modelo mantém **0,1 dB por transição**, valor próximo do medido em chips reais (< 0,1 dB; Churaev et al., 2023), para absorver os efeitos 3D e de fabricação que a simulação 2D não captura.
+4. **Nesta geometria, o Si₃N₄ fino exige raios muito maiores** (0,06 dB só com 80 µm), por isso as espirais compactas usam o nitreto grosso. A plataforma multicamada de Shang et al. (2015) reporta curvas de 50 µm com outra seção transversal; a comparação direta exige simular aquela geometria.
+
+**Duas armadilhas numéricas encontradas e corrigidas** (registradas no código): (i) o critério `stop_when_fields_decayed` do Meep encerrava a simulação antes de o pulso chegar ao monitor, dando perdas falsas de até 32 dB; (ii) descrever a curva por função de material desliga a suavização subpixel, e a borda em escada inflava a perda em ~40%.
+
 ## 3. Orçamento de Potência por Porta ToF (Simulador, Seção 10)
 
 Premissas: 0 dBm por canal (linha de pente de frequência), sensibilidade de fotodiodo de −10 dBm (margem de 10 dB), 4 curvas/espelhos por porta, caminho atrasado de $t_0 \approx 196.7$ ps.

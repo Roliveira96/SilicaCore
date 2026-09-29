@@ -126,10 +126,13 @@ func SiliconNitrideTflnPlatform() RoutingPlatform {
 		Name: "Si3N4-on-SiO2 multilayer (bends, no mirrors) + heterogeneous TFLN",
 		// Si3N4 <0.1 dB/cm and LN<->Si3N4 adiabatic transitions <0.1 dB [Churaev et al., Nat. Commun. 14, 3499 (2023)].
 		PropagationDbPerCm: 0.1,
-		// 50 um bends, 0.01 dB interlayer couplers [Shang et al., Opt. Express 23, 21334 (2015)].
+		// 0.01 dB per bend: 2D FDTD (Meep, effective index) of a single-mode 800 nm x 0.7 um guide gives
+		// 0.012 dB at R = 30 um and 0.0026 dB at R = 50 um, so this holds for R >= ~31 um (simulations/fdtd).
+		// Interlayer couplers: 0.01 dB [Shang et al., Opt. Express 23, 21334 (2015)].
 		TurnLossDb:       0.01,
 		SwitchTechnology: "Thin-film lithium niobate (TFLN) EO switch, heterogeneous on Si3N4",
-		// 2 x 0.1 dB transitions + ~0.8 dB MZI switch.
+		// 2 x 0.1 dB transitions + ~0.8 dB MZI switch. 2D FDTD of a >= 25 um adiabatic taper gives < 0.003 dB;
+		// 0.1 dB is kept to cover 3D and fabrication effects (measured < 0.1 dB [Churaev et al., 2023]).
 		SwitchLossDb:       1.0,
 		SwitchRiseTimePS:   5.0,
 		GroupIndex:         SiliconNitrideGroupIndex,

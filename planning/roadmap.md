@@ -7,9 +7,10 @@
 - [x] Especificação técnica de propagação, jitter (VCSEL, SPAD, TDC) e taxa de erro de bit (BER).
 - [x] Validação teórica de separação temporal em $8.9\sigma$.
 
-### Fase 2: Simulação Eletromagnética de Ondas (FDTD) (Em Planejamento)
-- [ ] Modelagem em Meep / Lumerical FDTD das cavidades de reflexão na sílica fundida.
-- [ ] Análise de perdas de acoplamento e espalhamento Rayleigh em guias gravados por femtossegundo.
+### Fase 2: Simulação Eletromagnética de Ondas (FDTD) (2D concluída)
+- [x] FDTD 2D (Meep, índice efetivo) de curvas em Si₃N₄ e da transição Si₃N₄ → TFLN (`simulations/fdtd/`, doc 11 seção 2.1).
+- [ ] FDTD 3D ou EME das mesmas estruturas, em máquina com mais memória.
+- [ ] Perdas por cruzamento de guias e rugosidade em layout real.
 
 ### Fase 3: Validação Acadêmica & Artigo Científico (Em Andamento)
 - [ ] Redação do artigo técnico rigoroso em LaTeX/Markdown para submissão a conferências (SBC/SBESC, IEEE Photonics).

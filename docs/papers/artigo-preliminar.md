@@ -100,6 +100,8 @@ O modelo foi implementado em Go (`simulations/go/pkg/optical`) e é reproduzíve
 
 **Baseline eletrônico.** Dijkstra em Go com heap binário tipado (sem alocação por inserção), thread única, em Intel Core i3-3217U (2012, 1,8 GHz).
 
+**Verificação eletromagnética.** As perdas de curva e de transição Si₃N₄→TFLN do modelo foram verificadas por FDTD no Meep 1.34, em 2D pelo método do índice efetivo (a curva no plano do chip; a transição num corte vertical, com a largura do taper convertida em índice de camada). A transmissão é medida por decomposição no modo fundamental; as geometrias usam suavização subpixel e cada caso foi repetido com resolução maior (20→30 px/µm nas curvas, 50→70 px/µm na transição), com variação ≤ 8%.
+
 ## 5. Resultados
 
 ### 5.1 Orçamento de roteamento
@@ -111,6 +113,16 @@ O modelo foi implementado em Go (`simulations/go/pkg/optical`) e é reproduzíve
 | **Si₃N₄ multicamada + TFLN** | **1,3 dB** | **7** | **Sim** |
 
 Um feixe com cintura de 5 µm chega com raio de ~2,8 mm após 40,7 mm de sílica. A reflexão interna total induzida por campo em sílica exigiria incidência rasante de 0,002°.
+
+### 5.1.1 Verificação eletromagnética (FDTD 2D)
+
+| Estrutura | Resultado | Premissa do modelo |
+| :--- | :--- | :--- |
+| Curva de 90°, Si₃N₄ 800 nm × 0,7 µm (monomodo) | 0,138 / 0,029 / 0,012 / 0,0026 dB para R = 10 / 20 / 30 / 50 µm | 0,01 dB por curva |
+| Curva de 90°, Si₃N₄ 800 nm × 1,2 µm (multimodo) | 0,10 dB em R = 20 µm | — |
+| Transição Si₃N₄ → filme de LN | 1,05 / 0,14 / 0,0017 / 0,0005 dB para taper de 5 / 10 / 25 / 100 µm | 0,1 dB por transição |
+
+Os resultados indicam, em aproximação planar, que a premissa de 0,01 dB por curva é conservadora para raios ≥ ~31 µm no guia monomodo, e que a transição satura a partir de ~25 µm. O guia multimodo perde ~3,5× mais na mesma curva, pela conversão para o segundo modo lateral, o que fixa o guia de 0,7 µm como escolha de projeto. O modelo mantém 0,1 dB por transição para cobrir efeitos 3D e de fabricação fora do alcance da simulação 2D; esse valor é compatível com o medido em chips reais [Churaev et al. 2023].
 
 ### 5.2 Decisão temporal
 
@@ -192,7 +204,7 @@ Com todos os cruzamentos como pontos de passagem e sem ruído, o modo hierárqui
 2. **Baseline.** O ganho medido (~2.000× no 16×16) é contra Dijkstra em uma CPU de 2012. Estimamos ~150–800× contra uma CPU desktop atual; A* [Hart et al. 1968] com heurística visita menos nós e reduz a diferença. Uma comparação com implementação otimizada em GPU está pendente.
 3. **Área e composição.** Estágios binários fazem cada aresta carregar a espiral completa, limitando o bloco a 16×16 com 100 ps. Acima disso, a composição exata entre chips funciona (Seção 5.5), mas mapas mais profundos exigem unidade maior, blocos menores e acoplamento entre chips ≤ 1,5–2 dB por face; a composição hierárquica perde exatidão (excesso médio de 3–13%).
 4. **Premissas.** Latência e jitter do nó, erro estático por aresta, tempo de programação e taxa de leitura não têm valor publicado para esta integração e precisam de medição.
-5. **Modelo.** O ruído é gaussiano e independente por salto; deriva térmica lenta (1,8–3,7 rad/K de fase, irrelevante para ToF mas relevante para atrasos longos) e perdas por curva e cruzamento em layout real não foram modeladas.
+5. **Modelo.** O ruído é gaussiano e independente por salto; deriva térmica lenta (1,8–3,7 rad/K de fase, irrelevante para ToF mas relevante para atrasos longos) e perdas por cruzamento em layout real não foram modeladas. As perdas de curva e de transição foram verificadas apenas em FDTD 2D (índice efetivo); a verificação 3D e a medição em chip ficam pendentes.
 6. **Nicho.** O caso de uso favorável é consulta repetida de menor caminho em blocos de mapa de até 16×16 (p. ex. pathfinding hierárquico de NPCs), em que trocar a origem não exige reprogramação.
 
 ## 7. Conclusão e Trabalhos Futuros
@@ -200,7 +212,7 @@ Com todos os cruzamentos como pontos de passagem e sem ruído, o modo hierárqui
 Um modelo físico com parâmetros publicados descarta o roteamento por espelhos internos em bloco e aponta Si₃N₄ + TFLN como plataforma viável para lógica por tempo de voo. Sobre ela, race logic fotônica resolve menor caminho num mapa 16×16 com 0 erros em 2,55×10⁷ distâncias usando unidade de 100 ps, em 42,2 ns por consulta e 648 mm². A estatística por número de saltos valida o modelo de ruído e mostra que amostras pequenas superestimam a correção.
 
 Trabalhos futuros:
-- **Simulação eletromagnética (FDTD)** de espirais, curvas e transições Si₃N₄/TFLN, para substituir premissas de perda e atraso.
+- **Simulação eletromagnética 3D** de curvas e transições Si₃N₄/TFLN (a verificação 2D por índice efetivo já foi feita, Seção 5.1.1), idealmente em máquina com mais memória ou por expansão em modos próprios (EME).
 - **Demonstrador em fibra** (desenho em `docs/architecture/13-bancada-experimental-em-fibra.md`): atrasos em SMF-28 (20,4 mm por 100 ps), moduladores de niobato de lítio comerciais, fotodiodos rápidos e time tagger de 1,5–2 ps rms, em três fases: porta ToF, nó de race logic e grafo 3×3 com curva de erro por salto sob jitter injetado.
 - **Baseline moderno**: Dijkstra/A* otimizados em CPU e GPU atuais.
 - **Escala**: atrasos compartilhados entre arestas para reduzir área, e medição real do acoplamento entre chips (faceta ou interposer) que viabiliza o modo exato.
