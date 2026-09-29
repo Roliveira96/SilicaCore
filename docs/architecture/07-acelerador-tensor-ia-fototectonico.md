@@ -2,6 +2,8 @@
 
 > **Nota de validação (v1.1, 28/09/2026):** a eficiência > 100 TOPS/W vale só no núcleo óptico; o sistema completo publicado mais avançado entrega ~0.84 TOPS/W. O GST foi substituído por Sb₂Se₃ e o limite de capacidade de pesos no chip foi registrado (doc [12](12-memoria-unificada-jogos-e-ia-local.md)).
 
+> **Nota v1.2 (29/09/2026):** a arquitetura detalhada, com orçamento de ruído, energia, área e empilhamento sobre o processador convencional, está no [doc 15](15-andar-de-ia-unidade-tensorial-fotonica.md). Lá a escolha é o *broadcast-and-weight* incoerente (anéis + Sb₂Se₃ + detecção balanceada); a malha MZI e a PCM abaixo são famílias alternativas, não etapas de um mesmo caminho. A saída usa fotodiodos InGaAs com TIA, não SPAD, e a latência com conversores é de 3–5 ns, não < 10 ps.
+
 ## 1. Visão Geral do Photonic Tensor Core
 
 O **SilicaCore** incorpora um motor dedicado de Inteligência Artificial denominado **Photonic AI Tensor Engine**, localizado na **Camada 4 da pilha fotônica**. O acelerador é projetado para resolver a operação matemática computacionalmente mais exigente da Inteligência Artificial moderna (Transformers, LLMs, Visão Computacional e CNNs): a **Multiplicação Matriz-Vetor (MVM - *Matrix-Vector Multiplication*)**.
@@ -13,7 +15,7 @@ flowchart TD
         VetorEntrada["Vetor de Entrada Óptico X (Amplitude / Fase dos Pulsos)"]
         MZIMesh["Malha de Interferômetros Mach-Zehnder (MZI Mesh - Rotações Unitárias)"]
         PesosPCM["Matriz de Pesos Não-Volátil (PCM Sb2Se3)"]
-        DetecaoSaida["Vetor de Saída Y = W * X (Fotodetecção SPAD Integrada)"]
+        DetecaoSaida["Vetor de Saída Y = W * X (Fotodiodos InGaAs + TIA + ADC)"]
         
         VetorEntrada --> MZIMesh
         MZIMesh --> PesosPCM
@@ -55,6 +57,6 @@ A decomposição em valores singulares (SVD) permite que qualquer matriz de peso
 
 ## 4. Referências Bibliográficas Científicas
 
-1. **Shen, Y., et al. (2017).** "Deep learning with coherent photonic circuits." *Nature Photonics*, 11(7), 441–446. [DOI: 10.1038/nphoton.2017.93](https://doi.org/10.1038/nphoton.2017.93)
-2. **Feldmann, J., et al. (2021).** "Parallel convolutional processing using an integrated photonic tensor core." *Nature*, 595(7867), 373–378. [DOI: 10.1038/s41586-021-03597-z](https://doi.org/10.1038/s41586-021-03597-z)
-3. **Xu, X., et al. (2021).** "11 TOPS mm⁻² photonic tensor core for optical neural networks." *Nature*, 589(7840), 44–51. [DOI: 10.1038/s41586-020-03070-1](https://doi.org/10.1038/s41586-020-03070-1)
+1. **Shen, Y., et al. (2017).** "Deep learning with coherent nanophotonic circuits." *Nature Photonics*, 11(7), 441–446. [DOI: 10.1038/nphoton.2017.93](https://doi.org/10.1038/nphoton.2017.93)
+2. **Feldmann, J., et al. (2021).** "Parallel convolutional processing using an integrated photonic tensor core." *Nature*, 589, 52–58.
+3. **Xu, X., et al. (2021).** "11 TOPS photonic convolutional accelerator for optical neural networks." *Nature*, 589(7840), 44–51. [DOI: 10.1038/s41586-020-03070-1](https://doi.org/10.1038/s41586-020-03070-1)
