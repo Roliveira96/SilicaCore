@@ -26,9 +26,10 @@ interface Processor {
   cells: Record<TabId, Cell>;
 }
 
-// Shortest-path estimate: 69.57 us measured on an i3-3217U (Geekbench 6 single-core 307),
-// scaled by each chip's single-core score. Dijkstra on a 16x16 map runs on one core from cache.
-const I3_US = 69.57;
+// Shortest-path estimate: Dial's bucket-queue Dijkstra (the best algorithm for integer
+// weights 1..15) measured at 25.38 us on an i3-3217U (Geekbench 6 single-core 307), scaled
+// by each chip's single-core score. A 16x16 map runs on one core from cache.
+const I3_US = 25.38;
 const I3_GB6_SC = 307;
 const estUs = (gb6sc: number) => (I3_US * I3_GB6_SC) / gb6sc;
 const fmtUs = (us: number) => `${us.toFixed(1)} µs`;
@@ -150,7 +151,7 @@ const TABS: {
     extraHeader: 'Details',
     better: 'lower',
     scale: { min: 0.01, max: 100 },
-    headline: { value: '~116×', text: 'faster than the fastest CPU in the table (Apple M5 Max, estimated) on the same 16×16 shortest-path query.' },
+    headline: { value: '~42×', text: 'faster than the fastest CPU in the table (Apple M5 Max, estimated, best algorithm) on one 16×16 shortest-path query when the map changes. On a fixed map a precomputed table answers faster.' },
   },
   {
     id: 'power',
@@ -160,7 +161,7 @@ const TABS: {
     extraHeader: 'Energy per shortest-path query',
     better: 'lower',
     scale: { min: 1, max: 10000 },
-    headline: { value: '~780×', text: 'less energy per shortest-path query than the most efficient CPU in the table (Apple M5 Max, estimated), with the whole chip drawing ~9 W.' },
+    headline: { value: '~290×', text: 'less energy per shortest-path query than the most efficient CPU in the table (Apple M5 Max, estimated), with the whole chip drawing ~9 W.' },
   },
   {
     id: 'temperature',
@@ -321,9 +322,11 @@ export const SectionComparison: React.FC = () => {
 
           <p className="px-6 py-5 text-xs leading-relaxed text-slate-500 sm:px-8">
             <strong className="text-slate-400">Method.</strong> SilicaCore values come from the project&apos;s simulator and
-            energy model; no chip has been fabricated yet. CPU shortest-path times are estimated from Dijkstra measured on an
-            Intel i3-3217U (69.6 µs, Geekbench 6 single-core 307), scaled by each chip&apos;s single-core score; energy per
-            query is package power × that time. Other figures are vendor or press specifications:{' '}
+            energy model; no chip has been fabricated yet. CPU shortest-path times are estimated from the fastest algorithm for
+            these integer weights (Dijkstra with a bucket queue, Dial) measured on an Intel i3-3217U (25.4 µs, Geekbench 6
+            single-core 307), scaled by each chip&apos;s single-core score; energy per query is package power × that time. On
+            a map that never changes, a precomputed table of all distances returns a query in ~0.1 µs on the same i3 (a few ns
+            on current CPUs), so the photonic advantage applies when the map changes between queries. Other figures are vendor or press specifications:{' '}
             <Src href="https://www.macrumors.com/2026/03/05/m5-max-geekbench-benchmarks/">M5 Max</Src>,{' '}
             <Src href="https://www.notebookcheck.net/Apple-M5-Pro-M5-Max-CPU-Analysis-M5-Max-is-not-much-faster-than-the-M4-Max.1246054.0.html">M5 Max power</Src>,{' '}
             <Src href="https://www.intel.com/content/www/us/en/products/sku/241060/intel-core-ultra-9-processor-285k-36m-cache-up-to-5-70-ghz/specifications.html">285K</Src>,{' '}

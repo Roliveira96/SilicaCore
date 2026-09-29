@@ -96,9 +96,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
               <span>vs. top CPU</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
-              ~116<span className="text-xs font-sans text-blue-400 font-normal">×</span>
+              ~42<span className="text-xs font-sans text-blue-400 font-normal">×</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">faster than Apple M5 Max on shortest path (estimated)</p>
+            <p className="text-xs text-slate-300 mt-1">faster than Apple M5 Max on shortest path, best CPU algorithm (estimated)</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-amber-500/40 transition-all shadow-xl">

@@ -11,7 +11,8 @@ import * as THREE from 'three';
 // TDC stamps the arrival on a time ruler with two windows and a threshold.
 // Quantum mode: one photon meets a 50:50 coupler, travels as an amplitude in
 // both rails, and exactly one cryogenic detector clicks.
-// Timing values come from the project model (t1 = 96.7 ps, t0 = 196.7 ps).
+// Timing values come from the project model (t1 = 96.7 ps, t0 = 196.7 ps) on
+// Si3N4 spirals with group index 2.0 (14.5 mm and 29.5 mm).
 // ============================================================================
 
 export const T1_PS = 96.73;
@@ -134,7 +135,7 @@ function tofCurves() {
   const shortPts = [...input, v(-3.1, -0.9), v(-1.5, -1.2), v(3.6, -1.2), v(4.6, 0), v(6.0, 0)];
 
   // Serpentine delay line: 7 meander legs sized so the whole path is 2.03x the
-  // short one, the same ratio as the 40.675 mm and 20 mm paths of the model.
+  // short one, the same ratio as the 29.5 mm and 14.5 mm Si3N4 paths of the model.
   const legs = 7;
   const legHeight = 1.68;
   const zBase = 1.2;
@@ -249,10 +250,10 @@ const TofScene: React.FC<Decision3DProps> = ({ bit, shotToken, lastArrivalPS, hi
       <Waveguide curve={curves.short} lit={bit === 1 ? lit : 0} />
       <Waveguide curve={curves.long} lit={bit === 0 ? lit : 0} color="#c4a5ff" />
       <Label position={[2.6, 0.4, -2.0]} tone="text-cyan-300">
-        short path · arrives ~96.7 ps · reads 1
+        short path · 14.5 mm · ~96.7 ps · reads 1
       </Label>
       <Label position={[0.6, 0.4, 3.75]} tone="text-violet-300">
-        long path (2× length) · arrives ~196.7 ps · reads 0
+        long path · 29.5 mm · ~196.7 ps · reads 0
       </Label>
 
       {/* Photodiode and TDC */}

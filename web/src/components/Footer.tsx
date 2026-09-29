@@ -51,7 +51,7 @@ export const Footer: React.FC = () => {
               className="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5"
             >
               <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-              <span>13 Architecture Monographs</span>
+              <span>15 Architecture Monographs</span>
             </a>
           </div>
         </div>

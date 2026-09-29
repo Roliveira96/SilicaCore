@@ -149,7 +149,7 @@ export const Section3MaxwellLab: React.FC = () => {
               The Maxwell Lab: Sub-dB Waveguide Bends &amp; Tapers
             </h2>
             <p className="mt-3 text-base text-slate-300 max-w-2xl">
-              Waveguide bend and taper losses are validated via finite-difference time-domain (FDTD) simulations in Meep 1.34 using the 2D Effective Index Method (EIM). 3D full-wave validation is slated for future work.
+              Waveguide bend and taper losses are checked with finite-difference time-domain (FDTD) simulations in Meep 1.34 using the 2D Effective Index Method (EIM). 3D full-wave validation is slated for future work.
             </p>
           </div>
 

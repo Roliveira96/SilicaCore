@@ -9,7 +9,8 @@ import DecisionMechanism3D, {
   type QuantumState,
 } from './DecisionMechanism3D';
 
-const DEFAULT_SIGMA_PS = 11.24; // total timing jitter from the project's ToF model
+const PLATFORM_SIGMA_PS = 2.12; // Si3N4 + InGaAs photodiode + 5 ps TDC (cmd/tofplatform)
+const LEGACY_SIGMA_PS = 11.24; // original silica concept with a 25 ps SPAD
 const BATCH_SIZE = 500;
 
 // Standard normal sample (Box-Muller).
@@ -44,7 +45,7 @@ export const SectionDecision: React.FC = () => {
 
   // ToF state
   const [bit, setBit] = useState<0 | 1>(1);
-  const [sigma, setSigma] = useState(DEFAULT_SIGMA_PS);
+  const [sigma, setSigma] = useState(PLATFORM_SIGMA_PS);
   const [histogram, setHistogram] = useState<number[]>(() => new Array(HIST_BINS).fill(0));
   const [lastArrival, setLastArrival] = useState<number | null>(null);
   const [pulses, setPulses] = useState(0);
@@ -61,7 +62,8 @@ export const SectionDecision: React.FC = () => {
   const [busy, setBusy] = useState(false);
 
   const q = 100 / (2 * sigma);
-  const theoryError = 0.5 * erfc(q / Math.SQRT2);
+  // A pulse is wrong or rejected when it leaves its own window: both Gaussian tails.
+  const theoryError = erfc(HALF_WINDOW_PS / (sigma * Math.SQRT2));
 
   const sampleArrival = useCallback((b: 0 | 1) => (b === 1 ? T1_PS : T0_PS) + sigma * gaussian(), [sigma]);
 
@@ -225,7 +227,7 @@ export const SectionDecision: React.FC = () => {
                 <Panel title={`Timing jitter σ = ${sigma.toFixed(1)} ps`}>
                   <input
                     type="range"
-                    min={2}
+                    min={1}
                     max={40}
                     step={0.1}
                     value={sigma}
@@ -233,11 +235,12 @@ export const SectionDecision: React.FC = () => {
                     className="w-full accent-cyan-400"
                   />
                   <div className="mt-1 flex justify-between font-mono text-[10px] text-slate-500">
-                    <span>2 ps</span>
-                    <button onClick={() => setSigma(DEFAULT_SIGMA_PS)} className="text-cyan-400 hover:underline">
-                      model value 11.24 ps
+                    <button onClick={() => setSigma(PLATFORM_SIGMA_PS)} className="text-cyan-400 hover:underline">
+                      chip model 2.12 ps
                     </button>
-                    <span>40 ps</span>
+                    <button onClick={() => setSigma(LEGACY_SIGMA_PS)} className="text-amber-400 hover:underline">
+                      original SPAD 11.24 ps
+                    </button>
                   </div>
                 </Panel>
 
@@ -247,11 +250,12 @@ export const SectionDecision: React.FC = () => {
                   <Stat label="Pulses" value={String(pulses)} />
                   <Stat label="Wrong or rejected" value={String(errors)} />
                   <Stat label="Measured error rate" value={measuredRate === null ? '–' : formatRate(measuredRate)} />
-                  <Stat label={`Theory, Q = ${q.toFixed(2)}`} value={formatRate(theoryError)} />
+                  <Stat label={`Theory (Q = ${q.toFixed(1)})`} value={theoryError < 1e-9 ? '< 1e-9' : formatRate(theoryError)} />
                   <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-                    Windows are ±{HALF_WINDOW_PS} ps around {T1_PS} ps (bit 1) and {T0_PS} ps (bit 0). Error rate is
-                    ½·erfc(Q/√2) with Q = Δt/2σ and Δt = 100 ps. At the model jitter a wrong bit happens about 4 times per
-                    million; raise σ to watch the two peaks merge.
+                    Windows are ±{HALF_WINDOW_PS} ps around {T1_PS} ps (bit 1) and {T0_PS} ps (bit 0); a pulse outside its
+                    window counts as an error, so the theory is erfc(W/2σ√2), with Q = Δt/2σ and Δt = 100 ps. With the chip&apos;s
+                    photodiode (σ ≈ 2.1 ps) errors are negligible. The SPAD of the original concept (σ = 11.24 ps) errs about
+                    1 in 40000 pulses; raise σ further to watch the two peaks merge.
                   </p>
                 </Panel>
               </>
@@ -326,8 +330,9 @@ export const SectionDecision: React.FC = () => {
             <div className="flex items-start gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-xs text-slate-400">
               <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-300" />
               <span>
-                Arrival times are drawn from the simulator&apos;s timing model (20 mm vs 40.7 mm paths, group index 1.45,
-                σ = 11.24 ps). The animation slows light down by about 10 billion times so the difference can be seen.
+                Arrival times follow the simulator&apos;s timing model: 14.5 mm vs 29.5 mm of Si₃N₄ spiral (group index
+                2.0), laser, photodiode and TDC jitter σ ≈ 2.1 ps. The animation slows light down by tens of billions of times
+                so the difference can be seen.
               </span>
             </div>
           </div>
