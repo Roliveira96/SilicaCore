@@ -54,14 +54,16 @@ As perdas de curva e de transição usadas no modelo eram premissas da literatur
 
 > Estes números são uma **indicação de consistência em aproximação planar**, não uma comprovação: efeitos 3D, rugosidade de litografia e conversão entre polarizações ficam de fora. Por isso o modelo mantém margens conservadoras.
 
+> **Correção de polarização (29/09/2026):** as primeiras rodadas usaram a polarização trocada (curvas com o campo fora do plano; transição com o campo vertical). As tabelas abaixo trazem as rodadas com o modo quase-TE correto (`--pol inplane` nas curvas, `--pol ez` na transição; CSVs `fdtd_bends_inplane.csv` e `fdtd_transition_ez.csv`), com os valores antigos entre parênteses. As regras de projeto não mudam.
+
 **Curvas de 90° em Si₃N₄ grosso (800 nm), perda por curva:**
 
 | Raio | Guia monomodo (0,7 µm) | Guia multimodo (1,2 µm) |
 | :---: | :---: | :---: |
-| 10 µm | 0,138 dB | — |
-| 20 µm | **0,029 dB** (0,031 dB com 30 px/µm) | 0,103 dB (0,109 dB com 30 px/µm) |
-| 30 µm | **0,012 dB** | — |
-| 50 µm | **0,0026 dB** | — |
+| 10 µm | 0,213 dB (antes 0,138) | — |
+| 20 µm | **0,035 dB** (antes 0,029) | 0,103 dB (rodada antiga) |
+| 30 µm | **0,012 dB** (0,0127 dB com 30 px/µm) | — |
+| 50 µm | **0,0030 dB** (antes 0,0026) | — |
 
 **Curvas em Si₃N₄ fino (200 nm × 1,2 µm), perda por curva:** 3,77 dB (20 µm), 1,35 dB (30 µm), 0,22 dB (50 µm), 0,060 dB (80 µm) e 0,039 dB (100 µm).
 
@@ -69,15 +71,15 @@ As perdas de curva e de transição usadas no modelo eram premissas da literatur
 
 | Comprimento do taper | Perda |
 | :---: | :---: |
-| 5 µm | 1,05 dB |
-| 10 µm | 0,14 dB |
-| 25 µm | **0,0017 dB** (0,0016 dB com 70 px/µm; 0,0027 dB partindo do guia monomodo de 0,7 µm) |
-| 50 µm | 0,0013 dB |
-| 100 µm | 0,0005 dB |
+| 5 µm | 0,53 dB (antes 1,05) |
+| 10 µm | 0,058 dB (antes 0,14) |
+| 25 µm | **0,0024 dB** (0,0022 dB com 70 px/µm; antes 0,0017) |
+| 50 µm | 0,0018 dB (antes 0,0013) |
+| 100 µm | 0,0005 dB (só rodada antiga) |
 
 **O que os dados mostram:**
 1. **A largura do guia importa mais que o raio.** O guia de 1,2 µm suporta um segundo modo lateral (corte em ~0,65 µm no modelo 2D), e a curva transfere potência para ele: 0,10 dB em 20 µm contra 0,029 dB do guia monomodo. **Guia recomendado: 800 nm × 0,7 µm** (índice de grupo ~2,06, próximo do 2,0 usado no modelo).
-2. **A premissa de 0,01 dB por curva do modelo vale para raios a partir de ~31 µm** no guia monomodo, e fica conservadora acima disso (0,0026 dB em 50 µm). **Regra de projeto: espirais de atraso com raio ≥ 30 µm.**
+2. **A premissa de 0,01 dB por curva do modelo vale para raios a partir de ~32 µm** no guia monomodo, e fica conservadora acima disso (0,0026 dB em 50 µm). **Regra de projeto: espirais de atraso com raio ≥ 30 µm.**
 3. **A transição satura a partir de ~25 µm** de taper. O modelo mantém **0,1 dB por transição**, valor próximo do medido em chips reais (< 0,1 dB; Churaev et al., 2023), para absorver os efeitos 3D e de fabricação que a simulação 2D não captura.
 4. **Nesta geometria, o Si₃N₄ fino exige raios muito maiores** (0,06 dB só com 80 µm), por isso as espirais compactas usam o nitreto grosso. A plataforma multicamada de Shang et al. (2015) reporta curvas de 50 µm com outra seção transversal; a comparação direta exige simular aquela geometria.
 

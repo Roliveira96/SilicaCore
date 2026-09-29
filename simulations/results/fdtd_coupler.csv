@@ -1,0 +1,4 @@
+gap_um,res_px_per_um,Lc_analytic_um,Lc_fdtd_um,max_transfer,time_s
+0.4,20,21.88,21.22,0.968,122
+0.6,20,46.15,44.83,0.985,463
+0.4,30,21.88,21.36,0.968,407

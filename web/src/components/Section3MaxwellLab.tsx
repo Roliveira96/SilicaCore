@@ -12,40 +12,39 @@ interface BendData {
 const BEND_SWEEPS: BendData[] = [
   {
     radiusUm: 10,
-    lossDb: 0.1381,
-    transmission: 0.9687,
-    leakagePct: 3.13,
+    lossDb: 0.2134,
+    transmission: 0.952,
+    leakagePct: 4.8,
     description: 'Tight bend: the mode shifts outwards and radiates into the cladding; mismatch at the straight-bend junctions adds loss.',
   },
   {
     radiusUm: 20,
-    lossDb: 0.0288,
-    transmission: 0.9934,
-    leakagePct: 0.66,
+    lossDb: 0.035,
+    transmission: 0.992,
+    leakagePct: 0.8,
     description: 'Moderate bend: radiation tails drastically attenuated; practical for loose interconnects.',
   },
   {
     radiusUm: 30,
-    lossDb: 0.0119,
-    transmission: 0.9973,
-    leakagePct: 0.27,
+    lossDb: 0.0121,
+    transmission: 0.9972,
+    leakagePct: 0.28,
     description: 'Very low loss: tight modal overlap with negligible scattering.',
   },
   {
     radiusUm: 50,
-    lossDb: 0.0026,
-    transmission: 0.9994,
-    leakagePct: 0.06,
-    description: 'Sub-dB Single-Mode Confinement: near-unity transmission (0.0026 dB/90°), ideal for compact delay spirals.',
+    lossDb: 0.003,
+    transmission: 0.9993,
+    leakagePct: 0.07,
+    description: 'Near-unity transmission (0.003 dB per 90°), comfortable for compact delay spirals.',
   },
 ];
 
 const TAPER_SWEEPS = [
-  { lengthUm: 5, lossDb: 1.046, transmission: 78.6, status: 'Non-adiabatic / High Scattering' },
-  { lengthUm: 10, lossDb: 0.141, transmission: 96.8, status: 'Sub-optimal Mode Mismatch' },
-  { lengthUm: 25, lossDb: 0.0017, transmission: 99.96, status: 'Adiabatic Saturation (< 0.002 dB)' },
-  { lengthUm: 50, lossDb: 0.0013, transmission: 99.97, status: 'Full Adiabatic Limit' },
-  { lengthUm: 100, lossDb: 0.0005, transmission: 99.99, status: 'Theoretical Asymptote' },
+  { lengthUm: 5, lossDb: 0.526, transmission: 88.6, status: 'Too short: not adiabatic' },
+  { lengthUm: 10, lossDb: 0.058, transmission: 98.7, status: 'Residual mode mismatch' },
+  { lengthUm: 25, lossDb: 0.0024, transmission: 99.94, status: 'Adiabatic (< 0.003 dB)' },
+  { lengthUm: 50, lossDb: 0.0018, transmission: 99.96, status: 'Saturated' },
 ];
 
 export const Section3MaxwellLab: React.FC = () => {
@@ -55,7 +54,7 @@ export const Section3MaxwellLab: React.FC = () => {
 
   const currentBend = BEND_SWEEPS.find((b) => b.radiusUm === selectedBendRadius) || BEND_SWEEPS[3];
 
-  // Animated Electromagnetic Field Ez Shader Canvas
+  // Animated field canvas (illustrative mode profile)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -166,7 +165,7 @@ export const Section3MaxwellLab: React.FC = () => {
               <div className="flex items-center justify-between mb-3 text-xs font-mono">
                 <span className="text-cyan-300 flex items-center gap-1.5 font-semibold">
                   <Waves className="w-4 h-4 text-cyan-400" />
-                  E_z Electromagnetic Field Mode Profile (1550 nm TE₀)
+                  Electric field mode profile (1550 nm, quasi-TE₀, illustrative)
                 </span>
                 <span className="text-slate-400">Si₃N₄ (800 nm × 0.7 µm)</span>
               </div>

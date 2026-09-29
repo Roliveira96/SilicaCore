@@ -100,7 +100,7 @@ O modelo foi implementado em Go (`simulations/go/pkg/optical`) e é reproduzíve
 
 **Baselines eletrônicos.** Três implementações em Go, thread única, em Intel Core i3-3217U (2012, 1,8 GHz), todas devolvendo as 256 distâncias de uma origem (`go run ./cmd/dijkstrabench`): (i) Dijkstra com heap binário tipado; (ii) Dijkstra com fila de baldes circular [Dial 1969], o algoritmo adequado a pesos inteiros pequenos; (iii) cópia de uma linha de uma tabela com todas as distâncias, pré-calculada uma vez (mapa fixo). Para CPUs atuais, os tempos são escalados pela pontuação single-core do Geekbench 6 (i3-3217U: 307; Apple M5 Max: 4349), uma estimativa de primeira ordem para um problema que cabe na cache.
 
-**Verificação eletromagnética.** As perdas de curva e de transição Si₃N₄→TFLN do modelo foram verificadas por FDTD no Meep 1.34, em 2D pelo método do índice efetivo (a curva no plano do chip; a transição num corte vertical, com a largura do taper convertida em índice de camada). A transmissão é medida por decomposição no modo fundamental; as geometrias usam suavização subpixel e cada caso foi repetido com resolução maior (20→30 px/µm nas curvas, 50→70 px/µm na transição), com variação ≤ 8%.
+**Verificação eletromagnética.** As perdas de curva e de transição Si₃N₄→TFLN do modelo foram verificadas por FDTD no Meep 1.34, em 2D pelo método do índice efetivo (a curva no plano do chip; a transição num corte vertical, com a largura do taper convertida em índice de camada). A transmissão é medida por decomposição no modo fundamental; as geometrias usam suavização subpixel e cada caso foi repetido com resolução maior (20→30 px/µm nas curvas: 0,0121→0,0127 dB em R = 30 µm; 50→70 px/µm na transição), com variação ≤ 8%.
 
 ## 5. Resultados
 
@@ -118,11 +118,14 @@ Um feixe com cintura de 5 µm chega com raio de ~2,8 mm após 40,7 mm de sílica
 
 | Estrutura | Resultado | Premissa do modelo |
 | :--- | :--- | :--- |
-| Curva de 90°, Si₃N₄ 800 nm × 0,7 µm (monomodo) | 0,138 / 0,029 / 0,012 / 0,0026 dB para R = 10 / 20 / 30 / 50 µm | 0,01 dB por curva |
-| Curva de 90°, Si₃N₄ 800 nm × 1,2 µm (multimodo) | 0,10 dB em R = 20 µm | — |
-| Transição Si₃N₄ → filme de LN | 1,05 / 0,14 / 0,0017 / 0,0005 dB para taper de 5 / 10 / 25 / 100 µm | 0,1 dB por transição |
+| Curva de 90°, Si₃N₄ 800 nm × 0,7 µm (monomodo, quase-TE) | 0,213 / 0,035 / 0,012 / 0,0030 dB para R = 10 / 20 / 30 / 50 µm | 0,01 dB por curva |
+| Curva de 90°, Si₃N₄ 800 nm × 1,2 µm (multimodo) | 0,10 dB em R = 20 µm (rodada com campo fora do plano) | — |
+| Transição Si₃N₄ → filme de LN (TE) | 0,53 / 0,058 / 0,0024 / 0,0018 dB para taper de 5 / 10 / 25 / 50 µm | 0,1 dB por transição |
+| Acoplamento entre dois guias paralelos | $L_c$ = 21,2 µm (vão de 0,4 µm) e 44,8 µm (0,6 µm), contra 21,9 e 46,2 µm do cálculo analítico | Usado na Seção 5.4.2 |
 
-Os resultados indicam, em aproximação planar, que a premissa de 0,01 dB por curva é conservadora para raios ≥ ~31 µm no guia monomodo, e que a transição satura a partir de ~25 µm. O guia multimodo perde ~3,5× mais na mesma curva, pela conversão para o segundo modo lateral, o que fixa o guia de 0,7 µm como escolha de projeto. O modelo mantém 0,1 dB por transição para cobrir efeitos 3D e de fabricação fora do alcance da simulação 2D; esse valor é compatível com o medido em chips reais [Churaev et al. 2023].
+**Correção de polarização.** As primeiras rodadas usaram a polarização trocada: as curvas com o campo elétrico fora do plano do chip e a transição com o campo vertical. As rodadas acima usam o modo quase-TE do guia (campo no plano do chip nas curvas, campo lateral na transição, que é o modo usado pelo modulador TFLN). Curvas apertadas ficam piores (0,21 dB em 10 µm, antes 0,14 dB), a transição curta fica melhor (0,53 dB em 5 µm, antes 1,05 dB), e as conclusões de projeto não mudam. As rodadas antigas continuam reproduzíveis (`--pol`).
+
+Os resultados indicam, em aproximação planar, que a premissa de 0,01 dB por curva é conservadora para raios ≥ ~32 µm no guia monomodo, e que a transição satura a partir de ~25 µm. O guia multimodo perde ~3,5× mais na mesma curva, pela conversão para o segundo modo lateral, o que fixa o guia de 0,7 µm como escolha de projeto. O modelo mantém 0,1 dB por transição para cobrir efeitos 3D e de fabricação fora do alcance da simulação 2D; esse valor é compatível com o medido em chips reais [Churaev et al. 2023].
 
 ### 5.2 Decisão temporal
 
