@@ -194,6 +194,7 @@ func main() {
 	printPhysicalBudget(sim)
 	printUnifiedMemoryAndLocalAI(sim)
 	printRaceLogicBenchmark()
+	printEnergyBudget()
 
 	fmt.Println("\nSimulation Conclusion:")
 	fmt.Printf("Default geometry: Q = %.2f (BER %.2e), %.2f GHz per channel. Micro-cube: Q = %.2f (BER %.2e), %.2f GHz per channel,\n", timing.QFactor, timing.TheoreticalBER, timing.ToFSymbolRateGHz, microTiming.QFactor, microTiming.TheoreticalBER, microTiming.ToFSymbolRateGHz)
@@ -300,4 +301,28 @@ func printRaceLogicBenchmark() {
 		p.UnitDelayPS, p.TdcBitsPerNode, p.ReadoutLinkGbps)
 	fmt.Println("Dijkstra baseline is measured in Go on this machine (single thread); a current desktop CPU is several times faster.")
 	fmt.Printf("Break-even: queries needed to amortize %.0f ns of Sb2Se3 programming; changing the source needs no reprogramming.\n", p.PcmProgramTimeNS)
+}
+
+// printEnergyBudget reports the bottom-up power of the 16x16 chip answering back-to-back queries.
+func printEnergyBudget() {
+	fmt.Println("\n--- 13. BOTTOM-UP ENERGY AND THERMAL BUDGET (16x16 CHIP, BACK-TO-BACK QUERIES) ---")
+	p := optical.DefaultRaceLogicParams()
+	g := optical.NewGridGraph(16, 16, p.MaxWeight(), 42)
+	r := optical.SimulateRaceLogic(g, p, 50, 42)
+	hw := optical.BuildRaceHardware(g, p, 42)
+	e := optical.ComputeEnergyBudget(hw, r.TotalQueryTimeNS, optical.DefaultEnergyParams())
+
+	fmt.Printf("Query period (race + readout):             %.1f ns -> %.1f M queries/s\n", e.QueryPeriodNS, e.QueriesPerSecond/1e6)
+	fmt.Printf("Laser (optical / electrical):              %.2f W / %.2f W\n", e.LaserOpticalW, e.LaserElectricalW)
+	fmt.Printf("Receivers (%d, always biased):            %.2f W\n", hw.Detectors, e.ReceiversW)
+	fmt.Printf("TDCs (%d):                                 %.2f W\n", hw.Tdcs, e.TdcsW)
+	fmt.Printf("Re-fire modulators (dynamic):              %.4f W\n", e.ModulatorsW)
+	fmt.Printf("Readout link:                              %.2f W\n", e.ReadoutW)
+	fmt.Printf("Total chip power:                          %.2f W (largest block: %s)\n", e.TotalW, e.LargestBlock)
+	fmt.Printf("Energy per query:                          %.0f nJ\n", e.EnergyPerQueryNJ)
+	fmt.Printf("Power density:                             %.2f W/cm^2 over %.0f mm^2\n", e.PowerDensityWPerCm2, hw.DelayAreaMM2)
+	fmt.Printf("Temperature rise (0.5 K/W fan heatsink):   %.1f K\n", e.TemperatureRiseK)
+	fmt.Printf("Reprogramming the whole map (Sb2Se3):      %.0f uJ, only when the map changes\n", e.ReprogramEnergyUJ)
+	cpu := optical.CPUQueryEnergy(17, 69.57)
+	fmt.Printf("i3-3217U reference (17 W x 69.6 us):       %.0f nJ per query -> %.0fx more than the chip model\n", cpu, cpu/e.EnergyPerQueryNJ)
 }

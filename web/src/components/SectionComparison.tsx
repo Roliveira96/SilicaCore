@@ -1,289 +1,352 @@
 import React, { useState } from 'react';
-import { BarChart3, Cpu, Gauge, Play, Sparkles } from 'lucide-react';
-import { measureDijkstraUs } from '../lib/racelogic';
+import { BarChart3, BrainCircuit, Gauge, Thermometer, Trophy, Zap } from 'lucide-react';
 
-// Log-scale axis for the speed chart, in nanoseconds.
-const AXIS_MIN_NS = 10;
-const AXIS_MAX_NS = 1_000_000;
-const logPos = (ns: number) =>
-  (100 * (Math.log10(ns) - Math.log10(AXIS_MIN_NS))) / (Math.log10(AXIS_MAX_NS) - Math.log10(AXIS_MIN_NS));
+// ============================================================================
+// One comparison table, four tabs. Rows are always the same processors; each
+// tab changes the metric. The best value is on top, rows without public data
+// go to the bottom with the reason. Integers are written without thousands
+// separators so they read the same in English and Portuguese.
+// ============================================================================
 
-interface SpeedRow {
-  label: string;
-  detail: string;
-  minNs: number;
-  maxNs: number;
-  kind: 'simulated' | 'measured' | 'estimated' | 'live';
+type TabId = 'performance' | 'power' | 'temperature' | 'ai';
+type Basis = 'simulated' | 'model' | 'estimated' | 'vendor' | 'measured' | 'n/a';
+
+interface Cell {
+  value: number | null; // used for sorting and the bar; null = no public data
+  min?: number; // optional range start
+  display: string;
+  extra: string; // secondary column
+  basis: Basis;
 }
 
-const KIND_STYLE: Record<SpeedRow['kind'], { bar: string; tag: string; text: string }> = {
-  simulated: { bar: 'bg-cyan-400', tag: 'border-cyan-500/40 text-cyan-300', text: 'simulated' },
-  measured: { bar: 'bg-slate-300', tag: 'border-slate-500/40 text-slate-300', text: 'measured' },
-  estimated: { bar: 'bg-slate-500/70', tag: 'border-slate-600/40 text-slate-400', text: 'estimated' },
-  live: { bar: 'bg-amber-400', tag: 'border-amber-500/40 text-amber-300', text: 'measured now' },
+interface Processor {
+  name: string;
+  kind: string;
+  silica?: boolean;
+  cells: Record<TabId, Cell>;
+}
+
+// Shortest-path estimate: 69.57 us measured on an i3-3217U (Geekbench 6 single-core 307),
+// scaled by each chip's single-core score. Dijkstra on a 16x16 map runs on one core from cache.
+const I3_US = 69.57;
+const I3_GB6_SC = 307;
+const estUs = (gb6sc: number) => (I3_US * I3_GB6_SC) / gb6sc;
+const fmtUs = (us: number) => `${us.toFixed(1)} µs`;
+// Energy per query estimate: package power x estimated time (upper bound).
+const fmtEnergy = (uj: number) => (uj >= 1000 ? `${(uj / 1000).toFixed(1)} mJ` : `${Math.round(uj)} µJ`);
+
+const na = (why: string, display = 'no public data'): Cell => ({ value: null, display, extra: why, basis: 'n/a' });
+const GPU_SERIAL = 'one small shortest-path query is sequential; GPUs gain only on large batches';
+
+const PROCESSORS: Processor[] = [
+  {
+    name: 'SilicaCore RL-16',
+    kind: 'Photonic accelerator (simulated)',
+    silica: true,
+    cells: {
+      performance: { value: 0.0422, display: '42.2 ns', extra: 'light race + readout, 16×16 map', basis: 'simulated' },
+      power: { value: 9.2, display: '~9.2 W', extra: '0.39 µJ per query', basis: 'model' },
+      temperature: { value: 5, display: '~5 °C above ambient', extra: '1.4 W/cm² with a small fan heatsink', basis: 'model' },
+      ai: na('solves graphs, not neural networks', 'not an AI chip'),
+    },
+  },
+  {
+    name: 'Apple M5 Max',
+    kind: 'Laptop SoC',
+    cells: {
+      performance: { value: estUs(4349), display: fmtUs(estUs(4349)), extra: 'Geekbench 6: 4349 single · 29363 multi', basis: 'estimated' },
+      power: { value: 62, display: '~62 W', extra: `${fmtEnergy(62 * estUs(4349))} per query (est.)`, basis: 'measured' },
+      temperature: na('Apple does not publish thermal limits', 'not published'),
+      ai: na('Neural Engine TOPS not stated for M5 Max', 'not published'),
+    },
+  },
+  {
+    name: 'Intel Core Ultra 9 285K',
+    kind: 'Desktop CPU',
+    cells: {
+      performance: { value: estUs(3450), display: fmtUs(estUs(3450)), extra: 'Geekbench 6: 3450 single · 23024 multi', basis: 'estimated' },
+      power: { value: 250, min: 125, display: '125–250 W', extra: `${fmtEnergy(125 * estUs(3450))} per query (est.)`, basis: 'vendor' },
+      temperature: { value: 105, display: 'up to 105 °C', extra: 'maximum junction temperature', basis: 'vendor' },
+      ai: { value: 13, display: '13 TOPS', extra: 'on-chip NPU', basis: 'vendor' },
+    },
+  },
+  {
+    name: 'AMD Ryzen 9 9950X3D',
+    kind: 'Desktop CPU',
+    cells: {
+      performance: { value: estUs(3440), display: fmtUs(estUs(3440)), extra: 'Geekbench 6: ~3440 single · ~22100 multi', basis: 'estimated' },
+      power: { value: 230, min: 170, display: '170–230 W', extra: `${fmtEnergy(170 * estUs(3440))} per query (est.)`, basis: 'vendor' },
+      temperature: { value: 95, display: 'up to 95 °C', extra: 'maximum junction temperature', basis: 'vendor' },
+      ai: na('no NPU; AI runs on the CPU cores'),
+    },
+  },
+  {
+    name: 'AMD EPYC 9965',
+    kind: 'Server CPU, 192 cores',
+    cells: {
+      performance: na('no public Geekbench 6 single-core score'),
+      power: { value: 500, display: '500 W', extra: 'TDP', basis: 'vendor' },
+      temperature: na('not in the cited sources'),
+      ai: na('no dedicated AI TOPS figure'),
+    },
+  },
+  {
+    name: 'Intel Xeon 6980P',
+    kind: 'Server CPU, 128 cores',
+    cells: {
+      performance: { value: estUs(2131), display: fmtUs(estUs(2131)), extra: 'Geekbench 6: ~2131 single', basis: 'estimated' },
+      power: { value: 500, display: '500 W', extra: `${fmtEnergy(500 * estUs(2131))} per query (est.)`, basis: 'vendor' },
+      temperature: { value: 80, display: 'up to 80 °C', extra: 'maximum package temperature', basis: 'vendor' },
+      ai: na('AMX matrix units; no TOPS headline'),
+    },
+  },
+  {
+    name: 'NVIDIA GeForce RTX 5090',
+    kind: 'Gaming / AI GPU',
+    cells: {
+      performance: na(GPU_SERIAL, 'no single-query gain'),
+      power: { value: 575, display: '575 W', extra: 'total graphics power', basis: 'vendor' },
+      temperature: { value: 90, display: 'up to 90 °C', extra: 'maximum GPU temperature', basis: 'vendor' },
+      ai: { value: 3352, display: '3352 TOPS', extra: 'FP4, sparse', basis: 'vendor' },
+    },
+  },
+  {
+    name: 'NVIDIA B300',
+    kind: 'Datacenter AI GPU',
+    cells: {
+      performance: na(GPU_SERIAL, 'no single-query gain'),
+      power: { value: 1400, display: '1400 W', extra: 'Blackwell Ultra', basis: 'vendor' },
+      temperature: na('not in the cited sources'),
+      ai: { value: 15000, display: '15 PFLOPS', extra: 'FP4, dense', basis: 'vendor' },
+    },
+  },
+  {
+    name: 'NVIDIA Rubin',
+    kind: 'Datacenter AI GPU (2026)',
+    cells: {
+      performance: na(GPU_SERIAL, 'no single-query gain'),
+      power: { value: 2300, min: 1800, display: '1800–2300 W', extra: 'Max-Q to Max-P profiles', basis: 'vendor' },
+      temperature: na('not in the cited sources'),
+      ai: { value: 50000, display: '50 PFLOPS', extra: 'NVFP4 inference', basis: 'vendor' },
+    },
+  },
+];
+
+const TABS: {
+  id: TabId;
+  label: string;
+  icon: typeof Gauge;
+  metric: string;
+  extraHeader: string;
+  better: 'lower' | 'higher';
+  scale: { min: number; max: number };
+  headline: { value: string; text: string };
+}[] = [
+  {
+    id: 'performance',
+    label: 'Performance',
+    icon: Gauge,
+    metric: 'Time per shortest-path query',
+    extraHeader: 'Details',
+    better: 'lower',
+    scale: { min: 0.01, max: 100 },
+    headline: { value: '~116×', text: 'faster than the fastest CPU in the table (Apple M5 Max, estimated) on the same 16×16 shortest-path query.' },
+  },
+  {
+    id: 'power',
+    label: 'Power',
+    icon: Zap,
+    metric: 'Power under load',
+    extraHeader: 'Energy per shortest-path query',
+    better: 'lower',
+    scale: { min: 1, max: 10000 },
+    headline: { value: '~780×', text: 'less energy per shortest-path query than the most efficient CPU in the table (Apple M5 Max, estimated), with the whole chip drawing ~9 W.' },
+  },
+  {
+    id: 'temperature',
+    label: 'Temperature',
+    icon: Thermometer,
+    metric: 'Temperature',
+    extraHeader: 'Details',
+    better: 'lower',
+    scale: { min: 1, max: 120 },
+    headline: { value: '~5 °C', text: 'above ambient for the whole chip: ~9 W spread over 6.5 cm² of die. The other chips are rated to run at 80–105 °C.' },
+  },
+  {
+    id: 'ai',
+    label: 'AI Usage',
+    icon: BrainCircuit,
+    metric: 'Peak AI throughput',
+    extraHeader: 'Format',
+    better: 'higher',
+    scale: { min: 1, max: 100000 },
+    headline: {
+      value: 'Not its job',
+      text: 'The race-logic chip accelerates graph search, not neural networks. The AI leaders are shown for context; photonic AI chips such as Lightmatter (Nature, 2025) already exist.',
+    },
+  },
+];
+
+const BASIS_STYLE: Record<Basis, string> = {
+  simulated: 'border-cyan-500/40 text-cyan-300',
+  model: 'border-cyan-500/40 text-cyan-300',
+  estimated: 'border-amber-500/40 text-amber-300',
+  measured: 'border-slate-400/40 text-slate-300',
+  vendor: 'border-slate-500/40 text-slate-400',
+  'n/a': 'border-slate-700 text-slate-500',
 };
 
-const fmt = (ns: number) => (ns >= 1000 ? `${(ns / 1000).toFixed(ns >= 10_000 ? 0 : 1)} µs` : `${ns.toFixed(1)} ns`);
-
-const ENERGY = [
-  { label: 'Moving a bit across a CMOS die', value: '~1 pJ/bit', note: 'on-chip copper interconnect (literature)' },
-  { label: 'Fetching a bit from DRAM / HBM', value: '10–100 pJ/bit', note: 'off-chip memory access (literature)' },
-  { label: 'SilicaCore optical transport', value: '~1.9 pJ/bit', note: 'laser share + modulator + detector (model)' },
-];
-
-interface Flagship {
-  chip: string;
-  maker: string;
-  kind: string;
-  compute: string;
-  memory: string;
-  power: string;
-  source: string;
-  url: string;
-}
-
-const FLAGSHIPS: Flagship[] = [
-  { chip: 'M5 Max', maker: 'Apple', kind: 'Laptop SoC (2026)', compute: '18-core CPU (6 super + 12 perf.), 40-core GPU', memory: 'up to 128 GB, 614 GB/s', power: 'not published', source: 'Apple', url: 'https://www.apple.com/newsroom/2026/03/apple-debuts-m5-pro-and-m5-max-to-supercharge-the-most-demanding-pro-workflows/' },
-  { chip: 'Rubin', maker: 'NVIDIA', kind: 'AI GPU (shipping H2 2026)', compute: '50 PFLOPS NVFP4 inference, TSMC 3 nm', memory: '288 GB HBM4, 22 TB/s', power: 'not in cited source', source: 'NVIDIA', url: 'https://developer.nvidia.com/blog/inside-the-nvidia-rubin-platform-six-new-chips-one-ai-supercomputer/' },
-  { chip: 'B300 (Blackwell Ultra)', maker: 'NVIDIA', kind: 'AI GPU', compute: '15 PFLOPS dense FP4', memory: '288 GB HBM3e, 8 TB/s', power: '1,400 W', source: "Tom's Hardware", url: 'https://www.tomshardware.com/pc-components/gpus/nvidia-announces-blackwell-ultra-b300-1-5x-faster-than-b200-with-288gb-hbm3e-and-15-pflops-dense-fp4' },
-  { chip: 'EPYC Venice (Zen 6)', maker: 'AMD', kind: 'Server CPU (Q3 2026)', compute: 'up to 256 cores, TSMC 2 nm', memory: '—', power: 'not in cited source', source: 'Hardware Busters', url: 'https://hwbusters.com/news/amd-launches-zen-6-with-epyc-venice-256-cores-on-tsmc-2nm/' },
-  { chip: 'EPYC 9965', maker: 'AMD', kind: 'Server CPU', compute: '192 cores, up to 3.7 GHz', memory: '576 GB/s per socket', power: '500 W', source: 'HPE', url: 'https://buy.hpe.com/us/en/Options/Processors/Third-Party-Processors/Third-Party-Processor-Options/AMD-EPYC-9965-2-25GHz-192%E2%80%91core-500W-Processor-for-HPE/p/P75019-B21' },
-  { chip: 'Xeon 6+ (Clearwater Forest)', maker: 'Intel', kind: 'Server CPU (2026)', compute: 'up to 288 E-cores, Intel 18A', memory: '12-ch DDR5-8000', power: '330–450 W', source: 'TechPowerUp', url: 'https://www.techpowerup.com/346941/intel-launches-xeon-6-clearwater-forest-xeon-with-288-e-cores-on-18a-process' },
-  { chip: 'Xeon 6980P', maker: 'Intel', kind: 'Server CPU', compute: '128 P-cores, up to 3.9 GHz', memory: '12-ch DDR5-6400 / MRDIMM-8800', power: '500 W', source: 'VideoCardz', url: 'https://videocardz.com/press-release/intel-launches-xeon-6-granite-rapids-6980p-with-128-cores-and-500w-tdp' },
-];
-
-const PHOTONIC = [
-  { system: 'Lightmatter', source: 'Nature, 2025', task: 'Neural networks (ResNet, BERT)', result: '65.5 TOPS at 78 W + 1.6 W optical', status: 'Fabricated, measured' },
-  { system: 'PACE (Lightelligence)', source: 'Nature, 2025', task: 'Ising optimisation, 64×64 matrix', result: '~5 ns latency, >16,000 components', status: 'Fabricated, measured' },
-  { system: 'Taichi', source: 'Science, 2024', task: 'AI chiplet', result: '160 TOPS/W inside the chiplet', status: 'Fabricated, measured' },
-  { system: 'SilicaCore', source: 'this project', task: 'Shortest path (race logic), 16×16 map', result: '42.2 ns per query, 0 errors in 25.5 M', status: 'Simulated' },
-];
+const logPos = (v: number, min: number, max: number) =>
+  (100 * (Math.log10(Math.min(Math.max(v, min), max)) - Math.log10(min))) / (Math.log10(max) - Math.log10(min));
 
 export const SectionComparison: React.FC = () => {
-  const [liveUs, setLiveUs] = useState<number | null>(null);
-  const [measuring, setMeasuring] = useState(false);
+  const [tabId, setTabId] = useState<TabId>('performance');
+  const tab = TABS.find((t) => t.id === tabId)!;
 
-  const rows: SpeedRow[] = [
-    { label: 'SilicaCore', detail: '16×16 race + TDC readout (Go simulator)', minNs: 42.2, maxNs: 42.2, kind: 'simulated' },
-    { label: 'Current desktop CPU', detail: 'Dijkstra, from the paper’s 150–800× estimate', minNs: 42.2 * 150, maxNs: 42.2 * 800, kind: 'estimated' },
-    { label: 'Intel Core i3-3217U (2012)', detail: 'Dijkstra in Go, single thread, 20,000 queries', minNs: 69_570, maxNs: 69_570, kind: 'measured' },
-  ];
-  if (liveUs !== null) {
-    rows.push({ label: 'Your computer', detail: 'Dijkstra in JavaScript, in this browser', minNs: liveUs * 1000, maxNs: liveUs * 1000, kind: 'live' });
-  }
-
-  const measure = () => {
-    setMeasuring(true);
-    setTimeout(() => {
-      setLiveUs(measureDijkstraUs(16, 400));
-      setMeasuring(false);
-    }, 30);
-  };
+  const withData = PROCESSORS.filter((p) => p.cells[tabId].value !== null).sort((a, b) => {
+    const va = a.cells[tabId].value as number;
+    const vb = b.cells[tabId].value as number;
+    return tab.better === 'lower' ? va - vb : vb - va;
+  });
+  const without = PROCESSORS.filter((p) => p.cells[tabId].value === null);
 
   return (
     <section id="section-compare" className="relative overflow-hidden border-t border-white/5 bg-[#03050b] py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-16 max-w-3xl text-center">
+        <div className="mx-auto mb-10 max-w-3xl text-center">
           <div className="mb-4 inline-flex items-center space-x-2 rounded-full border border-cyan-500/30 bg-cyan-950/60 px-3 py-1 font-mono text-xs text-cyan-300">
             <BarChart3 className="h-3.5 w-3.5" />
             <span>COMPARISONS · EVERY NUMBER SOURCED</span>
           </div>
           <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">How it stacks up.</h2>
           <p className="mt-4 text-base font-light leading-relaxed text-slate-400 sm:text-lg">
-            Same problem, different hardware: all distances from one origin on a 16×16 map. Each value says whether it was
-            simulated, measured or estimated.
+            SilicaCore next to the top processors of 2026. Pick a tab; the best value is always on top.
           </p>
         </div>
 
-        {/* Speed */}
-        <div className="mb-10 rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Gauge className="h-5 w-5 text-cyan-400" />
-              <h3 className="text-lg font-bold text-white">Time per 16×16 shortest-path query</h3>
-              <span className="text-xs text-slate-500">(log scale, lower is better)</span>
-            </div>
-            <button
-              onClick={measure}
-              disabled={measuring}
-              className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/20 disabled:opacity-50"
-            >
-              <Play className="h-3.5 w-3.5" />
-              <span>{measuring ? 'Measuring…' : liveUs === null ? 'Measure my computer' : 'Measure again'}</span>
-            </button>
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02]">
+          <div role="tablist" className="flex flex-wrap gap-1 border-b border-white/10 bg-black/30 p-2">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={tabId === id}
+                onClick={() => setTabId(id)}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
+                  tabId === id ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950' : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
+              </button>
+            ))}
           </div>
 
-          <div className="space-y-5">
-            {rows.map((r) => {
-              const style = KIND_STYLE[r.kind];
-              const left = logPos(r.minNs);
-              const width = Math.max(1.2, logPos(r.maxNs) - left);
-              const value = r.minNs === r.maxNs ? fmt(r.minNs) : `${fmt(r.minNs)} – ${fmt(r.maxNs)}`;
-              return (
-                <div key={r.label} className="grid grid-cols-1 gap-2 md:grid-cols-[260px_1fr] md:items-center md:gap-6">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-semibold ${r.kind === 'simulated' ? 'text-white' : 'text-slate-200'}`}>{r.label}</span>
-                      <span className={`rounded-full border px-1.5 py-px font-mono text-[10px] ${style.tag}`}>{style.text}</span>
-                    </div>
-                    <div className="text-xs text-slate-500">{r.detail}</div>
-                  </div>
-                  <div className="relative h-7 rounded-md bg-white/[0.03]">
-                    <div
-                      className={`absolute top-1 h-5 rounded ${style.bar}`}
-                      style={{ left: `${left}%`, width: `${width}%` }}
-                      title={value}
-                    />
-                    <span
-                      className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-2 font-mono text-xs text-slate-200"
-                      style={{ left: `${Math.min(88, left + width)}%` }}
-                    >
-                      {value}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="flex flex-col gap-2 border-b border-white/10 px-6 py-6 sm:flex-row sm:items-center sm:gap-6 sm:px-8">
+            <div className="whitespace-nowrap font-mono text-4xl font-black text-cyan-300">{tab.headline.value}</div>
+            <p className="text-sm leading-relaxed text-slate-300">{tab.headline.text}</p>
           </div>
 
-          <div className="mt-4 hidden grid-cols-[260px_1fr] gap-6 md:grid">
-            <div />
-            <div className="flex justify-between font-mono text-[10px] text-slate-500">
-              {['10 ns', '100 ns', '1 µs', '10 µs', '100 µs', '1 ms'].map((t) => (
-                <span key={t}>{t}</span>
-              ))}
-            </div>
-          </div>
-
-          <p className="mt-6 text-xs leading-relaxed text-slate-500">
-            SilicaCore numbers come from simulation; no chip exists yet. The i3-3217U figure is measured with{' '}
-            <code className="rounded bg-white/10 px-1 font-mono text-slate-300">cmd/dijkstrabench</code>; the current-CPU band is an estimate, not a benchmark. The browser runs JavaScript, which is slower than
-            native code, so your measurement is an upper bound for your machine.
-          </p>
-        </div>
-
-        {/* Flagship silicon */}
-        <div className="mb-10 rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-          <div className="mb-2 flex items-center gap-2">
-            <Cpu className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-lg font-bold text-white">The strongest silicon of 2026, for scale</h3>
-          </div>
-          <p className="mb-6 text-xs leading-relaxed text-slate-500">
-            Published specifications from each vendor or trade press. These chips are general-purpose giants; SilicaCore is a
-            narrow accelerator, so this is a sense of scale, not a benchmark. None of them has a published 16×16 shortest-path
-            time yet: run <code className="rounded bg-white/10 px-1 font-mono text-slate-300">go run ./cmd/dijkstrabench</code>{' '}
-            on one to add a real number to the speed chart.
-          </p>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-separate border-spacing-y-1.5 text-left text-xs">
-              <thead className="font-mono text-[10px] uppercase tracking-wider text-slate-500">
-                <tr>
-                  <th className="px-3 py-1 font-medium">Chip</th>
-                  <th className="px-3 py-1 font-medium">Type</th>
-                  <th className="px-3 py-1 font-medium">Compute</th>
-                  <th className="px-3 py-1 font-medium">Memory</th>
-                  <th className="px-3 py-1 font-medium">Power</th>
-                  <th className="px-3 py-1 font-medium">Source</th>
+            <table className="w-full min-w-[820px] text-left text-sm">
+              <thead className="font-mono text-[11px] uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-white/10">
+                  <th className="w-10 px-6 py-3 font-medium">#</th>
+                  <th className="px-3 py-3 font-medium">Processor</th>
+                  <th className="px-3 py-3 font-medium">
+                    {tab.metric} <span className="normal-case tracking-normal">({tab.better} is better)</span>
+                  </th>
+                  <th className="px-3 py-3 font-medium">{tab.extraHeader}</th>
+                  <th className="px-6 py-3 font-medium">Basis</th>
                 </tr>
               </thead>
               <tbody>
-                {FLAGSHIPS.map((f) => (
-                  <tr key={f.chip} className="bg-black/40 text-slate-300">
-                    <td className="rounded-l-xl px-3 py-2.5">
-                      <div className="font-semibold text-white">{f.chip}</div>
-                      <div className="text-[10px] text-slate-500">{f.maker}</div>
-                    </td>
-                    <td className="px-3 py-2.5">{f.kind}</td>
-                    <td className="px-3 py-2.5">{f.compute}</td>
-                    <td className="px-3 py-2.5">{f.memory}</td>
-                    <td className="px-3 py-2.5 font-mono">{f.power}</td>
-                    <td className="rounded-r-xl px-3 py-2.5">
-                      <a href={f.url} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">
-                        {f.source}
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-                <tr className="bg-cyan-950/40 text-slate-200">
-                  <td className="rounded-l-xl px-3 py-2.5">
-                    <div className="font-semibold text-cyan-300">SilicaCore RL-16</div>
-                    <div className="text-[10px] text-slate-500">this project</div>
-                  </td>
-                  <td className="px-3 py-2.5">Photonic accelerator (simulated)</td>
-                  <td className="px-3 py-2.5">256 race nodes, 960 delay lines; 42.2 ns per 16×16 query</td>
-                  <td className="px-3 py-2.5">graph weights stored as optical delays</td>
-                  <td className="px-3 py-2.5 font-mono">not yet derived</td>
-                  <td className="rounded-r-xl px-3 py-2.5">
-                    <a
-                      href="https://github.com/Roliveira96/SilicaCore/blob/main/docs/papers/artigo-preliminar.md"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-cyan-400 hover:underline"
-                    >
-                      Draft paper
-                    </a>
-                  </td>
-                </tr>
+                {withData.map((p, i) => {
+                  const c = p.cells[tabId];
+                  const end = Math.max(2, logPos(c.value as number, tab.scale.min, tab.scale.max));
+                  const start = c.min !== undefined ? logPos(c.min, tab.scale.min, tab.scale.max) : end;
+                  return (
+                    <tr key={p.name} className={`border-b border-white/5 ${p.silica ? 'bg-cyan-950/30' : ''}`}>
+                      <td className="px-6 py-3.5 font-mono text-slate-500">
+                        {i === 0 ? <Trophy className="h-4 w-4 text-amber-300" aria-label="best" /> : i + 1}
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <div className={`font-semibold ${p.silica ? 'text-cyan-300' : 'text-white'}`}>{p.name}</div>
+                        <div className="text-xs text-slate-500">{p.kind}</div>
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-2.5 w-40 flex-shrink-0 rounded-full bg-white/5">
+                            <div
+                              className={`absolute left-0 top-0 h-full rounded-full ${p.silica ? 'bg-cyan-400' : 'bg-slate-300'}`}
+                              style={{ width: `${start}%` }}
+                            />
+                            {c.min !== undefined && (
+                              <div
+                                className="absolute top-0 h-full rounded-r-full bg-slate-300/40"
+                                style={{ left: `${start}%`, width: `${Math.max(1, end - start)}%` }}
+                              />
+                            )}
+                          </div>
+                          <span className="whitespace-nowrap font-mono font-semibold text-white">{c.display}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3.5 text-xs text-slate-400">{c.extra}</td>
+                      <td className="px-6 py-3.5">
+                        <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] ${BASIS_STYLE[c.basis]}`}>{c.basis}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {without.map((p) => {
+                  const c = p.cells[tabId];
+                  return (
+                    <tr key={p.name} className={`border-b border-white/5 text-slate-500 ${p.silica ? 'bg-cyan-950/20' : ''}`}>
+                      <td className="px-6 py-3 font-mono">–</td>
+                      <td className="px-3 py-3">
+                        <div className={`font-semibold ${p.silica ? 'text-cyan-300/80' : 'text-slate-400'}`}>{p.name}</div>
+                        <div className="text-xs">{p.kind}</div>
+                      </td>
+                      <td className="px-3 py-3 font-mono text-xs">{c.display}</td>
+                      <td className="px-3 py-3 text-xs">{c.extra}</td>
+                      <td className="px-6 py-3">
+                        <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] ${BASIS_STYLE[c.basis]}`}>{c.basis}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Energy */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-8">
-            <div className="mb-5 flex items-center gap-2">
-              <Cpu className="h-5 w-5 text-cyan-400" />
-              <h3 className="text-lg font-bold text-white">Energy per bit moved</h3>
-            </div>
-            <div className="space-y-3">
-              {ENERGY.map((e) => (
-                <div key={e.label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <div>
-                    <div className="text-sm text-slate-200">{e.label}</div>
-                    <div className="text-xs text-slate-500">{e.note}</div>
-                  </div>
-                  <div className="whitespace-nowrap font-mono text-sm font-bold text-white">{e.value}</div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 text-xs leading-relaxed text-slate-500">
-              Per bit, light is in the same range as on-chip copper. The gain for graph search is elsewhere: the edge weights
-              live in the chip as optical delays, so a query never fetches them from DRAM.
-            </p>
-          </div>
-
-          {/* Photonic landscape */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-8">
-            <div className="mb-5 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-cyan-400" />
-              <h3 className="text-lg font-bold text-white">Other photonic processors</h3>
-            </div>
-            <div className="space-y-3">
-              {PHOTONIC.map((p) => (
-                <div
-                  key={p.system}
-                  className={`rounded-2xl border p-4 ${p.system === 'SilicaCore' ? 'border-cyan-500/40 bg-cyan-950/30' : 'border-white/10 bg-black/40'}`}
-                >
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="text-sm font-semibold text-white">{p.system}</span>
-                    <span className="font-mono text-[10px] text-slate-500">
-                      {p.source} · {p.status}
-                    </span>
-                  </div>
-                  <div className="mt-1 text-xs text-slate-400">{p.task}</div>
-                  <div className="mt-1 font-mono text-xs text-slate-200">{p.result}</div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 text-xs leading-relaxed text-slate-500">
-              These systems solve different problems, so the table shows the landscape rather than a head-to-head score.
-            </p>
-          </div>
+          <p className="px-6 py-5 text-xs leading-relaxed text-slate-500 sm:px-8">
+            <strong className="text-slate-400">Method.</strong> SilicaCore values come from the project&apos;s simulator and
+            energy model; no chip has been fabricated yet. CPU shortest-path times are estimated from Dijkstra measured on an
+            Intel i3-3217U (69.6 µs, Geekbench 6 single-core 307), scaled by each chip&apos;s single-core score; energy per
+            query is package power × that time. Other figures are vendor or press specifications:{' '}
+            <Src href="https://www.macrumors.com/2026/03/05/m5-max-geekbench-benchmarks/">M5 Max</Src>,{' '}
+            <Src href="https://www.notebookcheck.net/Apple-M5-Pro-M5-Max-CPU-Analysis-M5-Max-is-not-much-faster-than-the-M4-Max.1246054.0.html">M5 Max power</Src>,{' '}
+            <Src href="https://www.intel.com/content/www/us/en/products/sku/241060/intel-core-ultra-9-processor-285k-36m-cache-up-to-5-70-ghz/specifications.html">285K</Src>,{' '}
+            <Src href="https://en.wikipedia.org/wiki/AMD_Ryzen_9_9950X3D">9950X3D</Src>,{' '}
+            <Src href="https://buy.hpe.com/us/en/Options/Processors/Third-Party-Processors/Third-Party-Processor-Options/AMD-EPYC-9965-2-25GHz-192%E2%80%91core-500W-Processor-for-HPE/p/P75019-B21">EPYC 9965</Src>,{' '}
+            <Src href="https://videocardz.com/press-release/intel-launches-xeon-6-granite-rapids-6980p-with-128-cores-and-500w-tdp">Xeon 6980P</Src>,{' '}
+            <Src href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/">RTX 5090</Src>,{' '}
+            <Src href="https://www.tomshardware.com/pc-components/gpus/nvidia-announces-blackwell-ultra-b300-1-5x-faster-than-b200-with-288gb-hbm3e-and-15-pflops-dense-fp4">B300</Src>,{' '}
+            <Src href="https://developer.nvidia.com/blog/inside-the-nvidia-rubin-platform-six-new-chips-one-ai-supercomputer/">Rubin</Src>,{' '}
+            <Src href="https://cputronic.com/index.php/cpu/intel-core-i3-3217u">i3-3217U</Src>,{' '}
+            <Src href="https://technical.city/en/cpu/Xeon-6980P">Xeon 6980P temperature</Src>,{' '}
+            <Src href="https://gamersnexus.net/gpus/nvidia-geforce-rtx-5090-founders-edition-review-benchmarks-gaming-thermals-power">RTX 5090 temperature</Src>.
+          </p>
         </div>
       </div>
     </section>
   );
 };
+
+const Src: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
+  <a href={href} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">
+    {children}
+  </a>
+);
 
 export default SectionComparison;

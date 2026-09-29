@@ -20,7 +20,7 @@ export const SectionEnergy: React.FC = () => (
         <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Light is not free.</h2>
         <p className="mt-4 text-base font-light leading-relaxed text-slate-400 sm:text-lg">
           Waveguides carry light without resistive heating, but a working chip still spends energy producing, switching,
-          detecting and reading out that light. This is where the model stands today.
+          detecting and reading out that light. The model adds up every block, with values from published devices.
         </p>
       </div>
 
@@ -41,9 +41,9 @@ export const SectionEnergy: React.FC = () => (
         />
         <Card
           icon={<Flame className="h-5 w-5" />}
-          value="Not yet derived"
-          title="Full-chip power"
-          text="Early drafts quoted 18.5 W as an assumption. A bottom-up budget of lasers, drivers and readout is still to be done."
+          value="~9.2 W"
+          title="Whole chip, bottom-up model"
+          text="Lasers 3.2 W, 960 always-on receivers 4.8 W, 256 TDCs 1.05 W, readout 0.15 W at 23.7 M queries/s: 0.39 µJ per query."
           tone="amber"
         />
       </div>
@@ -74,8 +74,8 @@ export const SectionEnergy: React.FC = () => (
           <div className="mt-6 flex items-start gap-2 rounded-2xl border border-white/10 bg-black/40 p-4 text-xs text-slate-400">
             <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-300" />
             <span>
-              SilicaCore has not been fabricated. Every energy figure here comes from the open simulator and the cited
-              literature; the numbers will change once the fiber bench and a chip budget exist.
+              SilicaCore has not been fabricated. Every energy figure here comes from the open simulator&apos;s bottom-up model
+              and the cited literature; the always-on receivers, not the light, dominate the budget.
             </span>
           </div>
         </div>

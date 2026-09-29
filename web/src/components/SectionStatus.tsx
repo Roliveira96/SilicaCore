@@ -8,6 +8,7 @@ const VALIDATED = [
   'Si₃N₄ + TFLN routing: 1.3 dB per gate, vs. 46.6 dB for mirrors in bulk glass',
   '2D FDTD (Meep): 0.012 dB per 90° bend at R = 30 µm; Si₃N₄ → TFLN taper < 0.003 dB from 25 µm',
   'Multi-chip 64×64: 0 errors with 150 ps unit, 20–31 ns origin → target',
+  'Bottom-up energy model: ~9.2 W for the 16×16 chip, 0.39 µJ per query, ~5 °C above ambient',
 ];
 
 const ASSUMED = [
@@ -15,13 +16,13 @@ const ASSUMED = [
   'Static delay error per edge after calibration (0.5 ps rms)',
   'Chip-to-chip coupling ≤ 1.5 dB per facet',
   'Sb₂Se₃ reprogramming time (1 µs) and 100 Gb/s readout link',
-  'Full-chip power budget',
+  'Energy model inputs: 5 mW per receiver, 4.1 mW per TDC, 20% laser efficiency',
 ];
 
 const LIMITS = [
   'Not O(1): race time grows with the longest path, readout grows with the number of nodes.',
   'Area caps one chip at a 16×16 map at 100 ps; larger maps need several chips.',
-  'The speedup was measured against a 2012 laptop CPU; current CPUs and A* narrow the gap.',
+  'Speed against current CPUs is estimated from one measured CPU and Geekbench scores; A* would narrow the gap.',
   'It is an accelerator for graph problems, not a CPU replacement.',
 ];
 

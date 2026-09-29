@@ -93,12 +93,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-blue-500/40 transition-all shadow-xl">
             <div className="flex items-center space-x-1.5 text-blue-400 text-xs font-mono uppercase mb-2">
               <Zap className="w-3.5 h-3.5" />
-              <span>vs. Dijkstra</span>
+              <span>vs. top CPU</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
-              ~2,000<span className="text-xs font-sans text-blue-400 font-normal">×</span>
+              ~116<span className="text-xs font-sans text-blue-400 font-normal">×</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">vs. a 2012 laptop CPU; ~150–800× estimated vs. current CPUs</p>
+            <p className="text-xs text-slate-300 mt-1">faster than Apple M5 Max on shortest path (estimated)</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-amber-500/40 transition-all shadow-xl">

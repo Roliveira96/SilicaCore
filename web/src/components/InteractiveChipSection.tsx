@@ -279,9 +279,9 @@ export const InteractiveChipSection: React.FC = () => {
                 <div className="mt-6 flex items-start gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs leading-relaxed text-slate-300">
                   <Timer className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-300" />
                   <span>
-                    Your browser runs JavaScript, so its times are slower than native code. The paper reports ~2,000× against
-                    Go on a 2012 laptop CPU and estimates ~150–800× against current desktop CPUs. The photonic numbers come from
-                    simulation: no chip has been fabricated yet.
+                    Your browser runs JavaScript, so its times are slower than native code. Against native Dijkstra the model is
+                    ~1650× faster than a measured 2012 laptop CPU and ~116× faster than an Apple M5 Max (estimated). The
+                    photonic numbers come from simulation: no chip has been fabricated yet.
                   </span>
                 </div>
               </div>
