@@ -15,7 +15,7 @@ const BEND_SWEEPS: BendData[] = [
     lossDb: 0.1381,
     transmission: 0.9687,
     leakagePct: 3.13,
-    description: 'High radiation loss: optical field exceeds critical angle; evanescent tails leak into cladding.',
+    description: 'Tight bend: the mode shifts outwards and radiates into the cladding; mismatch at the straight-bend junctions adds loss.',
   },
   {
     radiusUm: 20,
@@ -243,7 +243,7 @@ export const Section3MaxwellLab: React.FC = () => {
                   <span className="text-cyan-300 font-medium">1.7137 (slab: 1.8836)</span>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">Radiation Leakage:</span>
+                  <span className="text-slate-400">Power lost from the fundamental mode:</span>
                   <span
                     className={`font-semibold ${
                       currentBend.leakagePct > 1 ? 'text-rose-400' : 'text-emerald-400'
@@ -255,8 +255,9 @@ export const Section3MaxwellLab: React.FC = () => {
               </div>
 
               <div className="mt-4 p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400">
-                <strong className="text-slate-300">Design Consequence:</strong> At 50 µm bend radius,
-                a 16×16 node mesh with hundreds of tight delay loops incurs under <strong>0.3 dB</strong> total bend loss, fitting within our <strong>18 dB</strong> link margin.
+                <strong className="text-slate-300">Design consequence:</strong> from R ≈ 30 µm up, each 90° bend costs about
+                0.01 dB or less, the value assumed by the link model (10 dB power margin per edge). Delay spirals are therefore
+                drawn with R ≥ 30 µm. These are 2D effective-index results; 3D simulation and measurement are still pending.
               </div>
             </div>
           </div>

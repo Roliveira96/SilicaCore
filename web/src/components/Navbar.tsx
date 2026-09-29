@@ -18,10 +18,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
 
   const navLinks = [
     { id: 'section-how-it-works', label: 'How It Works' },
-    { id: 'section-chip', label: 'Interactive Chip' },
-    { id: 'section-llm', label: 'AI & LLMs' },
-    { id: 'section-energy', label: '3-Graph Benchmark' },
-    { id: 'section-advantages', label: 'Advantages' },
+    { id: 'section-chip', label: 'The Chip' },
+    { id: 'section-compare', label: 'Comparisons' },
+    { id: 'section-maxwell', label: 'Waveguide Physics' },
+    { id: 'section-energy', label: 'Energy' },
+    { id: 'section-status', label: 'Status' },
   ];
 
   const scrollTo = (id: string) => {
@@ -97,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
             onClick={() => scrollTo('section-chip')}
             className="group px-4 py-1.5 rounded-full text-xs font-medium text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-400 hover:from-cyan-300 hover:to-blue-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all flex items-center space-x-1.5"
           >
-            <span>Test Chip Live</span>
+            <span>See the chip</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

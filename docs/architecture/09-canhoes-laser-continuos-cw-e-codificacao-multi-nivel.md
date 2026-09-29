@@ -15,13 +15,13 @@ Assim que a placa do SilicaCore é energizada, o processador inicia o direcionam
 - **Chaves Eletro-Ópticas TFLN:** chaveamento em picossegundos sem partes mecânicas. AOMs (~16.8 ns) e EOM em sílica pura (sem efeito Pockels) foram descartados na validação física (doc 11).
 - **Guias de Onda Si₃N₄:** condução e combinação dos feixes até os fotodetectores, com curvas de 50 µm no lugar de micro-espelhos (espelhos com feixe livre perdem ~46.6 dB por porta por difração).
 
-### 1.3 Origem de Engenharia & Agradecimentos Especiais (Empresa Grafis / Valmor Moreira)
+### 1.3 Origem da Ideia e Agradecimento
 
-> **Nota de Origem de Engenharia:** A premissa fundamental de operação do processador fotônico volumétrico SilicaCore com feixes contínuos (*Always-ON*) e varredura por deflexão foi diretamente observada e vivenciada na prática pelo autor (Ricardo Oliveira) em conjunto com seu colega de trabalho **Valmor Moreira** durante o período em que atuaram juntos na empresa **Grafis**.
+> **Nota de origem:** a ideia do SilicaCore é do autor (Ricardo Oliveira) e surgiu do seu trabalho com revelação fotográfica na empresa **Grafis**. O colega de trabalho **Valmor Moreira** explicou ao autor o funcionamento das máquinas a laser durante os reparos que faziam juntos; ele não participou da concepção do projeto.
 > 
 > Na empresa Grafis, operavam-se equipamentos fotográficos industriais equipados com canhões laser sólidos contínuos (RGB) que incidiam sobre um **prisma rotativo e um conjunto de espelhos ópticos**. Ao percorrer o papel fotográfico sensível à luz com velocidade e precisão micrométrica, esse sistema gerava a revelação física da imagem. 
 > 
-> A observação direta dessa máquina em funcionamento gerou o *insight* técnico que deu origem ao SilicaCore: se os canhões laser permanecem sempre acesos e o prisma/espelhos direcionam o feixe sobre o suporte fotossensível para gravar dados visuais, é perfeitamente viável projetar canhões laser sólidos contínuos integrados em micro-escala direcionados por micro-espelhos e modificadores eletro-ópticos dentro de um bloco de sílica fundida para sensibilizar matrizes de fotodetectores SPAD, realizando computação e armazenamento no tempo de propagação da luz.
+> Entender essa máquina levou o autor ao *insight* que deu origem ao SilicaCore: se os canhões laser permanecem sempre acesos e o prisma/espelhos direcionam o feixe sobre o suporte fotossensível para gravar dados visuais, é perfeitamente viável projetar canhões laser sólidos contínuos integrados em micro-escala direcionados por micro-espelhos e modificadores eletro-ópticos dentro de um bloco de sílica fundida para sensibilizar matrizes de fotodetectores SPAD, realizando computação e armazenamento no tempo de propagação da luz.
 
 ```mermaid
 flowchart TD
@@ -67,5 +67,5 @@ Em vez de limitar a transmissão a um sinal binário simples (`0` ou `1`, $1\tex
 
 ## 3. Referências Bibliográficas Científicas & Históricas
 
-1. **Grafis & Registro Prático:** Observação direta de equipamentos fotográficos de exposição a laser contínuo com varredura por prisma por Ricardo Oliveira e Valmor Moreira (Empresa Grafis).
+1. **Grafis & Registro Prático:** Experiência do autor com equipamentos fotográficos de exposição a laser contínuo com varredura por prisma (Empresa Grafis); funcionamento das máquinas explicado pelo colega Valmor Moreira.
 2. **Weng, L., et al. (2020).** "Wavelength-division multiplexed photonic computing for high-throughput matrix processing." *IEEE JSTQE*, 26(5), 1–12.

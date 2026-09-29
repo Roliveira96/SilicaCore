@@ -219,7 +219,7 @@ Trabalhos futuros:
 
 ## Agradecimentos
 
-Ao colega Valmor Moreira e à empresa Grafis, onde a observação de sistemas industriais de exposição fotográfica a laser contínuo inspirou a concepção do SilicaCore.
+Ao colega de trabalho Valmor Moreira, da empresa Grafis, que explicou ao autor o funcionamento das máquinas de exposição fotográfica a laser contínuo durante os reparos que faziam juntos; a experiência com essas máquinas inspirou o autor a conceber o SilicaCore.
 
 ## Referências
 

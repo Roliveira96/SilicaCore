@@ -95,9 +95,9 @@ Resultados do simulador em Go (física de perdas, jitter, leitura e área), com 
 
 ## De onde veio a ideia
 
-Na empresa **Grafis**, o autor (Ricardo Oliveira) e o colega **Valmor Moreira** operavam equipamentos fotográficos industriais: lasers **sempre acesos** varriam papel fotossensível guiados por um prisma rotativo e espelhos de precisão.
+Na empresa **Grafis**, o autor (Ricardo Oliveira) trabalhava com revelação fotográfica em máquinas industriais: lasers **sempre acesos** varriam papel fotossensível guiados por um prisma rotativo e espelhos de precisão. Nos reparos dessas máquinas, o colega **Valmor Moreira** explicava como funcionava o sistema a laser.
 
-Observando a máquina surgiu a pergunta que deu origem ao projeto: se um feixe contínuo e bem guiado grava uma imagem com precisão micrométrica, por que não usá-lo para **computar**?
+Foi daí que o autor tirou a pergunta que deu origem ao projeto: se um feixe contínuo e bem guiado grava uma imagem com precisão micrométrica, por que não usá-lo para **computar**?
 
 O primeiro desenho era um cubo de vidro com espelhos internos. A física respondeu. E a resposta levou a algo mais interessante.
 
@@ -248,7 +248,7 @@ Código sob [Apache 2.0](LICENSE). Documentação e artigos sob [CC BY 4.0](http
 
 ## Agradecimentos
 
-A **Valmor Moreira** e à **Grafis**, onde a observação de lasers industriais sempre acesos plantou a pergunta que virou este projeto.
+A **Valmor Moreira**, colega de trabalho na **Grafis**, que explicou ao autor o funcionamento das máquinas de revelação fotográfica a laser durante os reparos que faziam juntos. A ideia e a concepção do SilicaCore são do autor.
 
 <div align="center">
 <em>Ciência aberta: cada número deste README é reproduzível com os comandos acima.</em>

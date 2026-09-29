@@ -31,9 +31,9 @@ export const DEFAULT_PARAMS: RaceLogicParams = {
   perEdgeModulators: true,
   tdcBitsPerNode: 12,
   readoutLinkGbps: 100.0,
-  groupIndex: 1.8836,
-  propagationDbPerCm: 0.05,
-  switchLossDb: 0.2,
+  groupIndex: 2.0, // Si3N4 800 nm x 0.7 um group index (~2.06 by EIM); simulator uses 2.0
+  propagationDbPerCm: 0.1, // Si3N4 < 0.1 dB/cm [Churaev et al., 2023]
+  switchLossDb: 1.0, // TFLN switch incl. two 0.1 dB Si3N4 transitions
 };
 
 export interface Edge {
@@ -166,7 +166,7 @@ export function dijkstra(
 }
 
 // Physical Path length in mm for delay in ps: L = c * t / n_g
-export function pathLengthForDelayMM(delayPS: number, groupIndex = 1.8836): number {
+export function pathLengthForDelayMM(delayPS: number, groupIndex = 2.0): number {
   const cMmPerPS = 0.299792458; // mm / ps in vacuum
   return (cMmPerPS * delayPS) / groupIndex;
 }
@@ -335,4 +335,12 @@ export function getShortestPath(predecessors: number[], src: number, target: num
     curr = predecessors[curr];
   }
   return path[0] === src ? path : [];
+}
+
+/** Average Dijkstra time per query over many runs, measured in the current browser (microseconds). */
+export function measureDijkstraUs(side: number, runs: number): number {
+  const graph = createGridGraph(side, side, 15, 42);
+  const start = performance.now();
+  for (let r = 0; r < runs; r++) dijkstra(graph, r % graph.numNodes);
+  return ((performance.now() - start) * 1000) / runs;
 }

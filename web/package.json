@@ -9,17 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^9.106.0",
+    "@react-three/fiber": "^8.16.8",
+    "@react-three/postprocessing": "^2.16.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/three": "^0.165.0",
+    "canvas-confetti": "^1.9.3",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.400.0",
+    "postprocessing": "^6.36.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.165.0",
-    "@types/three": "^0.165.0",
-    "@react-three/fiber": "^8.16.8",
-    "@react-three/drei": "^9.106.0",
-    "lucide-react": "^0.400.0",
-    "clsx": "^2.1.1",
     "tailwind-merge": "^2.3.0",
-    "canvas-confetti": "^1.9.3",
-    "@types/canvas-confetti": "^1.9.0"
+    "three": "^0.165.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
