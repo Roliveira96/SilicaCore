@@ -198,7 +198,7 @@ type OpticalParams struct {
 	PhotonicSsdThroughputTBps float64 // Photonic Glass SSD parallel read throughput in TB/s (1.2 TB/s)
 	PhotonicSsdCapacityTB     float64 // Photonic Glass SSD volumetric storage capacity per cube (100 TB)
 
-	// Dense Wavelength Division Multiplexing (DWDM Massivo) & Optical GPU
+	// Dense Wavelength Division Multiplexing (DWDM) & Optical GPU
 	GpuWdmChannelsCount int     // WDM spectral channels for Optical GPU (RGB: 3 channels)
 	DwdmChannelsCount   int     // DWDM spectral channels (64 channels)
 	AiTensorDensityTOPS float64 // Photonic AI Tensor Core compute density (11 TOPS/mm^2)
@@ -271,7 +271,7 @@ func DefaultParams() OpticalParams {
 	}
 }
 
-// MicroCubeParams returns the ultra-high throughput configuration for a 2.0 mm micro-cube with 64-channel DWDM massivo.
+// MicroCubeParams returns the ultra-high throughput configuration for a 2.0 mm micro-cube with 64-channel dense DWDM.
 func MicroCubeParams() OpticalParams {
 	p := DefaultParams()
 	p.FastDistanceMM = MicroFastDistanceMM
