@@ -24,3 +24,11 @@ venv.bak/
 *.log
 *.tmp
 simulations/output/
+
+# Web App Artifacts
+web/node_modules/
+web/dist/
+web/build/
+web/.vite/
+*.zip
+
