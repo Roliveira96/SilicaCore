@@ -6,11 +6,15 @@
 
 *Um acelerador fotônico de pesquisa aberta que resolve menor caminho em grafos deixando pulsos de luz apostarem corrida, com cada número checado contra a física.*
 
-[![Licença: Apache 2.0](https://img.shields.io/badge/c%C3%B3digo-Apache%202.0-blue.svg)](LICENSE) [![Docs: CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8.svg)](https://go.dev/) [![FDTD: Meep](https://img.shields.io/badge/FDTD-Meep-7a3ea1.svg)](https://meep.readthedocs.io/) [![Status](https://img.shields.io/badge/status-pesquisa%20aberta-orange.svg)](planning/roadmap.md)
+[![Licença: Apache 2.0](https://img.shields.io/badge/c%C3%B3digo-Apache%202.0-blue.svg)](LICENSE) [![Docs: CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/) [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8.svg)](https://go.dev/) [![FDTD: Meep](https://img.shields.io/badge/FDTD-Meep-7a3ea1.svg)](https://meep.readthedocs.io/) [![Site: silicacore.rmo.dev.br](https://img.shields.io/badge/site-silicacore.rmo.dev.br-00f2fe.svg)](https://silicacore.rmo.dev.br/) [![Status](https://img.shields.io/badge/status-pesquisa%20aberta-orange.svg)](planning/roadmap.md)
 
-**[A ideia](#a-ideia-em-30-segundos)** · **[Resultados](#o-que-os-números-dizem)** · **[O que a física mudou](#o-que-a-física-nos-obrigou-a-mudar)** · **[Rodar agora](#experimente-em-um-minuto)** · **[Artigo](docs/papers/artigo-preliminar.md)**
+**[🌐 Site Interativo (Demo Live)](https://silicacore.rmo.dev.br/)** · **[A ideia](#a-ideia-em-30-segundos)** · **[Resultados](#o-que-os-números-dizem)** · **[O que a física mudou](#o-que-a-física-nos-obrigou-a-mudar)** · **[Rodar agora](#experimente-em-um-minuto)** · **[Artigo](docs/papers/artigo-preliminar.md)**
 
 </div>
+
+> [!TIP]
+> **🌐 Demonstração Interativa 3D e Simulador em Tempo Real:**  
+> Acesse a experiência completa em **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)** para testar o chip fotônico em 3D, simular a corrida óptica em tempo real contra o Apple M5 Max, e inspecionar os benchmarks de aceleração de IA (LLMs) e dissipação térmica.
 
 ---
 

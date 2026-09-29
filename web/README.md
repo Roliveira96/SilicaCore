@@ -1,6 +1,7 @@
 # SilicaCore Web Experience | Photonic Race Logic Interactive Simulator
+[![Live Site](https://img.shields.io/badge/live-silicacore.rmo.dev.br-00f2fe.svg)](https://silicacore.rmo.dev.br/)
 
-Interactive 3D simulation website and global research portal for **SilicaCore**, designed for IEEE, Nature Photonics, and deep-tech conference audiences.
+Interactive 3D simulation website and global research portal for **SilicaCore**, live at **[https://silicacore.rmo.dev.br/](https://silicacore.rmo.dev.br/)**, designed for IEEE, Nature Photonics, and deep-tech investor audiences.
 
 ## Architecture
 
