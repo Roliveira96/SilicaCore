@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-slate-400 text-xs max-w-md font-light leading-relaxed">
-              Planar integrated photonic co-processor leveraging Time-of-Flight race logic in Si₃N₄ / TFLN. Resolving full-graph shortest pathfinding in 42 nanoseconds.
+              Open research on a photonic co-processor that solves shortest paths with time-of-flight race logic in Si₃N₄ / TFLN. Simulated, not yet fabricated.
             </p>
           </div>
 
@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
               className="text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5"
             >
               <FileText className="w-3.5 h-3.5 text-slate-500" />
-              <span>Scientific Paper</span>
+              <span>Draft paper</span>
             </a>
             <a
               href="https://github.com/Roliveira96/SilicaCore"
@@ -59,11 +59,11 @@ export const Footer: React.FC = () => {
         {/* Bottom Credits */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
           <p>
-            Architectural Research &amp; Design by{' '}
-            <strong className="text-slate-300 font-medium">Ricardo Oliveira</strong> (UTFPR). Open Research under MIT License.
+            Idea and research by <strong className="text-slate-300 font-medium">Ricardo Oliveira</strong>. Thanks to Valmor Moreira
+            (Grafis), who explained how the laser photo-processing machines worked. Code under Apache 2.0, documentation under CC BY 4.0.
           </p>
           <p className="font-mono text-[10px]">
-            Single-query 16×16 graph benchmarks verified via Meep FDTD and C++ Dijkstra baselines.
+            16×16 results from the open Go simulator; Dijkstra baseline in Go; waveguide physics from 2D Meep FDTD.
           </p>
         </div>
       </div>

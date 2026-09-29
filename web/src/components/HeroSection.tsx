@@ -1,5 +1,6 @@
 import React from 'react';
-import { Play, FileText, ArrowRight, Zap, Clock, ShieldCheck, Flame, Sparkles } from 'lucide-react';
+import { Play, FileText, ArrowRight, Zap, Clock, ShieldCheck, Layers } from 'lucide-react';
+import heroBg from '../assets/hero-bg.jpg';
 
 interface HeroSectionProps {
   onLaunchSim: () => void;
@@ -11,8 +12,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
       {/* Background Silicon Photonics Microchip Photograph */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
-          src="/hero-bg.jpg"
-          alt="SilicaCore Silicon Photonics Integrated Chip with 1550nm Laser Injection"
+          src={heroBg}
+          alt="Photonic integrated chip illustration"
           className="w-full h-full object-cover object-center opacity-70"
         />
         {/* Cinematic dark gradients to balance image visibility and text readability */}
@@ -27,7 +28,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
         {/* Apple-style intro tag */}
         <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-cyan-300 text-xs font-mono mb-8 backdrop-blur-xl shadow-lg">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-          <span>SILICACORE • INTEGRATED PHOTONIC RACE LOGIC</span>
+          <span>SILICACORE • OPEN RESEARCH • PHOTONIC RACE LOGIC</span>
         </div>
 
         {/* Giant Apple-style Headline */}
@@ -40,8 +41,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
 
         {/* Crisp Sub-headline */}
         <p className="mt-6 text-lg sm:text-xl md:text-2xl text-slate-200 max-w-3xl font-light leading-relaxed drop-shadow">
-          The planar photonic co-processor that resolves complex graph pathfinding in{' '}
-          <strong className="text-white font-semibold">42.2 nanoseconds</strong>. No memory bottlenecks. No clock cycles. Just pure speed-of-light transit.
+          A photonic co-processor concept that solves shortest paths by letting light pulses race through programmable delay
+          lines. In simulation, a 16×16 map is solved in{' '}
+          <strong className="text-white font-semibold">42.2 nanoseconds</strong>, readout included.
         </p>
 
         {/* Action Buttons */}
@@ -51,7 +53,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
             className="group px-7 py-3.5 rounded-full font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-400 hover:from-cyan-300 hover:to-blue-300 shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all flex items-center space-x-2 text-sm"
           >
             <Play className="w-4 h-4 fill-slate-950 transition-transform group-hover:scale-110" />
-            <span>Test Interactive Chip</span>
+            <span>See the chip in 3D</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>
 
@@ -62,7 +64,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
             className="px-6 py-3.5 rounded-full font-medium text-white bg-white/10 hover:bg-white/15 border border-white/15 hover:border-white/25 transition-all text-sm flex items-center space-x-2 backdrop-blur-xl shadow-md"
           >
             <FileText className="w-4 h-4 text-cyan-400" />
-            <span>Read Pre-print Paper</span>
+            <span>Read the draft paper</span>
           </a>
         </div>
 
@@ -71,43 +73,43 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-cyan-500/40 transition-all shadow-xl">
             <div className="flex items-center space-x-1.5 text-cyan-400 text-xs font-mono uppercase mb-2">
               <Clock className="w-3.5 h-3.5" />
-              <span>Full-Graph Latency</span>
+              <span>Per query (16×16)</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
               42.2 <span className="text-xs font-sans text-cyan-400 font-normal">ns</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">Light wavefront + TDC latch</p>
+            <p className="text-xs text-slate-300 mt-1">11.5 ns race + 30.7 ns readout</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-emerald-500/40 transition-all shadow-xl">
             <div className="flex items-center space-x-1.5 text-emerald-400 text-xs font-mono uppercase mb-2">
-              <Zap className="w-3.5 h-3.5" />
-              <span>Speedup Factor</span>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Decoding errors</span>
             </div>
-            <div className="text-3xl font-extrabold text-white font-mono tracking-tight">398× - 535×</div>
-            <p className="text-xs text-slate-300 mt-1">Faster than Apple M5 Max &amp; x86</p>
+            <div className="text-3xl font-extrabold text-white font-mono tracking-tight">0</div>
+            <p className="text-xs text-slate-300 mt-1">in 25.5 M simulated distances (&lt; 1.2×10⁻⁷, 95%)</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-blue-500/40 transition-all shadow-xl">
             <div className="flex items-center space-x-1.5 text-blue-400 text-xs font-mono uppercase mb-2">
               <Zap className="w-3.5 h-3.5" />
-              <span>Total System TDP</span>
+              <span>vs. Dijkstra</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
-              18.5 <span className="text-xs font-sans text-blue-400 font-normal">W</span>
+              ~2,000<span className="text-xs font-sans text-blue-400 font-normal">×</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">76% lower power than Apple M5 Max</p>
+            <p className="text-xs text-slate-300 mt-1">vs. a 2012 laptop CPU; ~150–800× estimated vs. current CPUs</p>
           </div>
 
           <div className="p-5 rounded-3xl bg-black/60 border border-white/15 backdrop-blur-2xl text-left hover:border-amber-500/40 transition-all shadow-xl">
             <div className="flex items-center space-x-1.5 text-amber-400 text-xs font-mono uppercase mb-2">
-              <Flame className="w-3.5 h-3.5" />
-              <span>Operating Temp</span>
+              <Layers className="w-3.5 h-3.5" />
+              <span>Die area</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
-              28 <span className="text-xs font-sans text-amber-400 font-normal">°C</span>
+              648 <span className="text-xs font-sans text-amber-400 font-normal">mm²</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">Ice-cold passive conduction</p>
+            <p className="text-xs text-slate-300 mt-1">fits one 858 mm² lithography reticle</p>
           </div>
         </div>
       </div>

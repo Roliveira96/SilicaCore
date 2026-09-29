@@ -18,7 +18,7 @@ export const HowItWorksSection: React.FC = () => {
             How the Processor Works.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed font-light">
-            Instead of shuttling billions of bits back and forth between registers and DRAM, SilicaCore lets physics solve the problem. Here is how a calculation happens in 3 simple steps:
+            Instead of executing a shortest-path algorithm step by step, the chip turns the map itself into a race track for light. Here is how one query works:
           </p>
         </div>
 
@@ -39,13 +39,13 @@ export const HowItWorksSection: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Laser Injection</h3>
               <p className="text-sm text-slate-300 leading-relaxed font-normal">
-                A continuous 1550 nm laser injects a clean optical pulse directly into the chip facet through an ultra-low-loss inverse-taper edge coupler (≤ 1.5 dB).
+                A picosecond 1550 nm pulse (from a mode-locked laser or frequency comb) enters the chip through a fiber array and an edge coupler, at the node chosen as origin.
               </p>
             </div>
 
             <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-cyan-300">
               <span>Wavelength: 1550 nm</span>
-              <span>Insertion: ≤ 1.5 dB</span>
+              <span>Edge coupler ≤ 1.5 dB (assumed)</span>
             </div>
           </div>
 
@@ -64,13 +64,13 @@ export const HowItWorksSection: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Wavefront Race</h3>
               <p className="text-sm text-slate-300 leading-relaxed font-normal">
-                Light branches into all silicon nitride (Si₃N₄) waveguides simultaneously. Spiral lengths encode physical distances. The shortest route wins naturally.
+                Every road of the map is a Si₃N₄ delay spiral whose length encodes its cost. Each node detects the first pulse to arrive and re-fires it to all outgoing roads.
               </p>
             </div>
 
             <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-blue-300">
               <span>All Paths in Parallel</span>
-              <span>0 Joule Heating</span>
+              <span>Weights set by Sb₂Se₃ switches</span>
             </div>
           </div>
 
@@ -89,13 +89,13 @@ export const HowItWorksSection: React.FC = () => {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Instant Detection</h3>
               <p className="text-sm text-slate-300 leading-relaxed font-normal">
-                The first photon wavefront to reach the destination latches an ultra-fast Time-to-Digital Converter (TDC). The shortest path is locked in 42.2 nanoseconds.
+                A time-to-digital converter records when each node fired; that time is its shortest distance. For a 16×16 map: 11.5 ns of race plus 30.7 ns of electronic readout.
               </p>
             </div>
 
             <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-emerald-300">
               <span>Latency: 42.2 ns</span>
-              <span>Zero Memory Stalls</span>
+              <span>Readout dominates</span>
             </div>
           </div>
         </div>
@@ -106,13 +106,13 @@ export const HowItWorksSection: React.FC = () => {
             <div>
               <div className="inline-flex items-center space-x-1.5 text-xs font-mono text-cyan-300 uppercase tracking-wider mb-1">
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Quantum Photonic Superposition</span>
+                <span>Long-term concept · not part of the race-logic chip</span>
               </div>
               <h3 className="text-2xl font-bold text-white tracking-tight">
                 Dual-Rail Photonic Qubit Trajectory
               </h3>
               <p className="text-sm text-slate-300 font-normal mt-1">
-                Visualizing how a single photon travels through paths |0⟩, |1⟩, or both paths at once (1 and 0 simultaneously).
+                The same waveguide technology can encode a qubit in which of two waveguides a single photon travels. This is a separate research direction: it needs single-photon sources and cryogenic detectors (1–4 K) and has not been modeled beyond waveguide loss.
               </p>
             </div>
 
@@ -146,7 +146,7 @@ export const HowItWorksSection: React.FC = () => {
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
-                Superposition |0⟩ + |1⟩ (1 &amp; 0)
+                Superposition
               </button>
             </div>
           </div>
@@ -169,7 +169,7 @@ export const HowItWorksSection: React.FC = () => {
                   )}
                 </div>
                 <span className="font-mono text-xs text-slate-400 w-24 text-right">
-                  {qubitState === '0' ? '100% Light' : qubitState === 'superposition' ? '50% Light' : '0% (Dark)'}
+                  {qubitState === '0' ? 'P = 100%' : qubitState === 'superposition' ? 'P = 50%' : 'P = 0%'}
                 </span>
               </div>
 
@@ -196,7 +196,7 @@ export const HowItWorksSection: React.FC = () => {
                   )}
                 </div>
                 <span className="font-mono text-xs text-slate-400 w-24 text-right">
-                  {qubitState === '1' ? '100% Light' : qubitState === 'superposition' ? '50% Light' : '0% (Dark)'}
+                  {qubitState === '1' ? 'P = 100%' : qubitState === 'superposition' ? 'P = 50%' : 'P = 0%'}
                 </span>
               </div>
             </div>
@@ -208,7 +208,7 @@ export const HowItWorksSection: React.FC = () => {
                 <span className="font-mono text-cyan-300">
                   {qubitState === '0' && '|ψ⟩ = |0⟩'}
                   {qubitState === '1' && '|ψ⟩ = |1⟩'}
-                  {qubitState === 'superposition' && '|ψ⟩ = (1/√2)|0⟩ + (1/√2)|1⟩ (Simultaneous 1 and 0)'}
+                  {qubitState === 'superposition' && '|ψ⟩ = (|0⟩ + |1⟩)/√2 · a measurement finds the photon in one rail, 50% each'}
                 </span>
               </div>
               <div className="text-slate-500 font-mono">Linear Optical Quantum Computing (LOQC)</div>

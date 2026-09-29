@@ -3,9 +3,10 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { HowItWorksSection } from './components/HowItWorksSection';
 import { InteractiveChipSection } from './components/InteractiveChipSection';
-import { SectionLLMBenchmark } from './components/SectionLLMBenchmark';
-import { SectionEnergyChart } from './components/SectionEnergyChart';
-import { SectionAdvantages } from './components/SectionAdvantages';
+import { SectionComparison } from './components/SectionComparison';
+import { Section3MaxwellLab } from './components/Section3MaxwellLab';
+import { SectionEnergy } from './components/SectionEnergy';
+import { SectionStatus } from './components/SectionStatus';
 import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
@@ -16,9 +17,10 @@ export const App: React.FC = () => {
     const sectionIds = [
       'section-how-it-works',
       'section-chip',
-      'section-llm',
+      'section-compare',
+      'section-maxwell',
       'section-energy',
-      'section-advantages',
+      'section-status',
     ];
 
     const handleScroll = () => {
@@ -58,20 +60,23 @@ export const App: React.FC = () => {
         {/* 1. Cinematic Apple-Style Hero */}
         <HeroSection onLaunchSim={handleLaunchSim} />
 
-        {/* 2. Visual 3-Step "How It Works" + Photonic Qubit */}
+        {/* 2. How one query works, plus the long-term photonic qubit concept */}
         <HowItWorksSection />
 
-        {/* 3. Live Processor Benchmark Arena (SilicaCore vs Apple M5 Max) + 3D Die */}
+        {/* 3. Physically scaled 3D chip with the simulated race, and race vs. measured Dijkstra */}
         <InteractiveChipSection />
 
-        {/* 4. AI & Large Language Models (LLM) Acceleration Arena */}
-        <SectionLLMBenchmark />
+        {/* 4. Sourced comparisons: speed, energy per bit and other photonic processors */}
+        <SectionComparison />
 
-        {/* 5. The 3 Comparative Graphs: Speed, TDP Power & Heat (Apple M5 Max, Intel, AMD, NVIDIA) */}
-        <SectionEnergyChart />
+        {/* 5. 2D FDTD results for bends and the Si3N4 -> TFLN taper */}
+        <Section3MaxwellLab />
 
-        {/* 6. The Investor & Commercial Advantages (Bento Grid) */}
-        <SectionAdvantages />
+        {/* 6. Energy: where the power goes and what is still undetermined */}
+        <SectionEnergy />
+
+        {/* 7. Research status: validated results, assumptions, limits and next steps */}
+        <SectionStatus />
       </main>
 
       {/* Apple-Style Minimal Footer */}
