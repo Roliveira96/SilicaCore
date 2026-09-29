@@ -27,9 +27,9 @@ export const SectionEnergy: React.FC = () => (
       <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card
           icon={<Zap className="h-5 w-5" />}
-          value="~1.9 pJ/bit"
+          value="~7.6 pJ/bit"
           title="Optical transport, from the model"
-          text="Laser power shared over the real aggregate bit rate (~1.3 Tb/s), plus modulator and detector energy. Same order as CMOS links."
+          text="Laser power shared over the binary aggregate bit rate (64 channels × ~5 GHz ≈ 0.33 Tb/s), plus modulator and detector energy. Same order as off-package electrical links."
           tone="cyan"
         />
         <Card

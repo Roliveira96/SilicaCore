@@ -2,11 +2,13 @@
 
 > **Nota de validação (v1.1, 28/09/2026):** a partição ROM em voxels de vidro é tecnologia real de **arquivo** (escrita única, leitura por microscopia, Project Silica/SOSP 2023), não um SSD de picossegundos. Na arquitetura para jogos e IA local, o armazenamento em massa é NVMe acessado por enlace óptico (doc [12](12-memoria-unificada-jogos-e-ia-local.md)); densidade e vazão abaixo ficam como premissas.
 
+> **Revisão v1.2 (29/09/2026):** este documento descreve o conceito original. O "Photonic SSD" não faz parte da arquitetura proposta; o que sobra dele é o arquivo de longo prazo em vidro, que já existe como tecnologia de terceiros.
+
 ## 1. Visão Geral do Photonic SSD
 
 O **SilicaCore** expande o conceito tradicional de discos rígidos e memórias flash (SSDs NAND) ao integrar o armazenamento de massa permanente e regravável diretamente no substrato monolítico de sílica fundida ($SiO_2$). 
 
-O **Photonic Solid-State Drive (Photonic SSD)** combina a densidade de armazenamento volumétrico tridimensional em escala micrométrica com a leitura óptica síncrona na velocidade da luz no meio ($v = c/n = 0.20675\text{ mm/ps}$), eliminando tanto as peças mecânicas móveis (dos HDDs) quanto a degradação e vazamento de carga elétrica em portas de transistores (dos SSDs eletrônicos).
+O **Photonic Solid-State Drive (Photonic SSD)** combinaria a densidade de armazenamento volumétrico tridimensional em escala micrométrica com leitura óptica sem partes móveis (a leitura real de voxels em vidro é por microscopia, em ms–s), eliminando tanto as peças mecânicas móveis (dos HDDs) quanto a degradação e vazamento de carga elétrica em portas de transistores (dos SSDs eletrônicos).
 
 ```mermaid
 flowchart TD
@@ -39,8 +41,8 @@ flowchart TD
 ### 2.2 Partição R/W Regravável (Materiais de Mudança de Fase Fotônica - PCM)
 - **Mecanismo de Gravação/Apagamento:** Guias de onda ópticos acoplados a microcamadas de calcogenetos. **Sb₂Se₃ é o material recomendado** (transparente em 1550 nm, > 1.4×10⁸ ciclos); o GST absorve fortemente em 1550 nm no estado cristalino.
 - **Operação de Escrita (Block Write / Erase):**
-  - **Pulso de Gravação (Amorfo $\to$ Cristalino):** Pulso laser curto com aquecimento local promove a cristalização rápida (alto índice de refração / bit `1`).
-  - **Pulso de Apagamento (Cristalino $\to$ Amorfo):** Pulso laser curto e intenso derrete localmente o filme seguido de resfriamento ultrarrápido (baixo índice de refração / bit `0`).
+  - **Cristalização (amorfo $\to$ cristalino, bit `1`):** pulso mais longo e de menor intensidade, que mantém o filme acima da temperatura de cristalização sem derreter (índice de refração mais alto).
+  - **Amorfização (cristalino $\to$ amorfo, bit `0`):** pulso curto e intenso que derrete o filme, seguido de resfriamento rápido que congela a fase amorfa (índice mais baixo).
 - **Função em Modo SSD:** Armazenar arquivos dinâmicos de usuário, bancos de dados, partições modificáveis e matrizes de pesos de IA reconfiguráveis (*Ríos et al., Nature Photonics 2015*).
 
 ---

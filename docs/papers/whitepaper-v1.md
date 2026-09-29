@@ -1,5 +1,7 @@
 # SilicaCore: Arquitetura Volumétrica de Computação Óptica por Tempo de Voo (ToF), Motor Laser Contínuo CW em Estado Sólido, Codificação M-ária (Hex/Byte), LOQC, GPU WDM RGB e Photonic SSD
 
+> **Documento histórico, superado (29/09/2026).** Este texto descreve o conceito original (bloco de sílica, lasers RGB, espelhos internos, codificação hexadecimal/byte, quântico a 298 K) e **não representa o estado atual do projeto**. Vários pontos foram refutados pela validação física: veja o [README](../../README.md), o [artigo preliminar](artigo-preliminar.md) e os docs de arquitetura 11, 14 e 15.
+
 **Autor:** Ricardo Oliveira (Roliveira96) & Colaboradores da UTFPR  
 **Data:** 28 de Setembro de 2026  
 **Revisão:** v1.1 — validação física pelo simulador Go (Q, BER, taxa por canal, roteamento)  
@@ -72,7 +74,7 @@ Qubits dual-rail operando interferência Hong-Ou-Mandel (HOM) com $99.4\%$ de vi
 
 ## 5. GPU Óptica WDM RGB e Photonic AI Tensor Core
 
-- **GPU WDM RGB:** Paralelismo em 3 comprimentos de onda (*Weng et al., IEEE JSTQE 2020*). O ray tracing de cenas virtuais continua numérico e eletrônico; o ganho óptico em jogos está nas redes neurais de upscaling, geração de quadros e denoise.
+- **GPU WDM RGB:** Paralelismo em 3 comprimentos de onda. O ray tracing de cenas virtuais continua numérico e eletrônico; o ganho óptico em jogos está nas redes neurais de upscaling, geração de quadros e denoise.
 - **Photonic AI Tensor Core:** Multiplicação MVM por malha MZI e computação In-Memory em PCM (*Shen et al., Nature Photonics 2017; Feldmann et al., Nature 2021; Xu et al., Nature 2021*). A eficiência de $> 100$ TOPS/W vale no núcleo óptico; no sistema completo o estado da arte é $\approx 0.84$ TOPS/W (*Ahmed et al., Nature 2025*).
 
 ---
@@ -97,11 +99,10 @@ Densidade de $6.4\text{ TB/cm}^3$ ($100\text{ TB}$ em $15.6\text{ cm}^3$), vazã
 4. **Carolan, J., et al. (2015).** "Universal linear optics." *Science*, 349(6249), 711–716.
 5. **Crespi, A., et al. (2013).** *Nature Photonics*, 7(7), 545–549.
 6. **Shen, Y., et al. (2017).** *Nature Photonics*, 11(7), 441–446.
-7. **Feldmann, J., et al. (2021).** *Nature*, 595(7867), 373–378.
+7. **Feldmann, J., et al. (2021).** *Nature*, 589, 52–58.
 8. **Xu, X., et al. (2021).** *Nature*, 589(7840), 44–51.
-9. **Weng, L., et al. (2020).** *IEEE JSTQE*, 26(5), 1–12.
-10. **Zhang, J., et al. (2014).** *Physical Review Letters*, 112(3), 033901.
-11. **Ríos, C., et al. (2015).** *Nature Photonics*, 9(11), 700–706.
-12. **Ahmed, S. R., et al. (2025).** "Universal photonic artificial intelligence acceleration." *Nature*, 640, 368–374.
-13. **Churaev, M., et al. (2023).** "A heterogeneously integrated lithium niobate-on-silicon nitride photonic platform." *Nature Communications*, 14, 3499.
-14. **Miller, D. A. B. (2010).** "Are optical transistors the logical next step?" *Nature Photonics*, 4, 3–5.
+9. **Zhang, J., et al. (2014).** *Physical Review Letters*, 112(3), 033901.
+10. **Ríos, C., et al. (2015).** *Nature Photonics*, 9(11), 700–706.
+11. **Ahmed, S. R., et al. (2025).** "Universal photonic artificial intelligence acceleration." *Nature*, 640, 368–374.
+12. **Churaev, M., et al. (2023).** "A heterogeneously integrated lithium niobate-on-silicon nitride photonic platform." *Nature Communications*, 14, 3499.
+13. **Miller, D. A. B. (2010).** "Are optical transistors the logical next step?" *Nature Photonics*, 4, 3–5.

@@ -1,14 +1,14 @@
 # Race Logic Fotônica para Menor Caminho em Plataforma Si₃N₄/TFLN: Orçamento Físico e Validação Estatística por Simulação
 
 **Autor:** Ricardo Oliveira — UTFPR *[afiliação e coautores a confirmar]*  
-**Status:** rascunho preliminar v0 (28/09/2026) — alvo: SBESC / WSCAD (SBC) ou IEEE Photonics Conference  
+**Status:** rascunho preliminar v0.1 (29/09/2026, revisão de baselines e da porta ToF) — alvo: SBESC / WSCAD (SBC) ou IEEE Photonics Conference  
 **Código e dados:** [github.com/Roliveira96/SilicaCore](https://github.com/Roliveira96/SilicaCore) (`simulations/go`, `simulations/results`)
 
 ---
 
 ## Resumo
 
-Propostas de processadores ópticos frequentemente reportam ganhos derivados apenas do tempo de voo da luz, sem orçamento de potência, sem limites de detecção e sem estatística de erro. Este trabalho parte de uma arquitetura conceitual de computação por tempo de voo (SilicaCore) e a submete a um modelo físico com parâmetros da literatura de 2023–2026. Mostramos que o roteamento por espelhos internos em bloco de sílica perde ~46,6 dB por porta por difração e não tem comutador em picossegundos, enquanto guias de Si₃N₄ com chaves de niobato de lítio em filme fino (TFLN) perdem ~1,3 dB por porta e permitem 7 portas em cascata antes de regenerar o sinal. Sobre essa plataforma, mapeamos *race logic* — computação em que o valor é o tempo de chegada de um pulso — para resolver menor caminho em grafos: arestas são linhas de atraso programáveis por chaves Sb₂Se₃ e nós detectam a primeira chegada e reemitem. Uma campanha Monte Carlo com 10 chips simulados × 10⁴ consultas (2,55×10⁷ distâncias por configuração) em um mapa 16×16 mostra que a unidade de atraso de 50 ps produz 1,23×10⁻⁴ erros por distância, enquanto 100 ps produz 0 erros (limite superior de 1,2×10⁻⁷ com 95% de confiança). O erro medido por número de saltos segue a previsão gaussiana de ruído acumulado. Cada consulta leva 42,2 ns, dominados pela leitura eletrônica dos tempos (30,7 ns), e o circuito ocupa 648 mm², dentro de um retículo de litografia. O ganho não é O(1): cresce com a distância máxima do grafo e é limitado pela leitura e pela área. Mapas maiores podem ser compostos por vários chips numa corrida única (64×64: 20,5 ns por consulta com unidade de 150 ps e 0 erros), desde que o acoplamento entre chips fique em ≤ 1,5–2 dB por face.
+Propostas de processadores ópticos frequentemente reportam ganhos derivados apenas do tempo de voo da luz, sem orçamento de potência, sem limites de detecção e sem estatística de erro. Este trabalho parte de uma arquitetura conceitual de computação por tempo de voo (SilicaCore) e a submete a um modelo físico com parâmetros da literatura de 2023–2026. Mostramos que o roteamento por espelhos internos em bloco de sílica perde ~46,6 dB por porta por difração e não tem comutador em picossegundos, enquanto guias de Si₃N₄ com chaves de niobato de lítio em filme fino (TFLN) perdem ~1,3 dB por porta e permitem 7 portas em cascata antes de regenerar o sinal. Sobre essa plataforma, mapeamos *race logic* — computação em que o valor é o tempo de chegada de um pulso — para resolver menor caminho em grafos: arestas são linhas de atraso programáveis por chaves Sb₂Se₃ e nós detectam a primeira chegada e reemitem. Uma campanha Monte Carlo com 10 chips simulados × 10⁴ consultas (2,55×10⁷ distâncias por configuração) em um mapa 16×16 mostra que a unidade de atraso de 50 ps produz 1,23×10⁻⁴ erros por distância, enquanto 100 ps produz 0 erros (limite superior de 1,2×10⁻⁷ com 95% de confiança). O erro medido por número de saltos segue a previsão gaussiana de ruído acumulado. Cada consulta leva 42,2 ns, dominados pela leitura eletrônica dos tempos (30,7 ns), e o circuito ocupa 648 mm², dentro de um retículo de litografia. O ganho não é O(1): cresce com a distância máxima do grafo e é limitado pela leitura e pela área. Mapas maiores podem ser compostos por vários chips numa corrida única (64×64: 30,7 ns origem→destino com unidade de 150 ps e 0 erros), desde que o acoplamento entre chips fique em ≤ 1,5–2 dB por face. Contra o melhor algoritmo eletrônico para pesos inteiros (fila de baldes de Dial), a vantagem estimada sobre uma CPU atual é de ~42× por consulta; num mapa fixo, uma tabela pré-calculada responde mais rápido que o chip. O nicho favorável é o de mapas que mudam entre lotes de consultas: ~34× com 100 consultas por mudança, sob a premissa de reprogramação em 1 µs.
 
 **Palavras-chave:** computação fotônica, race logic, niobato de lítio em filme fino, nitreto de silício, menor caminho, materiais de mudança de fase.
 
@@ -98,7 +98,7 @@ O modelo foi implementado em Go (`simulations/go/pkg/optical`) e é reproduzíve
 
 **Previsão teórica.** Um nó a $h$ saltos erra quando o ruído acumulado excede $\tau/2$: $P_{\text{err}}(h) = \text{erfc}\!\left(\frac{\tau/2}{\sigma\sqrt{2h}}\right)$, com $\sigma = \sqrt{\sigma_{\text{nó}}^2 + \sigma_{\text{aresta}}^2}$.
 
-**Baseline eletrônico.** Dijkstra em Go com heap binário tipado (sem alocação por inserção), thread única, em Intel Core i3-3217U (2012, 1,8 GHz).
+**Baselines eletrônicos.** Três implementações em Go, thread única, em Intel Core i3-3217U (2012, 1,8 GHz), todas devolvendo as 256 distâncias de uma origem (`go run ./cmd/dijkstrabench`): (i) Dijkstra com heap binário tipado; (ii) Dijkstra com fila de baldes circular [Dial 1969], o algoritmo adequado a pesos inteiros pequenos; (iii) cópia de uma linha de uma tabela com todas as distâncias, pré-calculada uma vez (mapa fixo). Para CPUs atuais, os tempos são escalados pela pontuação single-core do Geekbench 6 (i3-3217U: 307; Apple M5 Max: 4349), uma estimativa de primeira ordem para um problema que cabe na cache.
 
 **Verificação eletromagnética.** As perdas de curva e de transição Si₃N₄→TFLN do modelo foram verificadas por FDTD no Meep 1.34, em 2D pelo método do índice efetivo (a curva no plano do chip; a transição num corte vertical, com a largura do taper convertida em índice de camada). A transmissão é medida por decomposição no modo fundamental; as geometrias usam suavização subpixel e cada caso foi repetido com resolução maior (20→30 px/µm nas curvas, 50→70 px/µm na transição), com variação ≤ 8%.
 
@@ -128,6 +128,17 @@ Os resultados indicam, em aproximação planar, que a premissa de 0,01 dB por cu
 
 Com $\Delta t = 100$ ps e $\sigma_{\text{total}} = 11,24$ ps, $Q = 4,45$ e BER ≈ 4,3×10⁻⁶ (Monte Carlo com 10⁶ amostras: ~2×10⁻⁵). A razão $\Delta t/\sigma = 8,9$, anteriormente reportada como margem com BER < 10⁻¹², é o dobro de Q. BER de 10⁻¹² exige $Q = 7,03$, isto é, $\sigma_{\text{total}} \le 7,1$ ps. O slot mínimo $\Delta t + W \approx 195$ ps limita a taxa a ~5,1 GHz por canal.
 
+A diferença entre a BER teórica (4,3×10⁻⁶) e a de Monte Carlo (~2×10⁻⁵) vem do critério de decisão: a fórmula acima usa um limiar no meio entre $t_1$ e $t_0$, enquanto a simulação rejeita pulsos fora da janela de ±47,5 ps. Nesse caso contam as duas caudas, e a taxa esperada é $\text{erfc}\!\left(\tfrac{W/2}{\sigma\sqrt2}\right) \approx 2{,}4\times10^{-5}$.
+
+**Estes números são do conceito original** (caminhos em sílica com $n = 1{,}45$, laser de 8 ps FWHM, SPAD de 25 ps FWHM e TDC de 5 ps). Na plataforma adotada, com espirais de Si₃N₄ ($n_g = 2{,}0$) e o mesmo fotodiodo do nó de race logic (1,5 ps rms, premissa), a porta foi recalculada (`go run ./cmd/tofplatform`):
+
+| Porta ToF | Caminhos $d_1$ / $d_0$ | $\sigma_{\text{total}}$ | $Q$ ($\Delta t$ = 100 ps) | $\Delta t$ para BER 10⁻¹² | Taxa por canal (só temporização) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| Conceito original (sílica + SPAD) | 20,0 / 40,7 mm | 11,24 ps | 4,45 | 158 ps | 5,1 GHz |
+| **Plataforma (Si₃N₄ + fotodiodo InGaAs)** | **14,5 / 29,5 mm** | **2,12 ps** | **23,5** | **30 ps (4,5 mm)** | **17 GHz** |
+
+A taxa da plataforma é um limite de temporização; a banda dos moduladores, dos detectores e do TDC ainda precisa entrar na conta.
+
 ### 5.3 Correção do race logic
 
 | $\tau$ (ps) | Q no pior caminho (32 saltos) | Distâncias erradas / 2,55×10⁷ | Taxa (limite 95%) | Previsto | Consultas com erro |
@@ -156,7 +167,7 @@ O erro medido segue a previsão de ruído acumulado. O excesso agregado de ~14% 
 
 ### 5.4 Desempenho, leitura e área ($\tau = 100$ ps)
 
-| Mapa | Corrida | Leitura TDC | Total | Dijkstra (Go, i3-3217U) | Área das espirais |
+| Mapa | Corrida | Leitura TDC | Total | Dijkstra com heap (Go, i3-3217U) | Área das espirais |
 | :--- | ---: | ---: | ---: | ---: | :--- |
 | 8×8 | 6,0 ns | 7,7 ns | 13,7 ns | ~20 µs | 151 mm² |
 | 16×16 | 11,5 ns | 30,7 ns | 42,2 ns | ~50–100 µs | 648 mm² |
@@ -164,6 +175,26 @@ O erro medido segue a previsão de ruído acumulado. O excesso agregado de ~14% 
 | 64×64 | 41,9 ns | 491,5 ns | 533,5 ns | ~2 ms | 10.879 mm² |
 
 O circuito 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs; a aresta mais longa tem 221,8 mm de espiral e perde 5,2 dB (margem de 10 dB). O retículo de litografia (26 × 33 mm, 858 mm²) comporta até 16×16.
+
+### 5.4.1 Baselines eletrônicos e o nicho real
+
+| Baseline (uma origem, todas as distâncias, 16×16) | i3-3217U (medido) | Ganho da corrida (42,2 ns) | CPU atual (estimado, M5 Max) | Ganho da corrida |
+| :--- | ---: | ---: | ---: | ---: |
+| Dijkstra com heap binário | 65,5 µs | 1553× | 4,6 µs | ~110× |
+| **Dijkstra com fila de baldes (Dial)** | **25,4 µs** | **601×** | **1,79 µs** | **~42×** |
+| Tabela pré-calculada, cópia de uma linha (mapa fixo) | 0,11 µs | 2,7× | ~8 ns | **~0,2× (a CPU vence)** |
+
+A tabela de todas as distâncias do 16×16 ocupa 256 KB e é calculada em 6,5 ms no i3 (~0,46 ms estimado numa CPU atual). **Num mapa fixo, ela responde mais rápido que o chip.** A corrida só compensa quando o mapa muda entre consultas. Com reprogramação do chip em 1 µs (premissa), contra a melhor opção da CPU atual (Dial por consulta ou recalcular a tabela):
+
+| Consultas por mudança do mapa | Chip (reprogramar + consultas) | CPU atual (melhor opção) | Ganho do chip |
+| ---: | ---: | ---: | ---: |
+| 1 | 1,04 µs | 1,79 µs | 1,7× |
+| 10 | 1,42 µs | 17,9 µs | 12,6× |
+| 100 | 5,22 µs | 179 µs | 34× |
+| 1000 | 43,2 µs | 464 µs | 10,7× |
+| 100000 | 4,22 ms | 1,25 ms | 0,3× |
+
+O ganho depende diretamente do tempo de reprogramação: se a gravação das chaves Sb₂Se₃ levar 10 µs em vez de 1 µs, o caso de uma consulta por mudança passa a favorecer a CPU.
 
 ### 5.5 Composição multi-chip (mapas maiores que um retículo)
 
@@ -201,11 +232,13 @@ Com todos os cruzamentos como pontos de passagem e sem ruído, o modo hierárqui
 ## 6. Discussão e Limitações
 
 1. **Não é O(1).** O tempo de corrida cresce com a maior distância do grafo ($D\,\tau$), e a leitura cresce com o número de nós. A partir de 8×8, a leitura eletrônica domina.
-2. **Baseline.** O ganho medido (~2.000× no 16×16) é contra Dijkstra em uma CPU de 2012. Estimamos ~150–800× contra uma CPU desktop atual; A* [Hart et al. 1968] com heurística visita menos nós e reduz a diferença. Uma comparação com implementação otimizada em GPU está pendente.
+2. **Baseline.** Contra o melhor algoritmo para pesos inteiros (Dial), o ganho é de ~600× numa CPU de 2012 e de ~42× estimado numa CPU atual (Seção 5.4.1). Num mapa fixo, uma tabela pré-calculada vence o chip. A* [Hart et al. 1968] ajuda quando só um destino interessa, mas a corrida entrega todas as distâncias. Uma comparação com GPU em lote está pendente.
 3. **Área e composição.** Estágios binários fazem cada aresta carregar a espiral completa, limitando o bloco a 16×16 com 100 ps. Acima disso, a composição exata entre chips funciona (Seção 5.5), mas mapas mais profundos exigem unidade maior, blocos menores e acoplamento entre chips ≤ 1,5–2 dB por face; a composição hierárquica perde exatidão (excesso médio de 3–13%).
 4. **Premissas.** Latência e jitter do nó, erro estático por aresta, tempo de programação e taxa de leitura não têm valor publicado para esta integração e precisam de medição.
 5. **Modelo.** O ruído é gaussiano e independente por salto; deriva térmica lenta (1,8–3,7 rad/K de fase, irrelevante para ToF mas relevante para atrasos longos) e perdas por cruzamento em layout real não foram modeladas. As perdas de curva e de transição foram verificadas apenas em FDTD 2D (índice efetivo); a verificação 3D e a medição em chip ficam pendentes.
-6. **Nicho.** O caso de uso favorável é consulta repetida de menor caminho em blocos de mapa de até 16×16 (p. ex. pathfinding hierárquico de NPCs), em que trocar a origem não exige reprogramação.
+6. **Nicho.** O caso favorável é um mapa que muda entre lotes de consultas (p. ex. custos de terreno ou de tráfego atualizados várias vezes por segundo, com dezenas a milhares de consultas entre atualizações). Com mapa fixo, a tabela pré-calculada é melhor; com uma consulta por mudança, o ganho depende do tempo real de reprogramação.
+7. **Race logic em CMOS.** A race logic original é eletrônica [Madhavan et al. 2014], e os nós deste trabalho também são (fotodiodo, comparador e driver). A óptica entra nos atrasos: espirais passivas não somam jitter, variam ~1,25×10⁻⁵ por kelvin (~19 fs/K numa aresta de 1,5 ns) e não dependem de tensão de alimentação. Cadeias de atraso em CMOS ocupariam muito menos área e dispensariam lasers, mas acumulam variação de processo, tensão e temperatura a cada estágio. Uma comparação quantitativa com uma implementação CMOS da mesma corrida é trabalho necessário antes de afirmar vantagem da versão fotônica.
+8. **Riscos não modelados.** (i) Diafonia entre voltas vizinhas das espirais com passo de 3 µm ao longo de até 222 mm: um eco adiantado acima do limiar dispararia um nó cedo; o passo precisa ser verificado por FDTD/EME e medido no protótipo G1. (ii) Programação: gravar as 7680 chaves Sb₂Se₃ em 1 µs, todas em paralelo, é otimista; a cristalização costuma exigir pulsos mais longos, e o pico de potência dos aquecedores não está no modelo. (iii) Latência do nó: 20 ps é otimista para fotodiodo, comparador e driver; o resultado continua válido enquanto $L_{\text{nó}} < \tau$, porque a latência é descontada de cada aresta, mas o jitter do nó pode crescer com ela.
 
 ## 7. Conclusão e Trabalhos Futuros
 
@@ -214,7 +247,7 @@ Um modelo físico com parâmetros publicados descarta o roteamento por espelhos 
 Trabalhos futuros:
 - **Simulação eletromagnética 3D** de curvas e transições Si₃N₄/TFLN (a verificação 2D por índice efetivo já foi feita, Seção 5.1.1), idealmente em máquina com mais memória ou por expansão em modos próprios (EME).
 - **Demonstrador em fibra** (desenho em `docs/architecture/13-bancada-experimental-em-fibra.md`): atrasos em SMF-28 (20,4 mm por 100 ps), moduladores de niobato de lítio comerciais, fotodiodos rápidos e time tagger de 1,5–2 ps rms, em três fases: porta ToF, nó de race logic e grafo 3×3 com curva de erro por salto sob jitter injetado.
-- **Baseline moderno**: Dijkstra/A* otimizados em CPU e GPU atuais.
+- **Baseline moderno**: medir Dial e a tabela pré-calculada em CPUs atuais (hoje escalados pelo Geekbench), comparar com GPU em lote e com uma race logic em CMOS.
 - **Escala**: atrasos compartilhados entre arestas para reduzir área, e medição real do acoplamento entre chips (faceta ou interposer) que viabiliza o modo exato.
 
 ## Agradecimentos
@@ -225,12 +258,13 @@ Ao colega de trabalho Valmor Moreira, da empresa Grafis, que explicou ao autor o
 
 1. Ahmed, S. R., et al. (2025). Universal photonic artificial intelligence acceleration. *Nature*, 640, 368–374.
 2. Churaev, M., et al. (2023). A heterogeneously integrated lithium niobate-on-silicon nitride photonic platform. *Nature Communications*, 14, 3499.
-3. Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. *Numerische Mathematik*, 1, 269–271.
-4. Hart, P. E., Nilsson, N. J., & Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. *IEEE Transactions on Systems Science and Cybernetics*, 4(2), 100–107.
-5. Hua, S., et al. (2025). An integrated large-scale photonic accelerator with ultralow latency. *Nature*, 640, 361–367.
-6. Kissner, M., et al. (2024). An all-optical general-purpose CPU and optical computer architecture. arXiv:2403.00045.
-7. Madhavan, A., Sherwood, T., & Strukov, D. (2014). Race logic: A hardware acceleration for dynamic programming algorithms. *ISCA 2014*.
-8. Miller, D. A. B. (2010). Are optical transistors the logical next step? *Nature Photonics*, 4, 3–5.
-9. Shang, K., et al. (2015). Low-loss compact multilayer silicon nitride platform for 3D photonic integrated circuits. *Optics Express*, 23(16), 21334.
-10. Xu, Z., et al. (2024). Large-scale photonic chiplet Taichi empowers 160-TOPS/W artificial general intelligence. *Science*, 384, 202–209.
-11. Yu, X., et al. (2026). High-endurance, low-loss Sb₂Se₃ optical switches on silicon nitride using transparent conductive heaters. arXiv:2604.11649.
+3. Dial, R. B. (1969). Algorithm 360: Shortest-path forest with topological ordering. *Communications of the ACM*, 12(11), 632–633.
+4. Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. *Numerische Mathematik*, 1, 269–271.
+5. Hart, P. E., Nilsson, N. J., & Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. *IEEE Transactions on Systems Science and Cybernetics*, 4(2), 100–107.
+6. Hua, S., et al. (2025). An integrated large-scale photonic accelerator with ultralow latency. *Nature*, 640, 361–367.
+7. Kissner, M., et al. (2024). An all-optical general-purpose CPU and optical computer architecture. *Journal of Lightwave Technology*, 42, 7999. arXiv:2403.00045.
+8. Madhavan, A., Sherwood, T., & Strukov, D. (2014). Race logic: A hardware acceleration for dynamic programming algorithms. *ISCA 2014*.
+9. Miller, D. A. B. (2010). Are optical transistors the logical next step? *Nature Photonics*, 4, 3–5.
+10. Shang, K., et al. (2015). Low-loss compact multilayer silicon nitride platform for 3D photonic integrated circuits. *Optics Express*, 23(16), 21334.
+11. Xu, Z., et al. (2024). Large-scale photonic chiplet Taichi empowers 160-TOPS/W artificial general intelligence. *Science*, 384, 202–209.
+12. Yu, X., et al. (2026). High-endurance, low-loss Sb₂Se₃ optical switches on silicon nitride using transparent conductive heaters. arXiv:2604.11649.

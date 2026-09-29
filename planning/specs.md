@@ -1,5 +1,7 @@
 # Especificações Consolidadas do Sistema SilicaCore
 
+> **Documento histórico, superado (29/09/2026).** Este texto descreve o conceito original (bloco de sílica, lasers RGB, espelhos internos, codificação hexadecimal/byte, quântico a 298 K) e **não representa o estado atual do projeto**. Vários pontos foram refutados pela validação física: veja o [README](../README.md), o [artigo preliminar](../docs/papers/artigo-preliminar.md) e os docs de arquitetura 11, 14 e 15.
+
 | Parâmetro | Valor Nominal | Unidade | Referência / Mecanismo Físico |
 | :--- | :--- | :--- | :--- |
 | Substrato | Sílica Fundida ($SiO_2$) | - | Grau UV/IR de ultra-alta pureza |

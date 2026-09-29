@@ -2,6 +2,8 @@
 
 > **Nota de validação (v1.1, 28/09/2026):** o "ray tracing óptico nativo" foi removido: a óptica acelera as partes neurais do pipeline gráfico e a interconexão; o shading escalar/FP32 fica na eletrônica (doc [12](12-memoria-unificada-jogos-e-ia-local.md), seção 4). A plataforma recomendada é 1550 nm; os canais RGB visíveis espalham ~140× mais que 1550 nm.
 
+> **Conceito superado (v1.2, 29/09/2026):** a GPU óptica RGB descrita abaixo **não faz parte da arquitetura proposta**. Os guias são de Si₃N₄ em 1550 nm, os detectores são fotodiodos InGaAs (que não detectam luz visível), e não há "display terahertz" nem shaders interferométricos no plano do projeto. O que permanece: redes neurais do pipeline gráfico (upscaling, denoise) rodariam na unidade tensorial do doc [15](15-andar-de-ia-unidade-tensorial-fotonica.md). O texto fica como registro histórico.
+
 ## 1. Visão Geral da GPU Óptica Volumétrica
 
 O **SilicaCore** integra uma unidade de processamento gráfico fotônica (**Optical GPU**) localizada na **Camada 4 da pilha fotônica** do bloco de sílica fundida. Em vez de utilizar rasterizadores eletrônicos baseados em transistores de silício alimentados por correntes elétricas de alta latência, a GPU óptica utiliza **Multiplexação por Comprimento de Onda (WDM - *Wavelength Division Multiplexing*)** em três frequências ópticas fundamentais (RGB - Red, Green, Blue).
@@ -58,5 +60,4 @@ Onde a óptica ajuda no pipeline gráfico:
 
 ## 5. Referências Bibliográficas Científicas
 
-1. **Weng, L., et al. (2020).** "Wavelength-division multiplexed photonic computing for high-throughput graphics and matrix processing." *IEEE Journal of Selected Topics in Quantum Electronics*, 26(5), 1–12.
-2. **Hamerly, R., et al. (2019).** "Large-Scale Optical Neural Networks and Image Processors Based on Photoelectric Multiplication." *Physical Review X*, 9(2), 021032. [DOI: 10.1103/PhysRevX.9.021032](https://doi.org/10.1103/PhysRevX.9.021032)
+1. **Hamerly, R., et al. (2019).** "Large-Scale Optical Neural Networks and Image Processors Based on Photoelectric Multiplication." *Physical Review X*, 9(2), 021032. [DOI: 10.1103/PhysRevX.9.021032](https://doi.org/10.1103/PhysRevX.9.021032)

@@ -2,51 +2,53 @@
 
 > **Nota de validação (v1.1, 28/09/2026):** a hierarquia foi redesenhada como memória unificada com transporte óptico (doc [12](12-memoria-unificada-jogos-e-ia-local.md)). A latência é dominada pela célula de armazenamento, não pela propagação da luz.
 
+> **Revisão v1.2 (29/09/2026):** o diagrama foi alinhado ao texto (sem cache Kerr, sem GST, sem densidade de 6,4 TB/cm³ como fato), a pSRAM aparece como projeto simulado e a ROM em vidro como arquivo.
+
 ## 1. Visão Geral da Arquitetura de Memória
 
-Para superar o gargalo de von Neumann em sistemas computacionais fotônicos, o **SilicaCore** introduz uma hierarquia de memória óptica tridimensional integrada diretamente ao substrato monolítico de sílica fundida ($SiO_2$). Em vez de depender de transferências elétricas de alta latência e alto consumo térmico entre chips discretos de DRAM/SSD e chips de processamento, a memória no SilicaCore é categorizada em quatro camadas funcionais baseadas no tempo de permanência da informação e no mecanismo de interação fotônica.
+O conceito original previa uma hierarquia de memória toda óptica dentro de um bloco de sílica. Depois da validação, ela ficou assim: transporte óptico entre os blocos e células de memória do tipo certo para cada nível (doc 12). Em vez de depender de transferências elétricas de alta latência e alto consumo térmico entre chips discretos de DRAM/SSD e chips de processamento, a memória no SilicaCore é categorizada em quatro camadas funcionais baseadas no tempo de permanência da informação e no mecanismo de interação fotônica.
 
 ```mermaid
 flowchart TD
     subgraph Camada4["Nível 4: Armazenamento em Massa Photonic SSD (Vidro SiO2 + PCM)"]
         direction TB
-        S1["Partição ROM Permanente (Nanofilamentos 3D em SiO2): Durabilidade > 10^9 Anos"]
-        S2["Partição R/W Regravável (Filmes PCM - GST / Sb2Se3): Densidade 6.4 TB/cm^3"]
+        S1["Arquivo em vidro (voxels 5D): escrita única, leitura por microscopia"]
+        S2["PCM Sb2Se3 regravável (densidade a demonstrar)"]
         S1 --- S2
     end
 
     subgraph Camada3["Nível 3: Memória Não-Volátil (ROM / Kernel / Weight Matrix)"]
         direction TB
-        N1["Nanofilamentos Gravados por Laser de Femtossegundo (SiO2)"]
-        N2["Filmes de Mudança de Fase Fotônica (PCM - GST / Sb2Se3)"]
+        N1["Flash / memória não volátil eletrônica"]
+        N2["PCM Sb2Se3 sobre guias (pesos de IA)"]
         N1 --- N2
     end
 
     subgraph Camada2["Nível 2: Buffers em Linha de Atraso + RAM Unificada HBM via I/O Óptico"]
         direction TB
-        R1["Linhas de Atraso Recirculantes em Anel Fechado (v = 0.20675 mm/ps)"]
-        R2["Micro-Amplificadores Ópticos Semicondutores (SOA) + Acoplamento 95/5"]
+        R1["Linhas de atraso recirculantes (buffers de centenas de bits)"]
+        R2["RAM unificada HBM via I/O óptico (~30 ns)"]
         R1 --- R2
     end
 
     subgraph Camada1["Nível 1: Cache Óptica L1/L2 (High-Speed Photonic Cache)"]
         direction TB
-        C1["Ressonadores de Micro-Anéis (Micro-ring Resonators)"]
-        C2["Chaveamento Bistável por Efeito Kerr Óptico (< 5ps)"]
+        C1["pSRAM de micro-anéis acoplados (~25 ps, projeto simulado)"]
+        C2["L2/L3 em SRAM eletrônica empilhada (~2 ns)"]
         C1 --- C2
     end
 
-    Camada4 -- "Acesso em Massa (1.2 TB/s: premissa)" --> Camada3
-    Camada3 -- "Acesso Direto à Velocidade da Luz (c/n)" --> Camada1
+    Camada4 -- "Enlace óptico" --> Camada3
+    Camada3 -- "Transporte óptico (~100 ps)" --> Camada1
     Camada1 <--> |"Chaveamento em Picosegundos"| Camada2
 ```
 
 ---
 
 ## 2. Nível 1: Cache Óptica L1 (Alta Velocidade)
-- **Mecanismo:** SRAM fotônica (pSRAM) com micro-anéis acoplados em cruz e fotodiodos diferenciais, validada no processo GlobalFoundries 45 nm (arXiv:2503.19544).
+- **Mecanismo:** SRAM fotônica (pSRAM) com micro-anéis acoplados em cruz e fotodiodos diferenciais, projetada no PDK GlobalFoundries 45SPCLO (arXiv:2503.19544; resultado de simulação, sem medição publicada).
 - **Latência ($\tau_{\text{cache}}$):** **~25 ps** (40 GHz), 0.6 pJ/bit de chaveamento. O valor anterior de $\le 5$ ps por efeito Kerr não tem demonstração integrada.
-- **Capacidade:** KB (limitada por área). L2/L3 em SRAM eletrônica 3D empilhada (64–256 MB, ~2 ns).
+- **Capacidade:** cada bit ocupa 330 × 290 µm², então um retículo inteiro guardaria ~9 kbit (~1 KB). Na prática, poucos registradores. L2/L3 em SRAM eletrônica 3D empilhada (64–256 MB, ~2 ns).
 - **Função:** Registradores imediatos da ULA ToF na **Camada 2**.
 
 ---
@@ -62,7 +64,7 @@ flowchart TD
 
 ### 4.1 Partição ROM Permanente (Nanofilamentos 3D em $SiO_2$)
 - Voxels 3D gravados por laser de femtossegundo armazenam permanentemente o Kernel do SO, firmware e drivers com durabilidade $> 10^9$ anos (*Zhang et al., PRL 2014; Project Silica/Microsoft*).
-- Inicialização instantânea (*Instant Boot*) na velocidade da luz no meio ($v = 0.20675\text{ mm/ps}$).
+- **Não serve para inicialização rápida:** a leitura é feita por microscopia e leva de milissegundos a segundos (Project Silica). É uma tecnologia de arquivo.
 
 ### 4.2 Partição R/W Regravável (PCM Sb₂Se₃)
 - Materiais de mudança de fase permitem gravação e apagamento de pesos de IA e dados (*Ríos et al., Nature Photonics 2015*). **Sb₂Se₃** é preferido ao GST por ser transparente em 1550 nm, com > 1.4×10⁸ ciclos (Yu et al., 2026).

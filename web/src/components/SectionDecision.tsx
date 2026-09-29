@@ -9,7 +9,7 @@ import DecisionMechanism3D, {
   type QuantumState,
 } from './DecisionMechanism3D';
 
-const PLATFORM_SIGMA_PS = 2.12; // Si3N4 + InGaAs photodiode + 5 ps TDC (cmd/tofplatform)
+const PLATFORM_SIGMA_PS = 2.125; // Si3N4 + InGaAs photodiode + 5 ps TDC (cmd/tofplatform)
 const LEGACY_SIGMA_PS = 11.24; // original silica concept with a 25 ps SPAD
 const BATCH_SIZE = 500;
 

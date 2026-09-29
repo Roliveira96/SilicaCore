@@ -103,7 +103,8 @@ A deriva de fase térmica (1.8–3.7 rad/K) é irrelevante para ToF (que lê tem
 
 A documentação anterior afirmava margem de 8.9σ e BER $< 10^{-12}$. O critério correto para decisão entre duas janelas é $Q = \Delta t / 2\sigma$:
 
-- Geometria atual: $Q = 100 / (2 \times 11.24) = 4.45$ → **BER ≈ 4.3×10⁻⁶** (Monte Carlo mede ~2×10⁻⁵).
+- Conceito original (sílica + SPAD): $Q = 100 / (2 \times 11.24) = 4.45$ → **BER ≈ 4.3×10⁻⁶** com limiar no meio; o Monte Carlo com janela mede ~2×10⁻⁵ porque conta as duas caudas.
+- Plataforma adotada (Si₃N₄ + fotodiodo InGaAs, σ ≈ 2,12 ps): $Q \approx 23.5$ com o mesmo $\Delta t$ (`go run ./cmd/tofplatform`, doc 02).
 - Para BER $10^{-12}$: $Q = 7.03$ → **σ total ≤ 7.1 ps** com $\Delta t = 100$ ps.
 - **Taxa real por canal:** o slot de símbolo precisa conter as duas janelas: $\Delta t + W \approx 195$ ps → **~5 GHz por canal**, não 206 GHz.
 - **Detector:** SPADs têm tempo morto de ~1–2 ns no melhor caso (≤0.5 GHz). Para dados, usar **fotodiodos UTC** (>100 GHz). SPAD fica restrito ao núcleo quântico.
@@ -164,12 +165,12 @@ O erro medido segue a previsão gaussiana de ruído acumulado por salto. O exces
 
 **Leitura honesta dos resultados:**
 1. **Não é O(1).** A corrida cresce com a maior distância do grafo ($D \times 100$ ps), e a leitura cresce com o número de nós ($N \times 12$ bits). A partir de 8×8, **a leitura eletrônica domina o tempo**, não a luz.
-2. **Speedup medido de ~1.000–4.000×** contra Dijkstra em Go numa CPU de 2012. Numa CPU desktop atual (5–8× mais rápida) o ganho cai para a ordem de **~150–800×**. O A* com heurística, usado em jogos, visita menos nós e reduz ainda mais a diferença.
+2. **Ganho contra o melhor algoritmo.** Com pesos inteiros de 1 a 15, o Dijkstra com fila de baldes (Dial) leva 25,4 µs no i3-3217U (~600× mais lento que a corrida) e ~1,8 µs estimados numa CPU atual (**~42×**). Num mapa fixo, uma tabela pré-calculada devolve as 256 distâncias em ~0,1 µs no i3 (poucos ns numa CPU atual) e vence o chip (`go run ./cmd/dijkstrabench`; artigo, seção 5.4.1).
 3. **Área é o limite de escala:** com estágios binários, toda aresta carrega a espiral completa (~222 mm com unidade de 100 ps). **Até 16×16 cabe num retículo** (648 de 858 mm²); mapas maiores exigem particionamento em blocos ou atrasos compartilhados.
 4. **Hardware pesado:** o 16×16 usa 960 fotodiodos, 960 moduladores TFLN, 7.680 chaves Sb₂Se₃ e 256 TDCs. Com um modulador compartilhado por nó, a divisão de fan-out (6 dB) estoura a margem: 11.24 dB contra 10 dB (com modulador por aresta: 5.22 dB).
-5. **Programação amortizada:** gravar os atrasos (~1 µs, premissa) se paga já na primeira consulta, e trocar a origem não exige reprogramar.
+5. **Programação:** gravar os atrasos leva ~1 µs (premissa otimista: 7680 chaves Sb₂Se₃ em paralelo; a cristalização costuma exigir pulsos mais longos e o pico de potência dos aquecedores não foi modelado). Trocar a origem não exige reprogramar.
 
-**Nicho validado:** consultas repetidas de menor caminho em mapas de até ~16×16 blocos, por exemplo pathfinding hierárquico de NPCs em que cada bloco do mapa é resolvido na corrida óptica.
+**Nicho:** mapas que mudam entre lotes de consultas (custos de terreno ou de tráfego atualizados com frequência), em blocos de até ~16×16. Com 100 consultas por mudança, o ganho estimado contra uma CPU atual é de ~34×; com mapa fixo, a tabela pré-calculada é melhor. **Riscos ainda não modelados:** diafonia entre voltas vizinhas das espirais (passo de 3 µm ao longo de até 222 mm) e latência real do nó (20 ps é otimista; o resultado vale enquanto ela for menor que a unidade de 100 ps).
 
 ### 5.2 Composição Multi-chip (`cmd/racemultichip`)
 
