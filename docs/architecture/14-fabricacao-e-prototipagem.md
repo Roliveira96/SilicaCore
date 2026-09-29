@@ -114,7 +114,7 @@ Um grafo 4×4 (48 arestas) ocuparia cerca de 32 mm² de espirais com unidade de 
 
 ## 7. Subindo em vez de espalhar: empilhamento em camadas
 
-A área é o principal limite de escala (648 mm² para o 16×16). A resposta natural é a que motivou o cubo original: **crescer para cima**. A forma de subir, porém, precisa respeitar a física dos guias:
+A área é o principal limite de escala (~864 mm² para o 16×16 com passo de 4 µm, pouco acima do retículo de 858 mm²). A resposta natural é a que motivou o cubo original: **crescer para cima**. A forma de subir, porém, precisa respeitar a física dos guias:
 
 | Forma de empilhar | Viável? | Motivo |
 | :--- | :--- | :--- |
@@ -122,12 +122,12 @@ A área é o principal limite de escala (648 mm² para o 16×16). A resposta nat
 | **Si₃N₄ multicamada** (planos de guias separados por óxido) | Sim | Curvas de dezenas de µm em cada plano; acopladores verticais entre camadas com ~0,01 dB (Shang et al., 2015) |
 | **Chips fotônicos empilhados** (3D, como memória HBM) | Sim, mais caro | Cada chip é um andar; acoplamento vertical ou por fibra entre andares |
 
-**Ganho de área com N camadas** (unidade de 100 ps, Si₃N₄ grosso, espaçamento de 3 µm entre espirais):
+**Ganho de área com N camadas** (unidade de 100 ps, Si₃N₄ grosso, **passo de 4 µm entre voltas**, exigido pela diafonia; o passo de 3 µm usado antes deixa voltas vizinhas acoplarem com L_c ≈ 27 mm; artigo, seção 5.4.2):
 
 | Mapa | 1 camada | 2 camadas | 4 camadas | 8 camadas |
 | :--- | ---: | ---: | ---: | ---: |
-| 16×16 | 648 mm² | 324 mm² | 162 mm² | 81 mm² |
-| 32×32 | 2677 mm² | 1339 mm² | **669 mm² (cabe no retículo)** | 335 mm² |
+| 16×16 | 864 mm² | **432 mm² (cabe no retículo)** | 216 mm² | 108 mm² |
+| 32×32 | 3569 mm² | 1785 mm² | 892 mm² | **446 mm² (cabe no retículo)** |
 
 Dividir os estágios de atraso de cada aresta entre camadas custa só os acopladores verticais (~0,02 dB por ida e volta), desprezível frente à margem de 10 dB. O calor não limita: o chip inteiro dissipa ~9 W.
 

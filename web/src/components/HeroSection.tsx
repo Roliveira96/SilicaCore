@@ -107,9 +107,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchSim }) => {
               <span>Die area</span>
             </div>
             <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
-              648 <span className="text-xs font-sans text-amber-400 font-normal">mm²</span>
+              ~864 <span className="text-xs font-sans text-amber-400 font-normal">mm²</span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">fits one 858 mm² lithography reticle</p>
+            <p className="text-xs text-slate-300 mt-1">4 µm spiral pitch; two waveguide layers fit one 858 mm² reticle</p>
           </div>
         </div>
       </div>

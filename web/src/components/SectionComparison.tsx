@@ -326,7 +326,7 @@ export const SectionComparison: React.FC = () => {
             these integer weights (Dijkstra with a bucket queue, Dial) measured on an Intel i3-3217U (25.4 µs, Geekbench 6
             single-core 307), scaled by each chip&apos;s single-core score; energy per query is package power × that time. On
             a map that never changes, a precomputed table of all distances returns a query in ~0.1 µs on the same i3 (a few ns
-            on current CPUs), so the photonic advantage applies when the map changes between queries. Other figures are vendor or press specifications:{' '}
+            on current CPUs), so the photonic advantage applies when the map changes between queries. A dedicated synchronous CMOS race-logic circuit at 3 GHz would reach similar latency (~40 ns) with far less area and energy; the table compares against general-purpose processors. Other figures are vendor or press specifications:{' '}
             <Src href="https://www.macrumors.com/2026/03/05/m5-max-geekbench-benchmarks/">M5 Max</Src>,{' '}
             <Src href="https://www.notebookcheck.net/Apple-M5-Pro-M5-Max-CPU-Analysis-M5-Max-is-not-much-faster-than-the-M4-Max.1246054.0.html">M5 Max power</Src>,{' '}
             <Src href="https://www.intel.com/content/www/us/en/products/sku/241060/intel-core-ultra-9-processor-285k-36m-cache-up-to-5-70-ghz/specifications.html">285K</Src>,{' '}

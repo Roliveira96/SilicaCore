@@ -4,7 +4,7 @@ import { CheckCircle2, CircleDashed, Compass, FlaskConical, Map, TriangleAlert }
 const VALIDATED = [
   '0 decoding errors in 25.5 M distances at 100 ps delay unit (16×16, 10 chips × 10⁴ queries)',
   'Measured error per hop count follows the Gaussian noise prediction',
-  '42.2 ns per query: 11.5 ns light race + 30.7 ns readout; 648 mm² die',
+  '42.2 ns per query: 11.5 ns light race + 30.7 ns readout; ~864 mm² of spirals at the 4 µm pitch that crosstalk requires',
   'Si₃N₄ + TFLN routing: 1.3 dB per gate, vs. 46.6 dB for mirrors in bulk glass',
   '2D FDTD (Meep): 0.012 dB per 90° bend at R = 30 µm; Si₃N₄ → TFLN taper < 0.003 dB from 25 µm',
   'Multi-chip 64×64: 0 errors with 150 ps unit, 20–31 ns origin → target',
@@ -21,8 +21,10 @@ const ASSUMED = [
 
 const LIMITS = [
   'Not O(1): race time grows with the longest path, readout grows with the number of nodes.',
-  'Area caps one chip at a 16×16 map at 100 ps; larger maps need several chips.',
-  'Speed against current CPUs is estimated from one measured CPU and Geekbench scores; A* would narrow the gap.',
+  'Area: a 16×16 map needs ~864 mm² (two waveguide layers to fit a reticle); larger maps need several chips.',
+  'A synchronous CMOS race-logic circuit at 3 GHz solves the same map in ~40 ns with far less area and energy; the photonic race is ~3× faster only in the race phase.',
+  'On a fixed map a precomputed distance table on a CPU answers faster; the chip helps when the map changes between queries.',
+  'Speed against current CPUs is estimated from one measured CPU and Geekbench scores.',
   'It is an accelerator for graph problems, not a CPU replacement.',
 ];
 
